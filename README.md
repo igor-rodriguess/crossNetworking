@@ -1,124 +1,129 @@
-# Plataforma Crossnetworking
+# Plataforma Cross
 
-> Aplicação web para centralizar o fluxo comercial da Cross e transformar o **Cross Score Card** de uma planilha manual em uma ferramenta de decisão, viva e apresentável.
+> Plataforma web que centraliza o ciclo de vida completo de cada projeto da Cross — do briefing à entrega — unindo as duas metodologias proprietárias da casa: o **Crossability**, que encontra o parceiro ideal, e o **Cross Score Card**, que mede o encaixe da parceria.
+
+![Node](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Monday](https://img.shields.io/badge/Integra%C3%A7%C3%A3o-Monday_API-FF3D57)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-7C5CFF)
 
 ---
 
 ## Visão geral
 
-A **Plataforma Cross** é uma aplicação web interna que unifica, em um único lugar, todo o processo comercial da Cross, da definição do plano de um cliente à execução de uma parceria. No centro está o **Cross Score Card**, a metodologia proprietária que avalia, de forma quantitativa, o encaixe entre um cliente e potenciais marcas parceiras.
+A **Plataforma Cross** é a fonte única e a memória de cada projeto da Cross. Ela reúne, em um só lugar, o que hoje vive fragmentado — o briefing, as respostas no Monday, a análise das metodologias e o acompanhamento — organizando tudo em torno de uma entidade central: o **Projeto**.
 
-O objetivo não é "digitalizar planilhas", e sim reformular o Score Card: torná-lo padronizado, calculado automaticamente, comparável entre clientes e pronto para ser apresentado ao cliente final.
+O ponto de entrada é o **briefing**. A partir dele, o projeto percorre um ciclo — briefing → kickoff → análise (Crossability + Cross Score Card) → parceria e cronograma → acompanhamento — e todo esse histórico fica registrado e conectado.
 
-## Contexto e justificativa
+## Contexto e problema
 
-Hoje a metodologia da Cross vive espalhada em múltiplas planilhas, uma por cliente e por etapa. A análise das planilhas reais em uso evidencia quatro problemas concretos:
-
-1. **Fluxo fragmentado.** A avaliação de marcas, o funil de prospecção, os reports e os cronogramas estão em arquivos separados que não se comunicam — cada um mantido à mão.
-2. **Cada cliente tem um "dialeto".** Os mesmos conceitos aparecem com nomes e estruturas diferentes em cada planilha (território/setor em um, segmento/prioridade em outro, verticais no Score Card).
-3. **Status inconsistentes.** O estado de cada negociação é registrado em texto livre ("frente ativa", "abrir frente", "stand by", "declinado"...), sem uma régua comum.
-4. **Score Card como cobrança, não como ferramenta.** O preenchimento é manual e célula a célula, o cálculo depende de fórmulas frágeis e não há uma saída visual para o cliente.
-
-O resultado é um processo que consome o tempo do time de negócios, é difícil de auditar, depende de conhecimento individual e não escala. É esse conjunto de dores que a aplicação resolve.
+O processo da Cross está espalhado por ferramentas e formatos que não conversam: o **briefing** e seus próximos passos vivem em documentos e no **Monday**; a **análise** é feita em planilhas de Score Card, uma por cliente e cada uma diferente; o **acompanhamento** acontece em outras planilhas. Não existe uma fonte única que conte a história completa de um projeto, e o conhecimento fica preso em quem mantém cada arquivo.
 
 ## Objetivos
 
-**Objetivo geral:** centralizar o fluxo comercial da Cross em uma aplicação web única, com o Cross Score Card reformulado como núcleo.
+- Centralizar o **histórico completo** de cada projeto, do briefing ao acompanhamento.
+- Unir as duas metodologias — **Crossability** (encontrar o parceiro) e **Cross Score Card** (medir o encaixe) — que juntas geram o **paper**.
+- **Integrar** o que já existe (Monday, via API) e **importar** o que está em planilhas.
+- Adaptar-se a cada cliente e produto por **configuração**, não por reprogramação.
 
-**Objetivos específicos:**
+## As duas metodologias (o coração da plataforma)
 
-- Padronizar e automatizar o cálculo do Score Card, eliminando o preenchimento manual propenso a erro.
-- Unificar as planilhas dispersas em uma base de dados canônica, mantendo a especificação própria de cada cliente.
-- Padronizar o funil de prospecção com uma régua única de status.
-- Gerar um resumo do Score Card visualmente apresentável, pronto para envio ao cliente.
-- Preparar a base para uma camada de automação por IA, sem que o cálculo dependa dela.
+O que torna a Cross única são suas duas metodologias, que se complementam: uma **descobre quem** deveria ser o parceiro, a outra **mede o quão bom** é esse parceiro.
 
-## Público-alvo
+### Crossability — encontrar o parceiro ideal
 
-- **Time comercial da Cross** — usuário principal: cadastra marcas, avalia no Score Card, gerencia o funil e o cronograma.
-- **Gestão** — acompanha ranking, status e desempenho por cliente.
-- **Cliente final da Cross** — destinatário do resumo apresentável gerado pela plataforma (não opera o sistema).
+O Crossability é uma metodologia de **matchmaking entre empresas**. Todo cliente tem um perfil em três dimensões:
 
-## Escopo da aplicação
+- **Ativos** — o que a marca tem para oferecer.
+- **Objetivos** — o que a marca busca com a parceria.
+- **Consumidores** — o público que ela alcança.
 
-### Escopo funcional (o que a aplicação faz)
+A partir desse perfil, o Crossability busca um **parceiro ideal** cujas três dimensões sejam compatíveis. Quando os perfis casam, acontece o **Cross** — a parceria. É uma análise de **compatibilidade de perfis**, e é exatamente aqui que um **agente de IA** agrega: varrer marcas e casar perfis nas três dimensões é o tipo de trabalho que a IA acelera, sempre com validação humana.
 
-| Módulo | O que faz |
-| --- | --- |
-| **Workspace** | Configuração de cada cliente: seus critérios, pesos, planilhas importadas e template de resumo. É onde a "especificação por cliente" é definida. |
-| **Plano** | Define os objetivos do cliente e a matriz de critérios/pesos que rege o Score Card daquele cliente. |
-| **Marcas** | Base centralizada de marcas e parceiros, compartilhada entre clientes e alimentada pelas planilhas importadas. |
-| **Cross Score Card** | Avalia cada marca respondendo aos critérios do cliente; calcula o score de forma automática e em tempo real. |
-| **Ranking** | Ordena as marcas por score automaticamente, com filtros por vertical/segmento. |
-| **Prospecção** | Funil comercial com régua de status padronizada, prioridade, contato e histórico de negociação. |
-| **Parceria** | Cronograma de execução das parcerias fechadas: ações, responsáveis e linha do tempo. |
-| **Resumo ao cliente** | Gera um documento apresentável (score, matriz de critérios e racional estratégico) na identidade do cliente, exportável. |
+### Cross Score Card — medir o encaixe
 
-### Fora de escopo (o que a aplicação não faz)
-
-Para manter o foco e a entrega viável, ficam de fora nesta versão:
-
-- Integração com CRMs de terceiros, e-mail ou ferramentas externas.
-- Automação de disparos (mensagens, follow-ups automáticos de prospecção).
-- Gestão financeira, faturamento ou contratos.
-- Portal de acesso para o cliente final — o cliente recebe o resumo exportado, não opera o sistema.
-- A camada de agentes de IA na primeira entrega: o produto é totalmente funcional sem IA, que entra como evolução posterior.
-
-## Fluxo da aplicação
-
-A plataforma organiza uma jornada linear, em que cada etapa alimenta a seguinte:
-
-```
-Plano do cliente → Marcas → Cross Score Card → Ranking → Prospecção → Parceria
-                                     │
-                                     └──→ Resumo ao cliente (exportável)
-```
-
-Configura-se o plano (critérios e pesos); cadastram-se as marcas; cada marca é avaliada no Score Card; o ranking se reordena; as marcas aprovadas descem para o funil de prospecção; as que fecham entram no cronograma de execução; e, a qualquer momento, gera-se o resumo apresentável de uma oportunidade.
-
-## Regras de negócio
-
-**Cálculo do Score Card (determinístico e auditável):**
+Com os parceiros que o Crossability trouxe, o Cross Score Card faz a avaliação **quantitativa e determinística** do encaixe de cada um:
 
 ```
 Score = Σ (critério = SIM ? peso_SIM : NÃO ? peso_NÃO : 0) + potencial disruptivo (1 a 5)
 ```
 
-Cada critério tem um peso quando atendido (SIM) e outro quando não atendido (NÃO). Um critério **em branco** (ainda não avaliado) soma **0** — não avaliar nunca penaliza o cliente. O potencial disruptivo é uma nota de 1 a 5 para parcerias fora da caixa. O cálculo é uma conta explicável: nunca uma caixa-preta.
+Auditável, nunca caixa-preta. Os critérios variam por **produto** (uma collab usa critérios de collab; um patrocínio, outros).
 
-**Especificação por cliente:** cada cliente define seus próprios critérios e pesos. Como os critérios são dados (não colunas fixas), clientes com metodologias diferentes convivem na mesma base sem alterar a estrutura.
+### Juntas, compõem o paper
 
-**Régua de status do funil (padronizada):**
+O **Crossability sugere *quem*** e o **Score Card mede *quão bom***. A combinação das duas gera o **paper** — a proposta apresentável ao cliente.
 
-```
-A abrir → Frente aberta → Em negociação → Fechada → Em execução
-        (+ estados fora do funil ativo: Stand by, Declinada)
-```
+## Escopo — o que a plataforma abrange
 
-**Papel da IA (evolução):** os agentes apenas sugerem respostas e racionais; toda sugestão passa por validação humana antes de virar resultado final, e o score sempre vem da fórmula.
+Etapa
+O que faz
 
-## Dados gerenciados
+**Briefing** *(entrada)*
+Registra a pauta, os próximos passos e os alinhamentos com o cliente. Início do histórico.
 
-A aplicação mantém uma base canônica com: clientes e suas configurações, critérios e pesos por cliente, marcas (compartilhadas), avaliações (cliente × marca) e suas respostas, histórico de prospecção, parcerias e cronogramas, fontes de dados (planilhas importadas) e os racionais gerados para o cliente.
+**Kickoff**
+Marca o início efetivo do projeto.
 
-## Arquitetura (visão de alto nível)
+**Análise — o "paper"**
+Aplica o Crossability (encontrar o parceiro) e o Cross Score Card (medir o encaixe).
 
-Aplicação web em três camadas conceituais: uma **base de dados** canônica com configuração por cliente; uma **camada de aplicação** que centraliza o fluxo e roda o cálculo determinístico do Score Card; e uma **camada de automação por IA** (evolução) que assiste o preenchimento e a geração de racionais, sempre com validação humana.
+**Parceria & Cronograma**
+Acompanha a execução da parceria fechada: ações, responsáveis e linha do tempo.
 
-**Tecnologias:** React, Node.js, PostgreSQL e, na evolução, Python/LangGraph.
+**Acompanhamento**
+Mantém o histórico e o status do projeto ao longo da entrega.
 
-## Roadmap
+### Fora de escopo
 
-- **Fundação de dados** — base canônica e Score Card com cálculo automático.
-- **Fluxo operacional** — Plano, Marcas, Score Card, Ranking, Prospecção e Parceria na interface.
-- **Ingestão de planilhas** — importação das fontes existentes para o modelo.
-- **Resumo ao cliente** — geração e exportação do documento apresentável.
-- **Multi-cliente** — configuração dinâmica de novos clientes.
-- **Automação por IA** — preenchimento assistido, enriquecimento e racional automático.
+- **Prospecção** de clientes e parceiros (acontece **antes** do briefing).
+- Envio efetivo do paper ao cliente (e-mail/mensageria externa).
+- Financeiro contábil, faturamento e contratos.
+- Operação da plataforma pelo cliente final.
+
+## O Projeto como entidade central
+
+Tudo se organiza ao redor de um **Projeto**, que guarda o histórico completo e conecta as etapas: briefing, kickoff, análises, paper, cronograma e acompanhamento. Saber "a situação do projeto X" passa a ser uma consulta a uma linha do tempo, não uma caça a arquivos.
+
+## Especificação por cliente e produto
+
+Cada cliente é analisado de forma diferente — e a variação vem principalmente do **tipo de produto** (collab, patrocínio, licenciamento...). A plataforma funciona em dois momentos: **configurar** o cliente/produto (perfil, critérios e análises) e depois **operar** sobre essa configuração. Uma única aplicação, ajustada por configuração.
+
+## Integração com o Monday e passagem de dados
+
+Trazer para dentro o que já existe é o maior desafio do projeto. A estratégia é dupla e gradual, para não obrigar o time a abandonar suas ferramentas de uma vez:
+
+- **Integrar** o Monday via API, puxando as respostas do briefing e os status.
+- **Importar** as planilhas existentes (Score Card, acompanhamento) para o modelo da plataforma.
+
+## Papel da IA
+
+Uma camada de automação que entra **por cima** de uma base que já funciona sem ela: casar perfis no Crossability, apoiar o preenchimento do Score Card, sugerir configuração ao importar planilhas e gerar o racional do paper — sempre com validação humana antes de qualquer resultado final.
+
+## Abordagem de entrega
+
+O desenvolvimento tem prazo de **um mês**. A estratégia é entregar um **núcleo sólido e verdadeiro**, com o restante da visão modelado e pronto para plugar — em vez de tentar fazer tudo pela metade. A plataforma nasce com uma ou duas empresas (Animale já está na base) e cresce a partir daí.
+
+Fase
+O que entra
+
+**Construir agora** *(núcleo demonstrável)*
+Espinha do Projeto (briefing → kickoff → análise → acompanhamento) navegável · Cross Score Card funcional de ponta a ponta (fundação já pronta) · configuração básica por cliente/produto · geração do paper a partir do Score Card.
+
+**Modelar** *(estrutura pronta, implementação simples)*
+Crossability: modelar o perfil de ativos/objetivos/consumidores e uma primeira versão de match · integração com o Monday e importação de planilhas.
+
+**Depois**
+Carregar todas as empresas · agente de IA completo para o match · acompanhamento avançado.
+
+## Tecnologias
+
+React · Node.js + Express + TypeScript · PostgreSQL · Python + LangGraph (IA) · integração com a Monday API. A fundação de dados e a engine do Score Card já estão implementadas; instruções de execução na pasta `api/`.
 
 ## Status
 
-Em desenvolvimento.
+Em desenvolvimento. A fundação (banco + engine do Score Card, testada) está pronta e o escopo completo — do briefing ao acompanhamento, com as duas metodologias — está consolidado.
 
 ## Autor
 
@@ -126,4 +131,4 @@ Desenvolvido por **Igor Rodrigues** como projeto de desenvolvimento na Cross.
 
 ---
 
-*Projeto interno. O Cross Score Card é uma metodologia proprietária da Cross.*. 
+*Projeto interno. Crossability e Cross Score Card são metodologias proprietárias da Cross.*

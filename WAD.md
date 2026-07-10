@@ -678,8 +678,6 @@ A Figura 7.2 apresenta o Diagrama Entidade-Relacionamento (DER) conceitual propo
 
 ## 7.3 Modelo Lógico
 
-## 7.3 Modelo Lógico
-
 O Modelo Lógico da Plataforma Cross traduz as entidades e os relacionamentos definidos no Modelo Conceitual para uma estrutura relacional detalhada. Nesta etapa são estabelecidas as tabelas, seus atributos, chaves primárias, chaves estrangeiras, cardinalidades, obrigatoriedades, domínios controlados, restrições de unicidade e regras de integridade.
 
 O objetivo desta modelagem é garantir que o banco de dados não apenas armazene as informações da operação da Crossnetworking, mas também preserve sua consistência, rastreabilidade e evolução ao longo do tempo.
@@ -1745,10 +1743,1274 @@ Com as decisões apresentadas nesta seção, o modelo encontra-se apto para avan
 </div>
 
 
-
 ## 7.4 Modelo Físico
 
-(Script SQL ou descrição das tabelas, índices, constraints, enums etc.)
+O Modelo Físico da Plataforma Cross representa a implementação do Modelo Lógico no Sistema Gerenciador de Banco de Dados escolhido para o projeto. Nesta etapa são definidos os tipos de dados, constraints, índices, estratégias de exclusão lógica, controle de versões, auditoria, segurança e organização dos scripts responsáveis pela criação e evolução do banco.
+
+O banco de dados será implementado utilizando **PostgreSQL 16**, considerando sua robustez transacional, suporte a relacionamentos complexos, índices avançados, tipos especializados, funções, triggers, políticas de segurança e extensões que poderão apoiar futuras funcionalidades de inteligência artificial.
+
+A estrutura física deverá refletir integralmente as regras definidas no Modelo Lógico, garantindo que dados inválidos ou inconsistentes sejam impedidos não apenas pela aplicação, mas também pelo próprio banco de dados.
+
+---
+
+### 7.4.1 Tecnologias e Configuração
+
+A implementação utilizará:
+
+- **PostgreSQL 16** como banco de dados relacional;
+- **Node.js, Express e TypeScript** para acesso aos dados pela aplicação;
+- ferramenta de migrations a ser definida pelo projeto;
+- extensão `pgcrypto` para geração de identificadores UUID;
+- extensão `unaccent` para normalização de buscas;
+- extensão `pg_trgm` para busca textual aproximada;
+- extensão `vector`, futuramente, caso seja utilizado `pgvector` para embeddings.
+
+Extensões iniciais:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+```
+
+A extensão `vector` deverá ser adicionada apenas quando o módulo de inteligência artificial e recuperação vetorial for implementado.
+
+---
+
+### 7.4.2 Organização dos Schemas
+
+Para preservar a separação entre os diferentes domínios da plataforma, o banco poderá ser organizado em schemas PostgreSQL.
+
+```text
+cross_core
+├── base de relacionamentos
+├── pessoas
+├── organizações
+├── usuários
+└── documentos
+
+cross_intelligence
+├── perfis
+├── públicos
+├── praças
+├── territórios
+├── ativos
+├── canais
+├── métricas
+├── artistas
+├── turnês
+└── Big Moments
+
+cross_commercial
+├── clientes
+├── contratos
+├── modelos de contratação
+└── remuneração
+
+cross_projects
+├── projetos
+├── briefings
+├── planejamentos
+├── frentes
+└── candidaturas
+
+cross_methodologies
+├── Crossability
+├── Papers
+├── validações
+├── Score Card
+└── decisões
+
+cross_partnerships
+├── parcerias
+├── negociações
+├── contrapartidas
+└── contratos de parceria
+
+cross_execution
+├── planos
+├── etapas
+├── entregas
+├── reuniões
+├── touchpoints
+└── pendências
+
+cross_analytics
+├── acompanhamentos
+├── indicadores
+├── medições
+├── resultados
+├── ROI
+└── encerramentos
+
+cross_governance
+├── fontes
+├── evidências
+└── auditoria
+```
+
+A separação por schemas é uma estratégia recomendada para facilitar organização, controle de acesso, manutenção e evolução. Caso o projeto opte inicialmente por um único schema, os mesmos limites deverão permanecer representados na nomenclatura e na estrutura das migrations.
+
+---
+
+### 7.4.3 Padrões de Nomenclatura
+
+Serão adotadas as seguintes convenções:
+
+- nomes de schemas, tabelas e colunas em `snake_case`;
+- tabelas no singular;
+- chaves primárias com o nome `id`;
+- chaves estrangeiras no formato `<tabela>_id`;
+- constraints no formato `<tipo>_<tabela>_<colunas>`;
+- índices no formato `idx_<tabela>_<colunas>`;
+- índices únicos no formato `uq_<tabela>_<colunas>`;
+- checks no formato `ck_<tabela>_<regra>`;
+- foreign keys no formato `fk_<tabela>_<referencia>`;
+- triggers no formato `trg_<tabela>_<evento>`;
+- funções no formato `fn_<objetivo>`.
+
+Exemplo:
+
+```text
+pk_projeto
+fk_projeto_cliente_cross
+uq_candidatura_frente_parte_ativa
+ck_calculo_roi_valores_positivos
+idx_projeto_cliente_status
+trg_projeto_atualizar_timestamp
+```
+
+---
+
+### 7.4.4 Identificadores
+
+As entidades utilizarão UUID como identificador principal.
+
+```sql
+id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+```
+
+A escolha por UUID permite:
+
+- integração entre diferentes serviços;
+- importação de dados sem colisão de identificadores;
+- geração distribuída;
+- menor exposição de informações sobre volume e sequência de registros;
+- futura integração com agentes e pipelines externos.
+
+Tabelas associativas poderão utilizar:
+
+- chave primária composta; ou
+- UUID próprio, quando o relacionamento possuir histórico, auditoria ou atributos de negócio relevantes.
+
+---
+
+### 7.4.5 Colunas de Auditoria
+
+As tabelas de negócio deverão possuir, quando aplicável:
+
+```sql
+criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+criado_por_id UUID,
+atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+atualizado_por_id UUID,
+arquivado_em TIMESTAMPTZ,
+arquivado_por_id UUID
+```
+
+As referências de usuário deverão apontar para a tabela de usuários internos.
+
+Será criada uma função para atualização automática de `atualizado_em`.
+
+```sql
+CREATE OR REPLACE FUNCTION fn_atualizar_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.atualizado_em = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+Cada tabela auditável deverá possuir um trigger:
+
+```sql
+CREATE TRIGGER trg_projeto_atualizar_timestamp
+BEFORE UPDATE ON cross_projects.projeto
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualizar_timestamp();
+```
+
+---
+
+### 7.4.6 Tipos de Dados
+
+Os seguintes padrões serão adotados:
+
+| Finalidade | Tipo PostgreSQL |
+|---|---|
+| Identificadores | `UUID` |
+| Textos curtos | `VARCHAR(n)` |
+| Textos extensos | `TEXT` |
+| Datas sem horário | `DATE` |
+| Data e horário | `TIMESTAMPTZ` |
+| Valores monetários | `NUMERIC(15,2)` |
+| Percentuais | `NUMERIC(7,4)` |
+| Scores | `NUMERIC(10,4)` |
+| Quantidades inteiras | `INTEGER` ou `BIGINT` |
+| Flags | `BOOLEAN` |
+| Dados flexíveis controlados | `JSONB` |
+| Moeda | `CHAR(3)` |
+| Hashes | `VARCHAR(128)` |
+
+Valores financeiros nunca deverão utilizar `FLOAT` ou `DOUBLE PRECISION`.
+
+---
+
+### 7.4.7 Vocabulários Controlados
+
+Os vocabulários sujeitos a evolução serão representados por tabelas de referência.
+
+Exemplo:
+
+```sql
+CREATE TABLE cross_projects.status_projeto (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    ordem INTEGER,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE
+);
+```
+
+Exemplos de códigos:
+
+```text
+rascunho
+planejamento
+em_andamento
+em_validacao
+suspenso
+concluido
+cancelado
+arquivado
+```
+
+Cada domínio possuirá seu próprio catálogo:
+
+```text
+status_parte
+status_cliente
+status_contrato
+status_projeto
+status_frente
+status_candidatura
+status_crossability
+status_paper
+status_validacao
+status_score_card
+status_parceria
+status_negociacao
+status_execucao
+status_entrega
+status_pendencia
+```
+
+Enums PostgreSQL serão utilizados apenas para conjuntos extremamente estáveis.
+
+Exemplo de domínio estável:
+
+```sql
+CREATE TYPE tipo_parte AS ENUM (
+    'organizacao',
+    'pessoa'
+);
+```
+
+---
+
+### 7.4.8 Estrutura Física de Parte
+
+A tabela `parte` será o supertipo de organizações e pessoas.
+
+```sql
+CREATE TABLE cross_core.parte (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tipo tipo_parte NOT NULL,
+    nome_exibicao VARCHAR(200) NOT NULL,
+    status_parte_id UUID NOT NULL,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_por_id UUID,
+    arquivado_em TIMESTAMPTZ,
+    arquivado_por_id UUID
+);
+```
+
+Especialização de organização:
+
+```sql
+CREATE TABLE cross_core.organizacao (
+    parte_id UUID PRIMARY KEY,
+    razao_social VARCHAR(200),
+    nome_fantasia VARCHAR(200) NOT NULL,
+    cnpj VARCHAR(14),
+    tipo_organizacao_id UUID,
+    segmento_principal VARCHAR(150),
+    descricao TEXT,
+    site TEXT,
+    logo_url TEXT,
+
+    CONSTRAINT fk_organizacao_parte
+        FOREIGN KEY (parte_id)
+        REFERENCES cross_core.parte(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_organizacao_cnpj
+        UNIQUE (cnpj)
+);
+```
+
+Especialização de pessoa:
+
+```sql
+CREATE TABLE cross_core.pessoa (
+    parte_id UUID PRIMARY KEY,
+    nome_completo VARCHAR(200) NOT NULL,
+    nome_artistico VARCHAR(200),
+    cpf VARCHAR(11),
+    data_nascimento DATE,
+    genero VARCHAR(100),
+    nacionalidade VARCHAR(100),
+    biografia TEXT,
+
+    CONSTRAINT fk_pessoa_parte
+        FOREIGN KEY (parte_id)
+        REFERENCES cross_core.parte(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_pessoa_cpf
+        UNIQUE (cpf)
+);
+```
+
+A integridade entre o tipo da parte e sua especialização deverá ser garantida por função transacional ou trigger diferível.
+
+---
+
+### 7.4.9 Exclusão Lógica e Índices Únicos Parciais
+
+Registros históricos não deverão ser removidos fisicamente durante a operação comum.
+
+A exclusão será representada por:
+
+```sql
+arquivado_em TIMESTAMPTZ
+```
+
+Índices únicos deverão considerar apenas registros não arquivados.
+
+Exemplo para candidatura:
+
+```sql
+CREATE UNIQUE INDEX uq_candidatura_frente_parte_ativa
+ON cross_projects.candidatura_parceiro (
+    frente_oportunidade_id,
+    parte_id
+)
+WHERE arquivado_em IS NULL;
+```
+
+Isso permite que uma candidatura arquivada não impeça uma futura reentrada da mesma parte na frente.
+
+Exemplo para cliente:
+
+```sql
+CREATE UNIQUE INDEX uq_cliente_cross_parte_ativa
+ON cross_commercial.cliente_cross (parte_id)
+WHERE arquivado_em IS NULL;
+```
+
+Exemplo para versão vigente:
+
+```sql
+CREATE UNIQUE INDEX uq_versao_paper_vigente
+ON cross_methodologies.versao_paper (paper_id)
+WHERE status_versao = 'vigente'
+  AND arquivado_em IS NULL;
+```
+
+---
+
+### 7.4.10 Relacionamentos e Ações Referenciais
+
+As ações referenciais deverão respeitar o valor histórico das entidades.
+
+#### `ON DELETE RESTRICT`
+
+Será utilizado em relacionamentos entre entidades de negócio que não podem ser removidas sem avaliação.
+
+Exemplos:
+
+```text
+cliente_cross → projeto
+projeto → frente
+frente → candidatura
+candidatura → parceria
+parceria → execução
+```
+
+#### `ON DELETE CASCADE`
+
+Será utilizado somente para registros que não possuem valor independente.
+
+Exemplos:
+
+```text
+avaliação → respostas
+turnê → eventos da turnê
+paper → versões ainda não publicadas
+plano → etapas não executadas
+```
+
+#### `ON DELETE SET NULL`
+
+Poderá ser utilizado para referências opcionais, como usuários desativados ou responsáveis antigos, desde que o histórico seja preservado.
+
+Não será utilizado `ON UPDATE CASCADE` para UUIDs, pois identificadores primários não deverão ser alterados.
+
+---
+
+### 7.4.11 Projetos, Frentes e Candidaturas
+
+Estrutura resumida de projeto:
+
+```sql
+CREATE TABLE cross_projects.projeto (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cliente_cross_id UUID NOT NULL,
+    contrato_cliente_id UUID,
+    nome VARCHAR(200) NOT NULL,
+    descricao TEXT,
+    objetivo TEXT NOT NULL,
+    produto VARCHAR(200),
+    data_inicio DATE,
+    data_previsao_fim DATE,
+    data_fim_real DATE,
+    status_projeto_id UUID NOT NULL,
+    prioridade_id UUID,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_por_id UUID,
+    arquivado_em TIMESTAMPTZ,
+    arquivado_por_id UUID,
+
+    CONSTRAINT fk_projeto_cliente_cross
+        FOREIGN KEY (cliente_cross_id)
+        REFERENCES cross_commercial.cliente_cross(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_projeto_contrato
+        FOREIGN KEY (contrato_cliente_id)
+        REFERENCES cross_commercial.contrato_cliente(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT ck_projeto_datas
+        CHECK (
+            data_fim_real IS NULL
+            OR data_inicio IS NULL
+            OR data_fim_real >= data_inicio
+        )
+);
+```
+
+Estrutura de frente:
+
+```sql
+CREATE TABLE cross_projects.frente_oportunidade (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    projeto_id UUID NOT NULL,
+    territorio_id UUID,
+    nome VARCHAR(200) NOT NULL,
+    descricao TEXT,
+    categoria VARCHAR(150),
+    objetivo TEXT NOT NULL,
+    data_abertura DATE NOT NULL,
+    data_encerramento DATE,
+    status_frente_id UUID NOT NULL,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    arquivado_em TIMESTAMPTZ,
+
+    CONSTRAINT fk_frente_projeto
+        FOREIGN KEY (projeto_id)
+        REFERENCES cross_projects.projeto(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT ck_frente_datas
+        CHECK (
+            data_encerramento IS NULL
+            OR data_encerramento >= data_abertura
+        )
+);
+```
+
+Estrutura de candidatura:
+
+```sql
+CREATE TABLE cross_projects.candidatura_parceiro (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    frente_oportunidade_id UUID NOT NULL,
+    parte_id UUID NOT NULL,
+    interesse_cliente_id UUID,
+    interesse_parceiro_id UUID,
+    disponibilidade_confirmada BOOLEAN,
+    prioridade_id UUID,
+    status_candidatura_id UUID NOT NULL,
+    data_entrada TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    data_saida TIMESTAMPTZ,
+    motivo_recusa TEXT,
+    observacoes TEXT,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID,
+    atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    atualizado_por_id UUID,
+    arquivado_em TIMESTAMPTZ,
+
+    CONSTRAINT fk_candidatura_frente
+        FOREIGN KEY (frente_oportunidade_id)
+        REFERENCES cross_projects.frente_oportunidade(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_candidatura_parte
+        FOREIGN KEY (parte_id)
+        REFERENCES cross_core.parte(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT ck_candidatura_datas
+        CHECK (
+            data_saida IS NULL
+            OR data_saida >= data_entrada
+        )
+);
+```
+
+---
+
+### 7.4.12 Versionamento
+
+Entidades versionadas possuirão uma tabela principal e outra de versões.
+
+Exemplo para Paper:
+
+```sql
+CREATE TABLE cross_methodologies.paper (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    frente_oportunidade_id UUID NOT NULL,
+    titulo VARCHAR(250) NOT NULL,
+    status_paper_id UUID NOT NULL,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID NOT NULL,
+    arquivado_em TIMESTAMPTZ,
+
+    CONSTRAINT fk_paper_frente
+        FOREIGN KEY (frente_oportunidade_id)
+        REFERENCES cross_projects.frente_oportunidade(id)
+        ON DELETE RESTRICT
+);
+```
+
+```sql
+CREATE TABLE cross_methodologies.versao_paper (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    paper_id UUID NOT NULL,
+    numero_versao INTEGER NOT NULL,
+    estrategia_proposta TEXT NOT NULL,
+    beneficios_esperados TEXT,
+    plano_implementacao TEXT,
+    vigente_desde TIMESTAMPTZ,
+    vigente_ate TIMESTAMPTZ,
+    status_versao VARCHAR(30) NOT NULL,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID NOT NULL,
+    arquivado_em TIMESTAMPTZ,
+
+    CONSTRAINT fk_versao_paper
+        FOREIGN KEY (paper_id)
+        REFERENCES cross_methodologies.paper(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_versao_paper_numero
+        UNIQUE (paper_id, numero_versao),
+
+    CONSTRAINT ck_versao_paper_vigencia
+        CHECK (
+            vigente_ate IS NULL
+            OR vigente_desde IS NULL
+            OR vigente_ate >= vigente_desde
+        )
+);
+```
+
+Esse padrão será aplicado a:
+
+- Perfil Estratégico;
+- Briefing;
+- Planejamento Estratégico;
+- Análise Crossability;
+- Paper;
+- Modelo de Score Card;
+- Plano de Execução.
+
+---
+
+### 7.4.13 Cross Score Card
+
+Será criado um tipo estável para as respostas:
+
+```sql
+CREATE TYPE resposta_score_card AS ENUM (
+    'sim',
+    'nao',
+    'nao_avaliado'
+);
+```
+
+Critério:
+
+```sql
+CREATE TABLE cross_methodologies.criterio_score_card (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    versao_modelo_score_card_id UUID NOT NULL,
+    nome VARCHAR(200) NOT NULL,
+    descricao TEXT,
+    peso_sim NUMERIC(10,4) NOT NULL,
+    peso_nao NUMERIC(10,4) NOT NULL,
+    ordem INTEGER NOT NULL,
+    obrigatorio BOOLEAN NOT NULL DEFAULT TRUE,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT fk_criterio_versao_modelo
+        FOREIGN KEY (versao_modelo_score_card_id)
+        REFERENCES cross_methodologies.versao_modelo_score_card(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_criterio_ordem
+        UNIQUE (versao_modelo_score_card_id, ordem)
+);
+```
+
+Avaliação:
+
+```sql
+CREATE TABLE cross_methodologies.avaliacao_score_card (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    candidatura_parceiro_id UUID NOT NULL,
+    versao_modelo_score_card_id UUID NOT NULL,
+    validacao_paper_id UUID NOT NULL,
+    potencial_disruptivo INTEGER NOT NULL,
+    score_total NUMERIC(12,4) NOT NULL,
+    status_avaliacao_score_card_id UUID NOT NULL,
+    data_aplicacao TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    responsavel_id UUID NOT NULL,
+
+    CONSTRAINT ck_avaliacao_potencial_disruptivo
+        CHECK (potencial_disruptivo BETWEEN 1 AND 5)
+);
+```
+
+Resposta:
+
+```sql
+CREATE TABLE cross_methodologies.resposta_score_card (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    avaliacao_score_card_id UUID NOT NULL,
+    criterio_score_card_id UUID NOT NULL,
+    valor_resposta resposta_score_card NOT NULL,
+    peso_sim_aplicado NUMERIC(10,4) NOT NULL,
+    peso_nao_aplicado NUMERIC(10,4) NOT NULL,
+    pontuacao_obtida NUMERIC(10,4) NOT NULL,
+    justificativa TEXT,
+
+    CONSTRAINT fk_resposta_avaliacao
+        FOREIGN KEY (avaliacao_score_card_id)
+        REFERENCES cross_methodologies.avaliacao_score_card(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_resposta_criterio
+        FOREIGN KEY (criterio_score_card_id)
+        REFERENCES cross_methodologies.criterio_score_card(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT uq_resposta_avaliacao_criterio
+        UNIQUE (
+            avaliacao_score_card_id,
+            criterio_score_card_id
+        )
+);
+```
+
+O cálculo será realizado pela aplicação e validado transacionalmente pelo banco por meio de função ou trigger.
+
+A função deverá verificar:
+
+```text
+SIM          → pontuacao_obtida = peso_sim_aplicado
+NAO          → pontuacao_obtida = peso_nao_aplicado
+NAO_AVALIADO → pontuacao_obtida = 0
+```
+
+Também deverá validar:
+
+```text
+score_total =
+SUM(pontuacao_obtida)
++
+potencial_disruptivo
+```
+
+---
+
+### 7.4.14 Disponibilidade
+
+A tabela deverá permitir associação à parte ou ao ativo, com exclusividade.
+
+```sql
+CREATE TABLE cross_intelligence.disponibilidade (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    parte_id UUID,
+    ativo_id UUID,
+    tipo_disponibilidade_id UUID NOT NULL,
+    data_inicio TIMESTAMPTZ NOT NULL,
+    data_fim TIMESTAMPTZ NOT NULL,
+    motivo_indisponibilidade TEXT,
+    observacoes TEXT,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT ck_disponibilidade_alvo
+        CHECK (
+            (parte_id IS NOT NULL AND ativo_id IS NULL)
+            OR
+            (parte_id IS NULL AND ativo_id IS NOT NULL)
+        ),
+
+    CONSTRAINT ck_disponibilidade_datas
+        CHECK (data_fim >= data_inicio)
+);
+```
+
+---
+
+### 7.4.15 Valores Monetários
+
+Campos monetários utilizarão:
+
+```sql
+valor NUMERIC(15,2)
+moeda CHAR(3)
+```
+
+Constraints:
+
+```sql
+CHECK (valor >= 0)
+CHECK (moeda ~ '^[A-Z]{3}$')
+```
+
+Campos percentuais utilizarão:
+
+```sql
+percentual NUMERIC(7,4)
+CHECK (percentual BETWEEN 0 AND 100)
+```
+
+Exemplos de tabelas com valores monetários:
+
+- componente de remuneração;
+- ativo;
+- contrapartida;
+- contrato da parceria;
+- resultado;
+- cálculo de ROI.
+
+---
+
+### 7.4.16 Documentos
+
+Os documentos serão armazenados fora do banco, em serviço de armazenamento apropriado. O PostgreSQL armazenará os metadados e referências.
+
+```sql
+CREATE TABLE cross_core.documento (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(255) NOT NULL,
+    tipo_mime VARCHAR(150) NOT NULL,
+    extensao VARCHAR(20),
+    tamanho_bytes BIGINT,
+    arquivo_url TEXT NOT NULL,
+    hash_sha256 VARCHAR(64) NOT NULL,
+    numero_versao INTEGER NOT NULL DEFAULT 1,
+    status_documento_id UUID NOT NULL,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    criado_por_id UUID NOT NULL,
+
+    CONSTRAINT ck_documento_tamanho
+        CHECK (
+            tamanho_bytes IS NULL
+            OR tamanho_bytes >= 0
+        )
+);
+```
+
+Associações específicas:
+
+```text
+projeto_documento
+briefing_documento
+planejamento_documento
+paper_documento
+contrato_cliente_documento
+parceria_documento
+plano_execucao_documento
+evidencia_documento
+```
+
+---
+
+### 7.4.17 Evidências
+
+Cada tipo de associação com evidência utilizará FK explícita.
+
+Exemplo:
+
+```sql
+CREATE TABLE cross_governance.analise_crossability_evidencia (
+    analise_crossability_id UUID NOT NULL,
+    evidencia_id UUID NOT NULL,
+    relevancia VARCHAR(30),
+    observacoes TEXT,
+
+    PRIMARY KEY (
+        analise_crossability_id,
+        evidencia_id
+    )
+);
+```
+
+Serão criadas tabelas equivalentes para:
+
+- Perfil Estratégico;
+- Medição de Mídia;
+- Big Moment;
+- Resultado;
+- Cálculo de ROI.
+
+---
+
+### 7.4.18 Auditoria
+
+A auditoria técnica utilizará uma estrutura central.
+
+```sql
+CREATE TABLE cross_governance.auditoria (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    usuario_id UUID,
+    schema_afetado VARCHAR(100) NOT NULL,
+    tabela_afetada VARCHAR(100) NOT NULL,
+    registro_id UUID,
+    operacao VARCHAR(20) NOT NULL,
+    dados_anteriores JSONB,
+    dados_novos JSONB,
+    origem VARCHAR(100),
+    contexto JSONB,
+    executado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Operações permitidas:
+
+```text
+INSERT
+UPDATE
+DELETE
+ARCHIVE
+RESTORE
+```
+
+A tabela de auditoria não substituirá os históricos de negócio e os versionamentos das entidades estratégicas.
+
+---
+
+### 7.4.19 Índices
+
+Todas as foreign keys utilizadas frequentemente em consultas deverão possuir índice.
+
+Exemplos:
+
+```sql
+CREATE INDEX idx_projeto_cliente_cross
+ON cross_projects.projeto (cliente_cross_id);
+
+CREATE INDEX idx_projeto_status
+ON cross_projects.projeto (status_projeto_id);
+
+CREATE INDEX idx_frente_projeto
+ON cross_projects.frente_oportunidade (projeto_id);
+
+CREATE INDEX idx_candidatura_frente
+ON cross_projects.candidatura_parceiro (
+    frente_oportunidade_id
+);
+
+CREATE INDEX idx_candidatura_parte
+ON cross_projects.candidatura_parceiro (parte_id);
+
+CREATE INDEX idx_parceria_candidatura
+ON cross_partnerships.parceria (
+    candidatura_parceiro_id
+);
+```
+
+Índices compostos serão criados para filtros recorrentes.
+
+```sql
+CREATE INDEX idx_projeto_cliente_status
+ON cross_projects.projeto (
+    cliente_cross_id,
+    status_projeto_id
+)
+WHERE arquivado_em IS NULL;
+```
+
+```sql
+CREATE INDEX idx_candidatura_frente_status
+ON cross_projects.candidatura_parceiro (
+    frente_oportunidade_id,
+    status_candidatura_id
+)
+WHERE arquivado_em IS NULL;
+```
+
+Busca textual aproximada:
+
+```sql
+CREATE INDEX idx_parte_nome_trgm
+ON cross_core.parte
+USING GIN (nome_exibicao gin_trgm_ops);
+```
+
+---
+
+### 7.4.20 Segurança e Controle de Acesso
+
+O acesso ao banco deverá utilizar usuários técnicos distintos por finalidade.
+
+Exemplos:
+
+```text
+cross_app
+cross_readonly
+cross_migration
+cross_analytics
+cross_ai
+cross_admin
+```
+
+Princípios:
+
+- a aplicação não utilizará usuário superadministrador;
+- migrations utilizarão usuário específico;
+- consultas analíticas poderão utilizar acesso somente leitura;
+- agentes de IA terão acesso apenas aos dados necessários;
+- CPF, CNPJ, e-mails, telefones e informações contratuais deverão possuir acesso restrito;
+- dados pessoais deverão ser tratados conforme a LGPD;
+- dados sensíveis não deverão ser enviados automaticamente a modelos externos.
+
+Poderão ser implementadas políticas de Row-Level Security para restringir projetos por usuário, equipe ou cliente.
+
+---
+
+### 7.4.21 Integridade Transacional
+
+Operações críticas deverão ocorrer dentro de transações.
+
+Exemplos:
+
+- criação da parte e de sua especialização;
+- mudança de status e criação do histórico;
+- publicação de nova versão;
+- avaliação completa do Score Card;
+- aprovação da candidatura e criação da parceria;
+- encerramento de projeto ou parceria;
+- arquivamento de registros relacionados.
+
+Exemplo:
+
+```sql
+BEGIN;
+
+-- Atualiza o status atual da candidatura.
+-- Insere o histórico da movimentação.
+-- Registra a decisão responsável pela alteração.
+
+COMMIT;
+```
+
+Em caso de falha, todas as alterações deverão ser revertidas.
+
+---
+
+### 7.4.22 Estrutura de Migrations
+
+As migrations deverão ser organizadas por ordem de dependência.
+
+```text
+migrations/
+├── 001_extensions.sql
+├── 002_schemas.sql
+├── 003_domains.sql
+├── 004_reference_tables.sql
+├── 005_core.sql
+├── 006_intelligence.sql
+├── 007_commercial.sql
+├── 008_projects.sql
+├── 009_methodologies.sql
+├── 010_partnerships.sql
+├── 011_execution.sql
+├── 012_analytics.sql
+├── 013_governance.sql
+├── 014_constraints.sql
+├── 015_indexes.sql
+├── 016_functions.sql
+├── 017_triggers.sql
+├── 018_rls.sql
+└── 019_seed_reference_data.sql
+```
+
+Cada migration deverá possuir um mecanismo de rollback compatível com a ferramenta utilizada pelo projeto.
+
+Alterações realizadas em produção nunca deverão modificar migrations já aplicadas. Novas mudanças deverão gerar novos arquivos de migration.
+
+---
+
+### 7.4.23 Seeds
+
+Os dados controlados deverão ser inseridos por meio de seeds versionados.
+
+Exemplos:
+
+- status de projeto;
+- status de candidatura;
+- tipos de parte;
+- papéis;
+- modelos de contratação;
+- tipos de remuneração;
+- tipos de decisão;
+- status de parceria;
+- tipos de métricas;
+- territórios iniciais;
+- tipos de validação.
+
+Seeds não deverão criar dados operacionais fictícios em produção.
+
+---
+
+### 7.4.24 Testes do Banco
+
+O Modelo Físico deverá possuir testes automatizados para validar:
+
+- integridade das foreign keys;
+- unicidade parcial;
+- constraints temporais;
+- especialização de Parte;
+- exclusividade de disponibilidade;
+- regras monetárias;
+- transições de status;
+- versionamento;
+- regra determinística do Score Card;
+- criação de parceria somente após aprovação;
+- proibição de registros órfãos;
+- funcionamento da exclusão lógica;
+- geração dos registros de auditoria.
+
+Exemplos de cenários inválidos:
+
+```text
+Cadastrar uma pessoa sem uma Parte correspondente.
+
+Cadastrar a mesma Parte duas vezes na mesma frente ativa.
+
+Criar uma parceria sem candidatura aprovada.
+
+Salvar potencial disruptivo igual a 7.
+
+Cadastrar data final anterior à data inicial.
+
+Cadastrar disponibilidade sem Parte e sem Ativo.
+
+Criar duas versões vigentes do mesmo Paper.
+
+Inserir uma resposta duplicada para o mesmo critério e avaliação.
+```
+
+---
+
+### 7.4.25 Preparação para Inteligência Artificial
+
+A estrutura relacional será a fonte oficial dos dados estruturados.
+
+Futuramente, documentos e conteúdos textuais poderão ser preparados para recuperação vetorial por meio de uma estrutura separada.
+
+```text
+documento
+↓
+documento_chunk
+↓
+documento_embedding
+```
+
+Estrutura futura:
+
+```sql
+CREATE TABLE cross_ai.documento_chunk (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    documento_id UUID NOT NULL,
+    numero_chunk INTEGER NOT NULL,
+    conteudo TEXT NOT NULL,
+    metadados JSONB,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+```sql
+CREATE TABLE cross_ai.documento_embedding (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chunk_id UUID NOT NULL,
+    modelo_embedding VARCHAR(150) NOT NULL,
+    versao_modelo VARCHAR(100),
+    embedding VECTOR,
+    criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Esse módulo não deverá ser implementado na primeira versão caso não faça parte do escopo atual, mas a arquitetura do banco permanecerá preparada para sua inclusão.
+
+---
+
+### 7.4.26 Considerações de Desempenho
+
+Inicialmente, não será necessário particionar as principais tabelas operacionais.
+
+Tabelas candidatas a particionamento futuro:
+
+- auditoria;
+- métricas de mídia;
+- medições de indicadores;
+- eventos de histórico;
+- logs de integração;
+- evidências;
+- chunks;
+- embeddings;
+- execuções de agentes.
+
+A estratégia preferencial será particionamento por intervalo de data.
+
+```text
+PARTITION BY RANGE (criado_em)
+```
+
+O particionamento deverá ser adotado apenas após análise do volume real e dos planos de execução das consultas.
+
+---
+
+### 7.4.27 Backup e Disponibilidade
+
+O ambiente de produção deverá possuir:
+
+- backups automáticos;
+- retenção definida;
+- recuperação point-in-time;
+- testes periódicos de restauração;
+- monitoramento de espaço;
+- monitoramento de conexões;
+- logs de consultas lentas;
+- política de disaster recovery.
+
+A existência do backup não será considerada suficiente sem testes periódicos de restauração.
+
+---
+
+### 7.4.28 Observabilidade
+
+O banco deverá ser monitorado quanto a:
+
+- conexões ativas;
+- consultas lentas;
+- deadlocks;
+- uso de índices;
+- crescimento de tabelas;
+- crescimento de índices;
+- locks;
+- uso de CPU;
+- memória;
+- espaço em disco;
+- taxa de leitura e escrita;
+- falhas em migrations;
+- falhas em triggers.
+
+Consultas críticas deverão ser avaliadas por meio de:
+
+```sql
+EXPLAIN ANALYZE
+```
+
+---
+
+### 7.4.29 Estado da Implementação
+
+O Modelo Físico apresentado nesta seção define a estratégia técnica para implementação do banco de dados da Plataforma Cross.
+
+A construção efetiva será realizada por meio de migrations versionadas no repositório do projeto. Os scripts deverão implementar progressivamente:
+
+1. extensões e schemas;
+2. tipos e catálogos;
+3. tabelas;
+4. foreign keys;
+5. constraints;
+6. índices;
+7. funções;
+8. triggers;
+9. políticas de acesso;
+10. seeds;
+11. testes de integridade.
+
+Até a execução das migrations, esta seção deve ser considerada a especificação física proposta, e não a confirmação de que todas as estruturas já se encontram implementadas no ambiente PostgreSQL.
+
+---
+
+### Conclusão
+
+O Modelo Físico da Plataforma Cross traduz as decisões conceituais e lógicas para uma estrutura implementável em PostgreSQL.
+
+A implementação proposta contempla:
+
+- identificadores UUID;
+- schemas organizados por domínio;
+- vocabulários controlados;
+- constraints de integridade;
+- exclusão lógica;
+- índices únicos parciais;
+- versionamento;
+- auditoria;
+- rastreabilidade;
+- controle de acesso;
+- padronização monetária e temporal;
+- validação determinística do Cross Score Card;
+- preparação para integrações e inteligência artificial.
+
+Essa estrutura fornece uma base robusta para a evolução da Plataforma Cross, permitindo que o banco de dados sustente tanto a operação atual da Crossnetworking quanto futuras funcionalidades de análise, automação, recomendação e inteligência estratégica.
 
 ---
 

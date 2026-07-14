@@ -140,3 +140,232 @@ export async function existeParteAtiva(client: PoolClient, id: string): Promise<
   );
   return rows.length > 0;
 }
+
+/** Arquivamento lógico da Parte (RN035). */
+export async function arquivarParte(
+  client: PoolClient,
+  id: string,
+  usuarioId: string | null
+): Promise<number> {
+  const res = await client.query(
+    `UPDATE cross_core.parte
+        SET arquivado_em = NOW(), arquivado_por_id = $2
+      WHERE id = $1 AND arquivado_em IS NULL`,
+    [id, usuarioId]
+  );
+  return res.rowCount ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Papéis da Parte (RF006)
+// ---------------------------------------------------------------------------
+
+export async function resolverPapelId(client: PoolClient, codigo: string): Promise<string | null> {
+  const { rows } = await client.query<{ id: string }>(
+    "SELECT id FROM cross_core.papel WHERE codigo = $1",
+    [codigo]
+  );
+  return rows[0]?.id ?? null;
+}
+
+export interface PapelVinculoRow {
+  id: string;
+  papel_codigo: string;
+  papel_nome: string;
+  vigente_desde: string | null;
+  vigente_ate: string | null;
+}
+
+export async function inserirPapelDaParte(
+  client: PoolClient,
+  data: {
+    parte_id: string;
+    papel_id: string;
+    vigente_desde: string | null;
+    vigente_ate: string | null;
+    criado_por_id: string | null;
+  }
+): Promise<string> {
+  const { rows } = await client.query<{ id: string }>(
+    `INSERT INTO cross_core.parte_papel
+       (parte_id, papel_id, vigente_desde, vigente_ate, criado_por_id)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id`,
+    [data.parte_id, data.papel_id, data.vigente_desde, data.vigente_ate, data.criado_por_id]
+  );
+  return rows[0].id;
+}
+
+export async function listarPapeisDaParte(
+  client: PoolClient,
+  parteId: string
+): Promise<PapelVinculoRow[]> {
+  const { rows } = await client.query<PapelVinculoRow>(
+    `SELECT pp.id, pa.codigo AS papel_codigo, pa.nome AS papel_nome,
+            pp.vigente_desde, pp.vigente_ate
+       FROM cross_core.parte_papel pp
+       JOIN cross_core.papel pa ON pa.id = pp.papel_id
+      WHERE pp.parte_id = $1 AND pp.arquivado_em IS NULL
+      ORDER BY pa.ordem NULLS LAST, pa.nome`,
+    [parteId]
+  );
+  return rows;
+}
+
+export async function buscarPapelDaParte(
+  client: PoolClient,
+  parteId: string,
+  vinculoId: string
+): Promise<PapelVinculoRow | null> {
+  const { rows } = await client.query<PapelVinculoRow>(
+    `SELECT pp.id, pa.codigo AS papel_codigo, pa.nome AS papel_nome,
+            pp.vigente_desde, pp.vigente_ate
+       FROM cross_core.parte_papel pp
+       JOIN cross_core.papel pa ON pa.id = pp.papel_id
+      WHERE pp.id = $2 AND pp.parte_id = $1 AND pp.arquivado_em IS NULL`,
+    [parteId, vinculoId]
+  );
+  return rows[0] ?? null;
+}
+
+/** Arquivamento lógico do vínculo de papel (RN035) — permite reentrada futura. */
+export async function arquivarPapelDaParte(
+  client: PoolClient,
+  parteId: string,
+  vinculoId: string,
+  usuarioId: string | null
+): Promise<number> {
+  const res = await client.query(
+    `UPDATE cross_core.parte_papel
+        SET arquivado_em = NOW(), arquivado_por_id = $3
+      WHERE id = $2 AND parte_id = $1 AND arquivado_em IS NULL`,
+    [parteId, vinculoId, usuarioId]
+  );
+  return res.rowCount ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Contatos da Parte (RF007)
+// ---------------------------------------------------------------------------
+
+export interface ContatoRow {
+  id: string;
+  nome: string;
+  cargo: string | null;
+  email: string | null;
+  telefone: string | null;
+  principal: boolean;
+  observacoes: string | null;
+  versao: string;
+}
+
+const CONTATO_SELECT = `
+  SELECT c.id, c.nome, c.cargo, c.email, c.telefone, c.principal, c.observacoes,
+         c.xmin::text AS versao
+    FROM cross_core.contato c`;
+
+export async function inserirContato(
+  client: PoolClient,
+  parteId: string,
+  data: {
+    nome: string;
+    cargo?: string;
+    email?: string;
+    telefone?: string;
+    principal?: boolean;
+    observacoes?: string;
+  },
+  criadoPorId: string | null
+): Promise<string> {
+  const { rows } = await client.query<{ id: string }>(
+    `INSERT INTO cross_core.contato
+       (parte_id, nome, cargo, email, telefone, principal, observacoes, criado_por_id)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, FALSE), $7, $8)
+     RETURNING id`,
+    [
+      parteId,
+      data.nome,
+      data.cargo ?? null,
+      data.email ?? null,
+      data.telefone ?? null,
+      data.principal ?? null,
+      data.observacoes ?? null,
+      criadoPorId,
+    ]
+  );
+  return rows[0].id;
+}
+
+export async function listarContatos(client: PoolClient, parteId: string): Promise<ContatoRow[]> {
+  const { rows } = await client.query<ContatoRow>(
+    `${CONTATO_SELECT}
+      WHERE c.parte_id = $1 AND c.arquivado_em IS NULL
+      ORDER BY c.principal DESC, c.nome`,
+    [parteId]
+  );
+  return rows;
+}
+
+export async function buscarContato(
+  client: PoolClient,
+  parteId: string,
+  contatoId: string
+): Promise<ContatoRow | null> {
+  const { rows } = await client.query<ContatoRow>(
+    `${CONTATO_SELECT}
+      WHERE c.id = $2 AND c.parte_id = $1 AND c.arquivado_em IS NULL`,
+    [parteId, contatoId]
+  );
+  return rows[0] ?? null;
+}
+
+/** Atualiza o contato com trava otimista (xmin). */
+export async function atualizarContato(
+  client: PoolClient,
+  parteId: string,
+  contatoId: string,
+  patch: {
+    nome?: string;
+    cargo?: string;
+    email?: string;
+    telefone?: string;
+    principal?: boolean;
+  },
+  versaoEsperada: string
+): Promise<number> {
+  const res = await client.query(
+    `UPDATE cross_core.contato
+        SET nome = COALESCE($3, nome),
+            cargo = COALESCE($4, cargo),
+            email = COALESCE($5, email),
+            telefone = COALESCE($6, telefone),
+            principal = COALESCE($7, principal)
+      WHERE id = $2 AND parte_id = $1 AND arquivado_em IS NULL AND xmin::text = $8`,
+    [
+      parteId,
+      contatoId,
+      patch.nome ?? null,
+      patch.cargo ?? null,
+      patch.email ?? null,
+      patch.telefone ?? null,
+      patch.principal ?? null,
+      versaoEsperada,
+    ]
+  );
+  return res.rowCount ?? 0;
+}
+
+export async function arquivarContato(
+  client: PoolClient,
+  parteId: string,
+  contatoId: string,
+  usuarioId: string | null
+): Promise<number> {
+  const res = await client.query(
+    `UPDATE cross_core.contato
+        SET arquivado_em = NOW(), arquivado_por_id = $3
+      WHERE id = $2 AND parte_id = $1 AND arquivado_em IS NULL`,
+    [parteId, contatoId, usuarioId]
+  );
+  return res.rowCount ?? 0;
+}

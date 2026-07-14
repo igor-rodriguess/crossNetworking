@@ -1,7 +1,14 @@
+import { PoolClient } from "pg";
 import { withTransaction } from "../../shared/db";
 import { ConflictError, NotFoundError, ValidationError } from "../../shared/errors";
 import * as repo from "./partes.repository";
-import { AtualizarParteInput, CriarParteInput } from "./partes.schema";
+import {
+  AtualizarContatoInput,
+  AtualizarParteInput,
+  CriarContatoInput,
+  CriarPapelInput,
+  CriarParteInput,
+} from "./partes.schema";
 
 /** Monta a resposta pública da Parte com a especialização aninhada. */
 function formatar(row: repo.ParteRow) {
@@ -113,4 +120,118 @@ export async function atualizarParte(
   }, { usuarioId });
 
   return formatar(row);
+}
+
+/** Arquivamento lógico da Parte — preserva o histórico (RN035). */
+export async function arquivarParte(id: string, usuarioId: string | null): Promise<void> {
+  await withTransaction(async (client) => {
+    const afetadas = await repo.arquivarParte(client, id, usuarioId);
+    if (afetadas === 0) throw new NotFoundError("Parte não encontrada");
+  }, { usuarioId });
+}
+
+async function garantirParteAtiva(client: PoolClient, parteId: string) {
+  if (!(await repo.existeParteAtiva(client, parteId))) {
+    throw new NotFoundError("Parte não encontrada");
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Papéis (RF006 — RN005: um papel ativo por Parte; RN030: vigências)
+// ---------------------------------------------------------------------------
+
+export async function adicionarPapel(
+  parteId: string,
+  input: CriarPapelInput,
+  usuarioId: string | null
+) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+
+    const papelId = await repo.resolverPapelId(client, input.papel_codigo);
+    if (!papelId) throw new ValidationError(`papel inexistente: ${input.papel_codigo}`);
+
+    const vinculoId = await repo.inserirPapelDaParte(client, {
+      parte_id: parteId,
+      papel_id: papelId,
+      vigente_desde: input.vigente_desde ?? null,
+      vigente_ate: input.vigente_ate ?? null,
+      criado_por_id: usuarioId,
+    });
+
+    const criado = await repo.buscarPapelDaParte(client, parteId, vinculoId);
+    if (!criado) throw new NotFoundError("Falha ao carregar o papel recém-criado");
+    return criado;
+  }, { usuarioId });
+}
+
+export async function listarPapeis(parteId: string) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    return repo.listarPapeisDaParte(client, parteId);
+  });
+}
+
+export async function removerPapel(parteId: string, vinculoId: string, usuarioId: string | null) {
+  await withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    const afetadas = await repo.arquivarPapelDaParte(client, parteId, vinculoId, usuarioId);
+    if (afetadas === 0) throw new NotFoundError("Papel não encontrado nesta Parte");
+  }, { usuarioId });
+}
+
+// ---------------------------------------------------------------------------
+// Contatos (RF007 — RN004: no máximo um contato principal ativo)
+// ---------------------------------------------------------------------------
+
+export async function adicionarContato(
+  parteId: string,
+  input: CriarContatoInput,
+  usuarioId: string | null
+) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    const contatoId = await repo.inserirContato(client, parteId, input, usuarioId);
+    const criado = await repo.buscarContato(client, parteId, contatoId);
+    if (!criado) throw new NotFoundError("Falha ao carregar o contato recém-criado");
+    return criado;
+  }, { usuarioId });
+}
+
+export async function listarContatos(parteId: string) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    return repo.listarContatos(client, parteId);
+  });
+}
+
+export async function atualizarContato(
+  parteId: string,
+  contatoId: string,
+  patch: AtualizarContatoInput,
+  versaoEsperada: string,
+  usuarioId: string | null
+) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+
+    const afetadas = await repo.atualizarContato(client, parteId, contatoId, patch, versaoEsperada);
+    if (afetadas === 0) {
+      const atual = await repo.buscarContato(client, parteId, contatoId);
+      if (!atual) throw new NotFoundError("Contato não encontrado nesta Parte");
+      throw new ConflictError("O contato foi modificado por outra operação; recarregue e tente de novo");
+    }
+
+    const atualizado = await repo.buscarContato(client, parteId, contatoId);
+    if (!atualizado) throw new NotFoundError("Contato não encontrado nesta Parte");
+    return atualizado;
+  }, { usuarioId });
+}
+
+export async function removerContato(parteId: string, contatoId: string, usuarioId: string | null) {
+  await withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    const afetadas = await repo.arquivarContato(client, parteId, contatoId, usuarioId);
+    if (afetadas === 0) throw new NotFoundError("Contato não encontrado nesta Parte");
+  }, { usuarioId });
 }

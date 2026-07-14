@@ -155,3 +155,153 @@ describe("Borda e contrato", () => {
     expect(res.body.paths["/v1/partes"]).toBeTruthy();
   });
 });
+
+/** Cria uma organização e devolve seu id. */
+async function criarOrg(): Promise<string> {
+  const res = await request(app).post("/v1/partes").send(orgValida()).expect(201);
+  return res.body.id as string;
+}
+
+describe("DELETE /v1/partes/:id (arquivamento lógico — RN035)", () => {
+  it("arquiva a Parte (204) e ela deixa de ser encontrada", async () => {
+    const id = await criarOrg();
+    await request(app).delete(`/v1/partes/${id}`).expect(204);
+    await request(app).get(`/v1/partes/${id}`).expect(404);
+  });
+
+  it("404 ao arquivar id inexistente", async () => {
+    await request(app).delete("/v1/partes/00000000-0000-0000-0000-000000000000").expect(404);
+  });
+});
+
+describe("Papéis da Parte — /v1/partes/:id/papeis (RF006)", () => {
+  it("atribui um papel (201) e lista (200)", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/papeis`)
+      .send({ papel_codigo: "cliente" });
+    expect(criado.status).toBe(201);
+    expect(criado.body.papel_codigo).toBe("cliente");
+
+    const lista = await request(app).get(`/v1/partes/${id}/papeis`);
+    expect(lista.status).toBe(200);
+    expect(lista.body.itens).toHaveLength(1);
+  });
+
+  it("rejeita papel duplicado ativo (409 — RN005)", async () => {
+    const id = await criarOrg();
+    await request(app).post(`/v1/partes/${id}/papeis`).send({ papel_codigo: "parceiro" }).expect(201);
+    const res = await request(app).post(`/v1/partes/${id}/papeis`).send({ papel_codigo: "parceiro" });
+    expect(res.status).toBe(409);
+  });
+
+  it("rejeita papel inexistente (422)", async () => {
+    const id = await criarOrg();
+    const res = await request(app).post(`/v1/partes/${id}/papeis`).send({ papel_codigo: "inexistente" });
+    expect(res.status).toBe(422);
+  });
+
+  it("rejeita vigência invertida (422 — RN030)", async () => {
+    const id = await criarOrg();
+    const res = await request(app)
+      .post(`/v1/partes/${id}/papeis`)
+      .send({ papel_codigo: "artista", vigente_desde: "2026-06-10", vigente_ate: "2026-01-01" });
+    expect(res.status).toBe(422);
+  });
+
+  it("remove o papel (204) e ele some da lista", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/papeis`)
+      .send({ papel_codigo: "fornecedor" })
+      .expect(201);
+
+    await request(app).delete(`/v1/partes/${id}/papeis/${criado.body.id}`).expect(204);
+    const lista = await request(app).get(`/v1/partes/${id}/papeis`);
+    expect(lista.body.itens).toHaveLength(0);
+  });
+
+  it("404 para papel inexistente na Parte", async () => {
+    const id = await criarOrg();
+    await request(app)
+      .delete(`/v1/partes/${id}/papeis/00000000-0000-0000-0000-000000000000`)
+      .expect(404);
+  });
+});
+
+describe("Contatos da Parte — /v1/partes/:id/contatos (RF007)", () => {
+  it("adiciona contato (201) e lista (200)", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana", email: "ana@marca.com", principal: true });
+    expect(criado.status).toBe(201);
+    expect(criado.body.nome).toBe("Ana");
+    expect(criado.body.principal).toBe(true);
+
+    const lista = await request(app).get(`/v1/partes/${id}/contatos`);
+    expect(lista.status).toBe(200);
+    expect(lista.body.itens).toHaveLength(1);
+  });
+
+  it("rejeita segundo contato principal ativo (409 — RN004)", async () => {
+    const id = await criarOrg();
+    await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana", principal: true })
+      .expect(201);
+
+    const res = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Bruno", principal: true });
+    expect(res.status).toBe(409);
+  });
+
+  it("rejeita e-mail inválido (422)", async () => {
+    const id = await criarOrg();
+    const res = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana", email: "sem-arroba" });
+    expect(res.status).toBe(422);
+  });
+
+  it("atualiza contato com If-Match (200)", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana" })
+      .expect(201);
+
+    const res = await request(app)
+      .patch(`/v1/partes/${id}/contatos/${criado.body.id}`)
+      .set("If-Match", `"${criado.body.versao}"`)
+      .send({ cargo: "Diretora" });
+    expect(res.status).toBe(200);
+    expect(res.body.cargo).toBe("Diretora");
+  });
+
+  it("rejeita atualização sem If-Match (428)", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana" })
+      .expect(201);
+
+    await request(app)
+      .patch(`/v1/partes/${id}/contatos/${criado.body.id}`)
+      .send({ cargo: "X" })
+      .expect(428);
+  });
+
+  it("remove o contato (204)", async () => {
+    const id = await criarOrg();
+    const criado = await request(app)
+      .post(`/v1/partes/${id}/contatos`)
+      .send({ nome: "Ana" })
+      .expect(201);
+
+    await request(app).delete(`/v1/partes/${id}/contatos/${criado.body.id}`).expect(204);
+    const lista = await request(app).get(`/v1/partes/${id}/contatos`);
+    expect(lista.body.itens).toHaveLength(0);
+  });
+});

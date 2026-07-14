@@ -70,17 +70,17 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 | RF | Descrição | Método | Caminho | RNs | Status |
 |---|---|---|---|---|---|
 | RF004 | Criar Parte + especialização | POST | `/v1/partes` | RN001, RN002 | ✅ |
-| RF004/RF008 | Listar/buscar Partes | GET | `/v1/partes` | — | 🔜 |
+| RF004/RF008 | Listar/buscar Partes | GET | `/v1/partes` | — | ✅ |
 | RF004 | Obter Parte | GET | `/v1/partes/:id` | — | ✅ |
-| RF004/RF005 | Atualizar Parte/especialização | PATCH | `/v1/partes/:id` | RN001, RN002 | 🔜 |
-| RF004 | Arquivar Parte | DELETE | `/v1/partes/:id` | RN035 | 🔜 |
-| RF006 | Adicionar papel | POST | `/v1/partes/:id/papeis` | RN005, RN030 | 🔜 |
-| RF006 | Listar papéis | GET | `/v1/partes/:id/papeis` | — | 🔜 |
-| RF006 | Remover papel | DELETE | `/v1/partes/:id/papeis/:papelId` | RN005 | 🔜 |
-| RF007 | Adicionar contato | POST | `/v1/partes/:id/contatos` | RN004 | 🔜 |
-| RF007 | Listar contatos | GET | `/v1/partes/:id/contatos` | — | 🔜 |
-| RF007 | Atualizar contato | PATCH | `/v1/partes/:id/contatos/:contatoId` | RN004 | 🔜 |
-| RF007 | Remover contato | DELETE | `/v1/partes/:id/contatos/:contatoId` | — | 🔜 |
+| RF004/RF005 | Atualizar Parte (campos base; especialização pendente) | PATCH | `/v1/partes/:id` | RN001, RN002 | ✅ |
+| RF004 | Arquivar Parte | DELETE | `/v1/partes/:id` | RN035 | ✅ |
+| RF006 | Adicionar papel | POST | `/v1/partes/:id/papeis` | RN005, RN030 | ✅ |
+| RF006 | Listar papéis | GET | `/v1/partes/:id/papeis` | — | ✅ |
+| RF006 | Remover papel | DELETE | `/v1/partes/:id/papeis/:papelId` | RN005 | ✅ |
+| RF007 | Adicionar contato | POST | `/v1/partes/:id/contatos` | RN004 | ✅ |
+| RF007 | Listar contatos | GET | `/v1/partes/:id/contatos` | — | ✅ |
+| RF007 | Atualizar contato | PATCH | `/v1/partes/:id/contatos/:contatoId` | RN004 | ✅ |
+| RF007 | Remover contato | DELETE | `/v1/partes/:id/contatos/:contatoId` | — | ✅ |
 | RF009 | Criar documento | POST | `/v1/documentos` | RN035 | 🔜 |
 | RF009 | Obter documento | GET | `/v1/documentos/:id` | — | 🔜 |
 | RF009 | Vincular documento | POST | `/v1/documentos/:id/vinculos` | — | 🔜 |

@@ -51,3 +51,39 @@ export const atualizarParteSchema = z
   .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo para atualizar" });
 
 export type AtualizarParteInput = z.infer<typeof atualizarParteSchema>;
+
+// ---------------------------------------------------------------------------
+// Papéis da Parte (RF006 — RN005, RN030)
+// ---------------------------------------------------------------------------
+export const criarPapelSchema = z.object({
+  papel_codigo: z.string().trim().min(1, "papel_codigo é obrigatório"),
+  vigente_desde: z.string().trim().min(1).optional(),
+  vigente_ate: z.string().trim().min(1).optional(),
+});
+export type CriarPapelInput = z.infer<typeof criarPapelSchema>;
+
+// ---------------------------------------------------------------------------
+// Contatos da Parte (RF007 — RN004)
+// ---------------------------------------------------------------------------
+const email = z.string().trim().regex(/^[^@\s]+@[^@\s]+\.[^@\s]+$/, "E-mail inválido");
+
+export const criarContatoSchema = z.object({
+  nome: z.string().trim().min(1, "nome não pode ser vazio"),
+  cargo: textoOpcional,
+  email: email.optional(),
+  telefone: textoOpcional,
+  principal: z.boolean().optional(),
+  observacoes: textoOpcional,
+});
+export type CriarContatoInput = z.infer<typeof criarContatoSchema>;
+
+export const atualizarContatoSchema = z
+  .object({
+    nome: z.string().trim().min(1).optional(),
+    cargo: textoOpcional,
+    email: email.optional(),
+    telefone: textoOpcional,
+    principal: z.boolean().optional(),
+  })
+  .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo para atualizar" });
+export type AtualizarContatoInput = z.infer<typeof atualizarContatoSchema>;

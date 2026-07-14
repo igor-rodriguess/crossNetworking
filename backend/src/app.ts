@@ -13,6 +13,7 @@ import { partesRouter } from "./modules/partes/partes.routes";
 import { documentosRouter } from "./modules/documentos/documentos.routes";
 import { clientesRouter } from "./modules/clientes/clientes.routes";
 import { adminRouter } from "./modules/admin/admin.routes";
+import { projetosRouter } from "./modules/projetos/projetos.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -41,6 +42,7 @@ app.use("/v1", partesRouter); // API versionada
 app.use("/v1", documentosRouter);
 app.use("/v1", clientesRouter);
 app.use("/v1", adminRouter);
+app.use("/v1", projetosRouter);
 
 // Middleware de erro (sempre por último)
 app.use(errorHandler);

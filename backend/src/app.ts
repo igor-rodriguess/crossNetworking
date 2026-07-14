@@ -10,6 +10,7 @@ import { errorHandler } from "./shared/middleware/error-handler";
 import { healthRouter } from "./routes/health.routes";
 import { docsRouter } from "./modules/docs/docs.routes";
 import { partesRouter } from "./modules/partes/partes.routes";
+import { documentosRouter } from "./modules/documentos/documentos.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -35,6 +36,7 @@ app.use(
 app.use(healthRouter); // /health — sem versão
 app.use(docsRouter); // /v1/docs, /v1/openapi.json
 app.use("/v1", partesRouter); // API versionada
+app.use("/v1", documentosRouter);
 
 // Middleware de erro (sempre por último)
 app.use(errorHandler);

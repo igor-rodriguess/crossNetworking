@@ -81,10 +81,12 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 | RF007 | Listar contatos | GET | `/v1/partes/:id/contatos` | — | ✅ |
 | RF007 | Atualizar contato | PATCH | `/v1/partes/:id/contatos/:contatoId` | RN004 | ✅ |
 | RF007 | Remover contato | DELETE | `/v1/partes/:id/contatos/:contatoId` | — | ✅ |
-| RF009 | Criar documento | POST | `/v1/documentos` | RN035 | 🔜 |
-| RF009 | Obter documento | GET | `/v1/documentos/:id` | — | 🔜 |
-| RF009 | Vincular documento | POST | `/v1/documentos/:id/vinculos` | — | 🔜 |
-| RF009 | Desvincular documento | DELETE | `/v1/documentos/:id/vinculos/:vinculoId` | — | 🔜 |
+| RF009 | Criar documento | POST | `/v1/documentos` | RN035 | ✅ |
+| RF009 | Obter documento | GET | `/v1/documentos/:id` | — | ✅ |
+| RF009 | Vincular documento | POST | `/v1/documentos/:id/vinculos` | — | ⏸ ¹ |
+| RF009 | Desvincular documento | DELETE | `/v1/documentos/:id/vinculos/:entidade/:entidadeId` | — | ⏸ ¹ |
+
+> ¹ Os **vínculos** de documento só fazem sentido quando as entidades-alvo tiverem API (projeto, briefing, Paper, contrato, parceria, plano). Serão implementados junto com esses módulos. Como as tabelas associativas têm chave composta (sem id próprio), a remoção usa `:entidade/:entidadeId` em vez de um `vinculoId`.
 
 **Detalhe**
 - `POST /v1/partes` ✅ — body discriminado por `tipo`:

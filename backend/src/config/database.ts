@@ -1,7 +1,2 @@
-import { Pool } from "pg";
-import { env } from "./env";
-
-export const pool = new Pool({
-  connectionString: env.databaseUrl,
-  ssl: env.databaseUrl.includes("supabase.") ? { rejectUnauthorized: false } : undefined,
-});
+// Reexporta o pool único definido em shared/db para compatibilidade.
+export { pool } from "../shared/db";

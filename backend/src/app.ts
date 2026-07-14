@@ -15,6 +15,7 @@ import { clientesRouter } from "./modules/clientes/clientes.routes";
 import { adminRouter } from "./modules/admin/admin.routes";
 import { projetosRouter } from "./modules/projetos/projetos.routes";
 import { frentesRouter } from "./modules/frentes/frentes.routes";
+import { metodologiasRouter } from "./modules/metodologias/metodologias.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -45,6 +46,7 @@ app.use("/v1", clientesRouter);
 app.use("/v1", adminRouter);
 app.use("/v1", projetosRouter);
 app.use("/v1", frentesRouter);
+app.use("/v1", metodologiasRouter);
 
 // Middleware de erro (sempre por último)
 app.use(errorHandler);

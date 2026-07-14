@@ -3539,7 +3539,76 @@ Essa estrutura fornece uma base robusta para a evolução da Plataforma Cross, p
 
 ## 8.2 Backend
 
-(Tecnologias, estrutura de pastas, APIs.)
+**Stack:** Node.js + Express + TypeScript; acesso a dados com `pg`; validação de entrada com `zod`; testes com Vitest + Supertest.
+
+### Arquitetura em camadas
+
+```
+Request → Router (Express)
+        → Controller  (HTTP: parse/serialização, status)
+        → Service     (regras de negócio/RN, transações, contexto de auditoria)
+        → Repository  (SQL parametrizado via pg)
+        → PostgreSQL  (constraints e triggers garantem os RN 🔒)
+```
+
+- **Validação:** schemas `zod` espelham os RN de formato (ex.: CPF/CNPJ — RN002).
+- **Erros:** middleware central converte exceções no envelope `{ codigo, erro, mensagem, detalhes }` — `codigo` é o status HTTP e `erro` um identificador estável para o front tratar cada caso. Erros do PostgreSQL são mapeados: unicidade `23505` → **409**; FK `23503` → **409**; check `23514` e `RAISE EXCEPTION` de triggers `P0001` → **422**; UUID inválido `22P02` → **422**.
+- **Versionamento:** as rotas de negócio ficam sob o prefixo **`/v1`**; `/health` permanece sem versão.
+- **Resposta:** a Parte é serializada com a especialização **aninhada** em `especializacao{}`.
+- **Auditoria:** cada operação de escrita roda em transação que define `app.usuario_id` (`SET`/`set_config` local), ativando os triggers de auditoria (RN037).
+- **Conexão:** a aplicação usa o papel de privilégio mínimo `cross_app`; a conexão administrativa é reservada às migrations.
+
+### Estrutura de pastas
+
+```
+src/
+├── shared/         # db (pool + transação), errors, http, middleware
+├── modules/
+│   └── partes/     # schema, repository, service, controller, routes, test
+├── config/         # env
+├── app.ts          # Express + rotas + middleware de erro
+└── server.ts
+tests/setup.ts      # harness de rollback por teste
+```
+
+### Testes (TDD)
+
+Testes de integração sobem o app e batem nos endpoints via Supertest. Cada teste roda dentro de uma transação que sofre **ROLLBACK** ao final (nada é persistido) — o mesmo padrão da suíte de integridade do banco. Fluxo: **rota documentada → teste (🔴) → implementação (🟢) → refatoração**.
+
+### Contrato de Rotas — Módulo Partes (RF004–RF009)
+
+Base da API: **`/v1`**. JSON; `201` para criação, `200` para leitura, `404` inexistente, `409` conflito, `422` validação. Cabeçalho opcional `x-usuario-id` identifica o autor para a auditoria.
+
+**`POST /v1/partes`** — cria uma Parte e sua especialização em uma transação *(RF004, RF005; RN001, RN002)*. ✅ implementado
+
+```jsonc
+// Requisição — organização
+{ "tipo": "organizacao", "nome_exibicao": "Marca X",
+  "organizacao": { "nome_fantasia": "Marca X", "cnpj": "12345678000199" } }
+// Requisição — pessoa
+{ "tipo": "pessoa", "nome_exibicao": "Fulano",
+  "pessoa": { "nome_completo": "Fulano de Tal", "cpf": "12345678901" } }
+
+// Resposta 201 (especialização aninhada)
+{ "id": "…", "tipo": "organizacao", "nome_exibicao": "Marca X", "status": "ativa",
+  "criado_em": "…", "especializacao": { "nome_fantasia": "Marca X", "cnpj": "12345678000199", … } }
+
+// Resposta de erro (ex.: 409)
+{ "codigo": 409, "erro": "conflict", "mensagem": "Registro já existe (violação de unicidade)", "detalhes": { … } }
+```
+Respostas: `201` com a Parte criada; `422` (CNPJ/CPF inválido, nome vazio); `409` (CNPJ/CPF duplicado).
+
+**`GET /v1/partes/:id`** — retorna uma Parte ativa com sua especialização aninhada *(RF004)*. `200` | `404`. ✅ implementado
+
+**Planejados** (mesmo padrão, próximos incrementos):
+
+| Rota | RF | RN principais |
+|---|---|---|
+| `GET /v1/partes?busca=` | RF008 | busca trigram |
+| `PATCH /v1/partes/:id` | RF004/RF005 | RN001, RN002 |
+| `POST /v1/partes/:id/papeis` · `DELETE …` | RF006 | RN005, RN030 |
+| `POST /v1/partes/:id/contatos` · `PATCH …` | RF007 | RN004 |
+| `DELETE /v1/partes/:id` (arquivamento lógico) | RF004 | RN035 |
 
 ## 8.3 Frontend
 

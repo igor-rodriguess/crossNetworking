@@ -1,0 +1,30 @@
+{
+  "name": "cross-platform-backend",
+  "version": "0.1.0",
+  "description": "Backend da Plataforma Cross - Crossnetworking",
+  "private": true,
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:status": "tsx scripts/migrate.ts status",
+    "db:test": "tsx scripts/test-db.ts",
+    "db:health": "tsx scripts/db-health.ts",
+    "db:backup": "tsx scripts/db-backup.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "pg-copy-streams": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

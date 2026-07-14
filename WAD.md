@@ -6,9 +6,9 @@
 - **Autor:** Igor da Silva Rodrigues
 - **Empresa:** Crossnetworking
 - **Data de criação:** 06/07/2026
-- **Última atualização:** 08/07/2026
-- **Versão:** 0.2
-- **Status:** Em andamento
+- **Última atualização:** 11/07/2026
+- **Versão:** 0.4
+- **Status:** Em andamento — banco implementado; requisitos (RF/RNF/RN) documentados
 
 ---
 
@@ -628,26 +628,520 @@ A arquitetura conceitual busca, portanto, atender às necessidades operacionais 
 
 # 5. Levantamento de Requisitos
 
-## 5.1 Requisitos Funcionais
+Esta seção segue a distinção rigorosa entre os três conceitos: **Requisito Funcional (RF)** — o que o sistema faz; **Requisito Não Funcional (RNF)** — atributos de qualidade; e **Regra de Negócio (RN)** — restrições e políticas do negócio (seção 6). As prioridades classificam-se em **MVP**, **Evolução** e **Estratégico**.
 
-- RF001 – 
-- RF002 – 
-- ...
+> **Suposição adotada:** o sistema descrito é a **Plataforma Cross**, conforme as seções 2 a 4. Boa parte das regras de negócio (seção 6) já está implementada e validada no banco de dados (seção 7.4, migrations `001`–`023`).
 
-## 5.2 Requisitos Não Funcionais
+## 5.1 Atores e Personas
 
-- RNF001 – 
-- RNF002 – 
-- ...
+Nesta versão, a plataforma é de uso **interno** da Crossnetworking — clientes finais e parceiros **não são usuários** do sistema, e sim sujeitos dos dados (representados como *Partes*), conforme o escopo da seção 3.2.
+
+### Atores primários (usuários internos)
+
+| Ator / Persona | Responsabilidades principais | RF típicos |
+|---|---|---|
+| **Estrategista / Analista de Negócios** | Conduz projetos, planejamento, Crossability, Papers e Score Card | RF019–RF033 |
+| **Gestor de Contas** | Relacionamento comercial, clientes e contratos | RF016–RF018 |
+| **Coordenador / Gestor** | Validações, decisões, criação e acompanhamento de parcerias | RF030, RF033–RF047 |
+| **Administrador da Plataforma** | Gestão de usuários, papéis e consulta de auditoria | RF001–RF003, RF049 |
+
+### Atores externos (sistemas)
+
+| Ator | Papel na plataforma |
+|---|---|
+| **Serviço de armazenamento de arquivos** | Guarda os binários dos documentos; o banco mantém apenas metadados e referência (RF009) |
+| **Fontes de dados / planilhas** | Origem da carga inicial e de importações (RF050) |
+| **Agentes de IA / serviço de embeddings** *(futuro)* | Consultas e recomendações sobre a base de conhecimento (RF051) |
+| **Ferramentas da Crossnetworking** *(futuro)* | Integrações previstas no escopo do projeto |
+
+## 5.2 Requisitos Funcionais
+
+Cada requisito segue o template: **Descrição** (o que o sistema faz), **Critério de aceitação** (condições verificáveis para considerá-lo atendido), **Prioridade** (MVP / Evolução / Estratégico), **Regras associadas** (RN da seção 6 que ele deve respeitar) e **Origem** (seção do WAD que o motiva).
+
+### Administração e Plataforma
+
+- **RF001 — Autenticar usuários internos**
+  - **Descrição:** O sistema deve autenticar os colaboradores da Crossnetworking para conceder acesso à plataforma.
+  - **Critério de aceitação:** credenciais válidas de usuário ativo concedem acesso; credenciais inválidas ou de usuário inativo/arquivado são recusadas; a sessão expira após período de inatividade configurável.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN006
+  - **Origem:** Seções 3.1, 7.4.20
+- **RF002 — Gerenciar usuários internos**
+  - **Descrição:** O sistema deve permitir cadastrar, editar, ativar e desativar usuários internos e seus dados de identificação.
+  - **Critério de aceitação:** é possível criar usuário com nome e e-mail válidos; e-mail duplicado (sem diferenciar maiúsculas/minúsculas) é rejeitado; desativar um usuário impede novo login sem apagar seu histórico.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN006
+  - **Origem:** Seções 3.1, 7.3.2
+- **RF003 — Registrar trilha de auditoria**
+  - **Descrição:** O sistema deve registrar automaticamente as operações de criação, alteração, arquivamento e exclusão sobre as entidades de negócio.
+  - **Critério de aceitação:** toda operação de escrita nas entidades auditadas gera um registro com usuário, entidade, tipo de operação, dados antes/depois e data/hora; os registros de auditoria não podem ser alterados nem removidos pela aplicação.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN037
+  - **Origem:** Seções 7.3.21, 7.4.18
+
+### Base de Relacionamentos
+
+- **RF004 — Cadastrar e manter Partes**
+  - **Descrição:** O sistema deve permitir cadastrar organizações e pessoas como uma única entidade (Parte), com nome de exibição e status.
+  - **Critério de aceitação:** é possível criar uma Parte informando tipo (organização ou pessoa), nome e status; toda Parte criada deve receber exatamente uma especialização (RF005) na mesma operação; nome de exibição não pode ser vazio.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN001, RN003
+  - **Origem:** Seções 3.4, 7.3.4, 7.4.8
+- **RF005 — Especializar a Parte**
+  - **Descrição:** O sistema deve permitir detalhar a Parte como organização (razão social, CNPJ, segmento) ou como pessoa (nome completo, CPF, dados artísticos).
+  - **Critério de aceitação:** a especialização criada corresponde ao tipo da Parte; uma Parte não pode ter as duas especializações; CNPJ e CPF, quando informados, são únicos e válidos em formato (14 e 11 dígitos).
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN001, RN002
+  - **Origem:** Seções 7.3.4, 7.4.8
+- **RF006 — Gerenciar papéis da Parte**
+  - **Descrição:** O sistema deve permitir atribuir e encerrar papéis (cliente, parceiro, patrocinador, artista, etc.) de uma Parte, com vigência.
+  - **Critério de aceitação:** é possível atribuir um ou mais papéis a uma Parte; o mesmo papel não pode constar duas vezes ativo para a mesma Parte; a data final de vigência, se informada, é maior ou igual à inicial.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN005, RN030
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF007 — Gerenciar contatos da Parte**
+  - **Descrição:** O sistema deve permitir registrar contatos de uma Parte, indicando o contato principal.
+  - **Critério de aceitação:** é possível cadastrar vários contatos por Parte; no máximo um contato principal ativo por Parte; e-mail de contato, quando informado, tem formato válido.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN004
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF008 — Buscar Partes por nome**
+  - **Descrição:** O sistema deve oferecer busca textual aproximada, tolerante a variações e acentuação, sobre o nome das Partes.
+  - **Critério de aceitação:** a busca retorna Partes cujo nome contém o termo mesmo com pequenas divergências de grafia/acento; resultados retornam ordenados por relevância e paginados.
+  - **Prioridade:** MVP
+  - **Regras associadas:** —
+  - **Origem:** Seção 7.4.19
+- **RF009 — Gerenciar documentos**
+  - **Descrição:** O sistema deve permitir registrar documentos (metadados e referência ao arquivo) e vinculá-los a projetos, briefings, Papers, contratos, parcerias e evidências.
+  - **Critério de aceitação:** o documento armazena nome, tipo, hash e localização (não o binário); o mesmo documento pode ser vinculado a mais de uma entidade; o hash segue o formato SHA-256.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN035
+  - **Origem:** Seções 7.3.16, 7.4.16
+
+### Inteligência Estratégica
+
+- **RF010 — Manter perfil estratégico versionado**
+  - **Descrição:** O sistema deve permitir registrar e versionar o perfil estratégico de uma Parte (posicionamento, objetivos, desafios).
+  - **Critério de aceitação:** cada nova versão preserva as anteriores; existe no máximo uma versão vigente por Parte; a versão vigente é determinada por status, não pela numeração mais alta.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN021, RN036
+  - **Origem:** Seções 3.4, 7.3.8
+- **RF011 — Associar públicos, praças e territórios**
+  - **Descrição:** O sistema deve permitir vincular públicos, praças e territórios de atuação a uma Parte, com relevância e vigência.
+  - **Critério de aceitação:** cada associação ativa (parte–público, parte–praça, parte–território) é única; associações arquivadas não impedem recriação futura.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN035
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF012 — Registrar ativos**
+  - **Descrição:** O sistema deve permitir cadastrar os ativos de uma Parte (propriedades, cotas, espaços) com valor de referência.
+  - **Critério de aceitação:** o ativo pertence a uma Parte; valor de referência, quando informado, é não negativo e acompanhado de moeda ISO 4217.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN038
+  - **Origem:** Seções 3.4, 7.4.15
+- **RF013 — Registrar canais de mídia e métricas**
+  - **Descrição:** O sistema deve permitir registrar canais de mídia de uma Parte e suas métricas de alcance ao longo do tempo.
+  - **Critério de aceitação:** cada medição registra tipo de métrica, valor, data de coleta, fonte e nível de confiança; medições anteriores são preservadas (não sobrescritas).
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN036
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF014 — Gerenciar disponibilidade**
+  - **Descrição:** O sistema deve permitir registrar janelas de disponibilidade de uma Parte ou de um ativo específico.
+  - **Critério de aceitação:** cada disponibilidade refere-se a uma Parte **ou** a um ativo, nunca a ambos; a data final é maior ou igual à inicial.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN029, RN030
+  - **Origem:** Seções 7.3.15, 7.4.14
+- **RF015 — Registrar informações de artistas**
+  - **Descrição:** O sistema deve permitir registrar representações, turnês e seus eventos, Big Moments e agenda de pessoas/artistas.
+  - **Critério de aceitação:** turnês, eventos, Big Moments e agenda vinculam-se a uma pessoa; eventos de turnê não existem sem a turnê; datas de eventos e vigências respeitam fim ≥ início.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN030, RN036
+  - **Origem:** Seções 3.4, 7.3.25
+
+### Clientes e Contratações
+
+- **RF016 — Registrar cliente Cross**
+  - **Descrição:** O sistema deve permitir registrar o vínculo comercial de uma Parte com a Crossnetworking, com responsável pela conta e status.
+  - **Critério de aceitação:** uma Parte possui no máximo um vínculo ativo como cliente Cross; um vínculo arquivado não impede novo vínculo futuro.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN007
+  - **Origem:** Seções 3.4, 7.3.9
+- **RF017 — Gerenciar contratos do cliente**
+  - **Descrição:** O sistema deve permitir cadastrar e manter os contratos de um cliente ao longo do tempo.
+  - **Critério de aceitação:** um cliente pode ter vários contratos; não existem dois contratos ativos com o mesmo código; a data final do contrato, quando informada, é maior ou igual à inicial.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN008, RN011, RN030
+  - **Origem:** Seção 7.3.9
+- **RF018 — Configurar modelos e componentes de remuneração**
+  - **Descrição:** O sistema deve permitir associar modelos de contratação e componentes de remuneração (valor mensal, comissões, percentuais) a um contrato.
+  - **Critério de aceitação:** um contrato pode combinar mais de um modelo; cada componente define valor monetário **ou** percentual; quando há valor, há moeda; percentuais ficam entre 0 e 100.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN009, RN010, RN038
+  - **Origem:** Seções 7.3.9, 7.4.15
+
+### Projetos e Oportunidades
+
+- **RF019 — Gerenciar projetos**
+  - **Descrição:** O sistema deve permitir criar e manter projetos vinculados a um cliente, com objetivo, produto, responsáveis, status e histórico.
+  - **Critério de aceitação:** não é possível criar projeto sem cliente; objetivo e status são obrigatórios; a data de fim real, quando informada, é maior ou igual à de início; toda alteração registra autor e data.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN012, RN013, RN030
+  - **Origem:** Seções 2.2, 3.2, 7.3.10
+- **RF020 — Registrar origem da demanda**
+  - **Descrição:** O sistema deve permitir registrar a origem do projeto (briefing do cliente ou oportunidade identificada pela Cross), preservando o histórico.
+  - **Critério de aceitação:** um projeto pode ter várias origens registradas ao longo do tempo; o tipo de origem usa vocabulário controlado.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN018
+  - **Origem:** Seções 2.2, 7.3.10
+- **RF021 — Manter briefing versionado**
+  - **Descrição:** O sistema deve permitir registrar e versionar o briefing de um projeto.
+  - **Critério de aceitação:** cada versão preserva as anteriores; existe no máximo uma versão vigente por projeto; a numeração de versão é única por projeto.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN021
+  - **Origem:** Seções 2.2, 7.3.8
+- **RF022 — Manter planejamento estratégico versionado**
+  - **Descrição:** O sistema deve permitir registrar e versionar o planejamento estratégico do projeto (estudos, diagnósticos, territórios, oportunidades).
+  - **Critério de aceitação:** cada versão preserva as anteriores; no máximo uma versão vigente por projeto.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN021
+  - **Origem:** Seções 2.2, 7.3.8
+- **RF023 — Gerenciar responsáveis do projeto**
+  - **Descrição:** O sistema deve permitir designar e alterar os responsáveis internos de um projeto.
+  - **Critério de aceitação:** um responsável vincula-se a um usuário interno; o mesmo usuário não figura duas vezes como responsável ativo no mesmo projeto; o projeto deve manter ao menos um responsável ativo.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN013, RN031
+  - **Origem:** Seções 2.2, 7.3.10
+- **RF024 — Gerenciar frentes de oportunidade**
+  - **Descrição:** O sistema deve permitir criar frentes de oportunidade dentro de um projeto, com território, objetivo e status, podendo reabri-las.
+  - **Critério de aceitação:** toda frente pertence a um único projeto; uma frente pode existir sem candidaturas; a reabertura preserva o histórico anterior; a data de encerramento, quando informada, é maior ou igual à de abertura.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN014, RN030
+  - **Origem:** Seções 2.2, 7.3.10
+- **RF025 — Registrar candidaturas de parceiros**
+  - **Descrição:** O sistema deve permitir registrar Partes como candidatas a parceiras dentro de uma frente, com interesse, prioridade e status.
+  - **Critério de aceitação:** toda candidatura aponta para exatamente uma Parte; a mesma Parte não pode ter duas candidaturas ativas na mesma frente; interesses e status usam vocabulário controlado.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN015, RN016, RN018
+  - **Origem:** Seções 2.2, 7.3.10
+- **RF026 — Movimentar candidatura com histórico**
+  - **Descrição:** O sistema deve permitir alterar o status de uma candidatura registrando o histórico da movimentação.
+  - **Critério de aceitação:** cada mudança de status grava, na mesma transação, o status anterior e o novo, a data, o responsável e a justificativa; o estado atual e o histórico permanecem consistentes.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN017
+  - **Origem:** Seções 7.3.7, 7.4.21
+
+### Metodologias Proprietárias
+
+- **RF027 — Registrar análise Crossability**
+  - **Descrição:** O sistema deve permitir registrar análises Crossability versionadas por candidatura (compatibilidades, sinergia, fit, momento e racional).
+  - **Critério de aceitação:** uma nova análise não sobrescreve as anteriores; a combinação candidatura + número de versão é única; a análise pode referenciar evidências.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN019, RN036
+  - **Origem:** Seções 2.2, 7.3.11
+- **RF028 — Elaborar Papers e versões**
+  - **Descrição:** O sistema deve permitir elaborar Papers por frente, com múltiplas versões (estratégia, benefícios, plano de implementação).
+  - **Critério de aceitação:** todo Paper pertence a uma frente; cada versão preserva as anteriores; existe no máximo uma versão vigente por Paper.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN021
+  - **Origem:** Seções 2.2, 7.3.12
+- **RF029 — Recomendar candidaturas no Paper**
+  - **Descrição:** O sistema deve permitir associar candidaturas recomendadas a um Paper, com ordem de prioridade e justificativa.
+  - **Critério de aceitação:** um Paper pode recomendar várias candidaturas; cada associação registra ordem de prioridade, justificativa e status da recomendação.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** —
+  - **Origem:** Seção 7.3.12
+- **RF030 — Validar Papers**
+  - **Descrição:** O sistema deve permitir registrar validações (interna, cliente, jurídica, comercial) sobre uma versão específica do Paper.
+  - **Critério de aceitação:** toda validação aponta para uma versão específica do Paper; tipo e status de validação usam vocabulário controlado.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN020
+  - **Origem:** Seção 7.3.12
+- **RF031 — Configurar Score Card**
+  - **Descrição:** O sistema deve permitir configurar modelos de Cross Score Card versionados, com critérios, pesos e ordem.
+  - **Critério de aceitação:** critérios pertencem a uma versão do modelo; a ordem é única por versão; pesos são não negativos.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN021, RN023
+  - **Origem:** Seções 2.2, 7.3.13, 7.4.13
+- **RF032 — Aplicar avaliação Score Card**
+  - **Descrição:** O sistema deve permitir aplicar a avaliação Score Card a uma candidatura, calculando o score de forma determinística.
+  - **Critério de aceitação:** a avaliação só ocorre sobre uma validação de Paper aprovada; há no máximo uma resposta por critério; a pontuação corresponde ao peso conforme a resposta e o score total = soma das pontuações + potencial disruptivo (1 a 5); esses valores não são editáveis manualmente.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN022, RN023, RN024, RN039
+  - **Origem:** Seções 2.2, 7.3.13, 7.4.13
+- **RF033 — Registrar decisões da candidatura**
+  - **Descrição:** O sistema deve permitir registrar decisões (priorizada, aprovada, rejeitada, em negociação, etc.) sobre uma candidatura.
+  - **Critério de aceitação:** uma candidatura pode acumular várias decisões históricas; cada decisão registra tipo, responsável, justificativa e data.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN025
+  - **Origem:** Seções 2.2, 7.3.14
+
+### Parcerias e Negociação
+
+- **RF034 — Criar parceria**
+  - **Descrição:** O sistema deve permitir criar uma parceria a partir de uma candidatura aprovada, vinculando cliente, parte parceira e origem.
+  - **Critério de aceitação:** a criação só é permitida quando existir decisão de aprovação **e** o Paper correspondente estiver validado; uma candidatura gera no máximo uma parceria ativa; tentativa sem esses pré-requisitos é rejeitada; uma parceria encerrada e reaberta constitui um novo ciclo, preservando o histórico anterior.
+  - **Prioridade:** MVP
+  - **Regras associadas:** RN026, RN027, RN028
+  - **Origem:** Seções 2.2, 7.3.14
+- **RF035 — Registrar negociações**
+  - **Descrição:** O sistema deve permitir registrar as negociações de uma parceria e seus resultados.
+  - **Critério de aceitação:** toda negociação pertence a uma parceria; status usa vocabulário controlado; a data final, quando informada, é maior ou igual à inicial.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN030
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF036 — Registrar contrapartidas**
+  - **Descrição:** O sistema deve permitir registrar as contrapartidas de uma parceria e seu cumprimento.
+  - **Critério de aceitação:** toda contrapartida pertence a uma parceria; valor estimado, quando informado, acompanha moeda; é possível marcar a contrapartida como cumprida.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN038
+  - **Origem:** Seções 3.4, 7.3.25
+- **RF037 — Gerenciar contrato da parceria**
+  - **Descrição:** O sistema deve permitir registrar o contrato da parceria com condições comerciais e vigência.
+  - **Critério de aceitação:** o contrato pertence a uma parceria; valor, quando informado, acompanha moeda; a data final é maior ou igual à inicial.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN030, RN038
+  - **Origem:** Seções 3.4, 7.3.25
+
+### Execução
+
+- **RF038 — Planejar execução**
+  - **Descrição:** O sistema deve permitir criar planos de execução versionados, com etapas ordenadas e entregas.
+  - **Critério de aceitação:** o plano pertence a uma parceria; a ordem das etapas é única por plano; datas previstas respeitam fim ≥ início; existe no máximo uma versão vigente por parceria.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN021, RN030
+  - **Origem:** Seções 7.3.8, 7.3.17
+- **RF039 — Designar responsáveis por entregas**
+  - **Descrição:** O sistema deve permitir designar responsáveis internos (usuários) ou externos (Partes) por entrega.
+  - **Critério de aceitação:** cada responsabilidade de entrega vincula-se a um usuário interno **ou** a uma Parte, nunca a ambos.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN031
+  - **Origem:** Seção 7.3.17
+- **RF040 — Registrar reuniões**
+  - **Descrição:** O sistema deve permitir registrar reuniões de uma parceria e seus participantes.
+  - **Critério de aceitação:** a reunião pertence a uma parceria; cada participante é um usuário interno **ou** uma Parte, nunca ambos.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN031
+  - **Origem:** Seção 7.3.17
+- **RF041 — Registrar touchpoints**
+  - **Descrição:** O sistema deve permitir registrar pontos de contato ao longo da parceria.
+  - **Critério de aceitação:** todo touchpoint pertence a uma parceria e registra tipo, descrição, data e responsável.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** —
+  - **Origem:** Seção 7.3.17
+- **RF042 — Gerenciar pendências**
+  - **Descrição:** O sistema deve permitir registrar e acompanhar pendências de uma parceria, opcionalmente ligadas a etapa ou entrega.
+  - **Critério de aceitação:** toda pendência pertence a uma parceria; etapa e entrega são opcionais; status usa vocabulário controlado.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN032
+  - **Origem:** Seção 7.3.17
+
+### Acompanhamento e Resultados
+
+- **RF043 — Registrar acompanhamentos**
+  - **Descrição:** O sistema deve permitir registrar acompanhamentos periódicos da parceria.
+  - **Critério de aceitação:** todo acompanhamento pertence a uma parceria e registra descrição, data e responsável.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** —
+  - **Origem:** Seções 2.2, 7.3.18
+- **RF044 — Definir indicadores e medições**
+  - **Descrição:** O sistema deve permitir definir indicadores por parceria e registrar suas medições ao longo do tempo.
+  - **Critério de aceitação:** cada medição registra período, valor, unidade, fonte, responsável, data de coleta e nível de confiança; o período respeita fim ≥ início; medições anteriores são preservadas.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN030, RN036
+  - **Origem:** Seção 7.3.18
+- **RF045 — Registrar resultados**
+  - **Descrição:** O sistema deve permitir registrar resultados obtidos e alcance realizado da parceria.
+  - **Critério de aceitação:** todo resultado pertence a uma parceria; valor, quando informado, acompanha moeda; resultados podem referenciar evidências.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN036, RN038
+  - **Origem:** Seção 7.3.18
+- **RF046 — Calcular ROI**
+  - **Descrição:** O sistema deve permitir registrar cálculos de ROI históricos e independentes de uma parceria.
+  - **Critério de aceitação:** cada cálculo é um registro independente que nunca sobrescreve outro; preserva investimento/retorno estimado e realizado, moeda, premissas, nível de confiança e responsável; ROI = (retorno − investimento) / investimento.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN033, RN039
+  - **Origem:** Seção 7.3.18
+- **RF047 — Encerrar projeto e parceria**
+  - **Descrição:** O sistema deve permitir encerrar projetos e parcerias separadamente, registrando motivo, resultados e aprendizados.
+  - **Critério de aceitação:** existe no máximo um encerramento por projeto e um por parceria; os dois encerramentos são independentes.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN034
+  - **Origem:** Seção 7.3.19
+
+### Governança e Inteligência
+
+- **RF048 — Gerenciar fontes e evidências**
+  - **Descrição:** O sistema deve permitir registrar fontes e evidências e vinculá-las a perfis, análises, medições de mídia, Big Moments, resultados e cálculos de ROI.
+  - **Critério de aceitação:** cada evidência registra fonte, título, data de coleta, validade, nível de confiança e responsável pela validação; a vinculação a cada tipo de registro é explícita (sem polimorfismo).
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN036
+  - **Origem:** Seções 7.3.20, 7.4.17
+- **RF049 — Consultar histórico e auditoria**
+  - **Descrição:** O sistema deve permitir consultar o histórico de movimentações e a trilha de auditoria dos registros.
+  - **Critério de aceitação:** é possível consultar as movimentações de uma candidatura e as operações auditadas de uma entidade, por período e responsável; a consulta não permite alterar os registros.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN035, RN037
+  - **Origem:** Seções 7.3.21, 7.4.18
+- **RF050 — Importar dados de planilhas**
+  - **Descrição:** O sistema deve permitir importar informações atualmente mantidas em planilhas para a base centralizada.
+  - **Critério de aceitação:** a importação valida os dados contra as regras de negócio e reporta as linhas rejeitadas; respostas/estados desconhecidos por falha de importação são distinguíveis de estados conhecidos.
+  - **Prioridade:** Evolução
+  - **Regras associadas:** RN018, RN038
+  - **Origem:** Seções 2.3, 3.2, 7.3.24
+- **RF051 — Base de conhecimento para IA**
+  - **Descrição:** O sistema deve disponibilizar a base de dados estruturada e rastreável para consultas, recomendações e análises assistidas por inteligência artificial.
+  - **Critério de aceitação:** as consultas usam a estrutura relacional como fonte oficial e preservam origem/rastreabilidade; dados sensíveis não são expostos automaticamente a modelos externos.
+  - **Prioridade:** Estratégico
+  - **Regras associadas:** RN036, RN037
+  - **Origem:** Seções 3.4, 7.4.25
+
+## 5.3 Requisitos Não Funcionais
+
+### Restrições de Arquitetura e Tecnologia
+
+> Os itens RNF001–RNF003 são **restrições de projeto** (decisões arquiteturais impostas), e não atributos de qualidade mensuráveis. São mantidos com prefixo RNF apenas por conveniência de rastreabilidade.
+
+- **RNF001 — SGBD (restrição)** — O banco de dados deve ser PostgreSQL 16.
+- **RNF002 — Stack do backend (restrição)** — O backend deve ser implementado em Node.js, Express e TypeScript.
+- **RNF003 — Identificadores (restrição)** — As entidades devem usar UUID como identificador primário.
+- **RNF004 — Evolução do schema** — O schema deve evoluir por migrations versionadas e imutáveis, com verificação de checksum das migrations já aplicadas (falha a aplicação se uma migration já aplicada for modificada).
+
+### Segurança e Privacidade
+
+- **RNF005 — Privilégio mínimo** — A aplicação deve conectar-se ao banco com um papel sem DDL nem superusuário; a administração/migração usa papel separado.
+- **RNF006 — Auditoria imutável** — A trilha de auditoria e as tabelas de histórico não devem ser passíveis de alteração ou exclusão pela aplicação.
+- **RNF007 — LGPD** — Dados pessoais (CPF, CNPJ, e-mails, telefones) devem ter acesso restrito, validação de formato e não ser enviados automaticamente a modelos externos.
+- **RNF008 — Segredos** — Credenciais não devem estar no código; devem residir em variáveis de ambiente fora do controle de versão.
+- **RNF009 — Controle de acesso a nível de linha** — Quando houver modelo de autenticação/multi-tenant, o sistema deve suportar políticas de Row-Level Security por usuário, equipe ou cliente. **(Evolução)**
+
+### Confiabilidade e Integridade
+
+- **RNF010 — Integridade no banco** — Integridade referencial, unicidade e validações de domínio devem ser garantidas pelo banco, não apenas pela aplicação.
+- **RNF011 — Transacionalidade** — Operações críticas (mudança de status + histórico, publicação de versão, avaliação, criação de parceria, encerramento) devem ocorrer em transação única (tudo ou nada).
+- **RNF012 — Testes de integridade** — O banco deve possuir suíte automatizada cobrindo os cenários inválidos da seção 7.4.24, com 100% de aprovação a cada alteração.
+
+### Performance
+
+- **RNF013 — Índices** — Todas as chaves estrangeiras recorrentes e filtros frequentes devem possuir índice; a busca textual deve usar índice trigram.
+- **RNF014 — Eficiência de consulta** — Consultas críticas devem ser avaliadas com `EXPLAIN ANALYZE`; a taxa de acerto de cache (*cache hit ratio*) deve permanecer acima de 0,99 em operação normal.
+- **RNF015 — Tempo de resposta** — Consultas operacionais de listagem paginada devem responder em menos de 300 ms para volumes de até 100 mil registros por entidade (meta a validar com dados reais). **(Suposição adotada)**
+
+### Disponibilidade e Recuperação
+
+- **RNF016 — Backup** — O sistema deve possuir backups automáticos gerenciados e backup lógico sob demanda, com retenção definida.
+- **RNF017 — Recuperação** — Deve haver recuperação *point-in-time* e teste periódico de restauração em ambiente separado. **(Evolução)**
+- **RNF018 — Monitoramento** — Devem ser monitorados conexões, locks, consultas lentas e crescimento de tabelas e índices.
+
+### Escalabilidade e Extensibilidade
+
+- **RNF019 — Modularidade** — O banco deve ser organizado em schemas por domínio, permitindo evolução independente.
+- **RNF020 — Particionamento futuro** — Tabelas de alto volume (auditoria, métricas de mídia, medições, evidências) devem ser candidatas a particionamento por intervalo de data.
+- **RNF021 — Vocabulários extensíveis** — Status, tipos e categorias devem ser administráveis por tabelas de referência, sem alteração de código.
+
+### Preparação para Inteligência Artificial
+
+- **RNF022 — Fonte oficial e recuperação vetorial** — A estrutura relacional deve ser a fonte oficial dos dados; o sistema deve permitir a inclusão futura de recuperação vetorial (pgvector) em módulo separado, preservando origem e rastreabilidade. **(Estratégico)**
+
+### Processo e Entrega
+
+- **RNF023 — Integração contínua** — Cada alteração deve, automaticamente, aplicar as migrations e executar os testes de integridade contra um banco descartável antes da integração.
 
 ---
 
 # 6. Regras de Negócio
 
-- RN001 – 
-- RN002 – 
-- RN003 – 
-- ...
+As regras a seguir são independentes de tecnologia e expressam políticas do negócio. A anotação **🔒** indica regras **já garantidas no banco de dados** (constraints/triggers das migrations `001`–`023`); as demais são garantidas pela camada de aplicação e/ou processo operacional.
+
+## 6.1 Partes, Papéis e Usuários
+
+- **RN001** Toda Parte é exatamente uma organização **ou** uma pessoa, nunca ambas. 🔒
+- **RN002** CNPJ (organização) e CPF (pessoa), quando informados, são únicos e válidos em formato. 🔒
+- **RN003** Organizações e pessoas são referenciadas de forma uniforme (como Parte) em oportunidades, parcerias, contatos e demais relações compartilhadas. 🔒
+- **RN004** Uma Parte pode ter no máximo um contato principal ativo. 🔒
+- **RN005** Um mesmo papel não se repete, ativo, para a mesma Parte. 🔒
+- **RN006** O e-mail de um usuário interno é único, sem diferenciar maiúsculas de minúsculas. 🔒
+
+## 6.2 Clientes e Contratações
+
+- **RN007** Uma Parte possui no máximo um vínculo ativo como cliente Cross. 🔒
+- **RN008** Um cliente pode possuir vários contratos ao longo do tempo. 🔒
+- **RN009** Um contrato pode combinar mais de um modelo de contratação. 🔒
+- **RN010** Todo componente de remuneração define um valor monetário ou um percentual; quando há valor, há moeda. 🔒
+- **RN011** Não podem existir dois contratos ativos com o mesmo código. 🔒
+
+## 6.3 Projetos, Frentes e Candidaturas
+
+- **RN012** Todo projeto pertence a um cliente. 🔒
+- **RN013** Todo projeto deve possuir ao menos um responsável interno ativo. *(aplicação)*
+- **RN014** Toda frente pertence a um único projeto e pode ser reaberta preservando o histórico. 🔒
+- **RN015** A mesma Parte não pode ter duas candidaturas ativas na mesma frente; uma candidatura arquivada não impede uma nova entrada. 🔒
+- **RN016** Toda candidatura aponta para exatamente uma Parte. 🔒
+- **RN017** Toda mudança de status de candidatura registra o histórico da movimentação (status anterior/novo, data, responsável, justificativa). 🔒 *(estado)* / *(aplicação para o registro do evento)*
+- **RN018** Status, interesses e prioridades usam vocabulários controlados; rótulos de interface não são identificadores. 🔒
+
+## 6.4 Metodologias (Crossability, Paper e Score Card)
+
+- **RN019** Uma nova análise Crossability não sobrescreve as anteriores (versão única por candidatura). 🔒
+- **RN020** Toda validação aponta para uma versão específica do Paper. 🔒
+- **RN021** Existe no máximo uma versão vigente por Paper — e, de forma geral, por entidade versionada (briefing, planejamento, perfil, modelo de Score Card, plano de execução). 🔒
+- **RN022** A avaliação do Cross Score Card só ocorre sobre uma validação de Paper aprovada. 🔒
+- **RN023** O Score Card é determinístico: a pontuação de cada resposta corresponde ao peso do critério conforme a resposta (SIM / NÃO / NÃO_AVALIADO); o score total é a soma das pontuações mais o potencial disruptivo (1 a 5). Esses valores não podem ser editados manualmente. 🔒
+- **RN024** Cada avaliação possui no máximo uma resposta por critério. 🔒
+
+## 6.5 Decisão e Parcerias
+
+- **RN025** Uma candidatura pode acumular várias decisões históricas. 🔒
+- **RN026** Uma parceria só pode ser criada quando existir decisão de aprovação e o Paper correspondente estiver validado. 🔒
+- **RN027** Uma candidatura gera no máximo uma parceria ativa. 🔒
+- **RN028** Uma parceria encerrada e posteriormente reaberta constitui um novo ciclo, preservando o histórico anterior. *(aplicação)*
+
+## 6.6 Disponibilidade, Execução e Acompanhamento
+
+- **RN029** A disponibilidade associa-se a uma Parte **ou** a um ativo, nunca a ambos simultaneamente. 🔒
+- **RN030** Em toda entidade com período, a data final é maior ou igual à data inicial. 🔒
+- **RN031** Responsáveis internos vinculam-se a usuários da plataforma; responsáveis externos vinculam-se a Partes. 🔒
+- **RN032** Uma pendência sempre pertence a uma parceria, podendo, opcionalmente, referenciar uma etapa ou entrega. 🔒
+- **RN033** Cada cálculo de ROI é um registro histórico independente e nunca sobrescreve outro; ROI = (retorno − investimento) / investimento. 🔒 *(imutabilidade)* / *(aplicação para o cálculo)*
+- **RN034** O encerramento de projeto e o encerramento de parceria são processos separados, com no máximo um registro por entidade. 🔒
+
+## 6.7 Governança e Dados
+
+- **RN035** A exclusão de entidades de negócio com valor histórico é lógica (arquivamento), preservando o histórico. 🔒
+- **RN036** Dados estratégicos preservam origem, data de coleta, validade, nível de confiança e responsável pela validação. 🔒
+- **RN037** Toda operação relevante gera trilha de auditoria; a trilha é imutável para a aplicação. 🔒
+- **RN038** Valores monetários usam precisão decimal com moeda no padrão ISO 4217; percentuais permanecem entre 0 e 100. 🔒
+- **RN039** Dados calculados possuem uma única fonte oficial de cálculo e não são editáveis manualmente. 🔒
+
+## 6.8 Matriz de Rastreabilidade
+
+### Requisitos Funcionais → Entidades → Rotas
+
+Relaciona grupos de requisitos funcionais às principais entidades do banco (seção 7) e aos futuros módulos de rota da API.
+
+| RF | Módulo | Entidades principais | Rota base (futuro) |
+|---|---|---|---|
+| RF001–RF003 | Administração | `usuario_interno`, `auditoria` | `/auth`, `/usuarios`, `/auditoria` |
+| RF004–RF009 | Base de Relacionamentos | `parte`, `organizacao`, `pessoa`, `parte_papel`, `contato`, `documento` | `/partes`, `/documentos` |
+| RF010–RF015 | Inteligência Estratégica | `perfil_estrategico`, `publico`, `praca`, `territorio`, `ativo`, `canal_midia`, `medicao_midia`, `disponibilidade`, `turne`, `big_moment` | `/partes/{id}/inteligencia`, `/ativos`, `/disponibilidades` |
+| RF016–RF018 | Clientes e Contratações | `cliente_cross`, `contrato_cliente`, `modelo_contratacao`, `componente_remuneracao` | `/clientes`, `/contratos` |
+| RF019–RF026 | Projetos e Oportunidades | `projeto`, `origem_demanda`, `briefing`, `planejamento_estrategico`, `frente_oportunidade`, `candidatura_parceiro`, `historico_candidatura` | `/projetos`, `/projetos/{id}/frentes`, `/frentes/{id}/candidaturas` |
+| RF027–RF033 | Metodologias | `analise_crossability`, `paper`, `versao_paper`, `validacao_paper`, `modelo_score_card`, `criterio_score_card`, `avaliacao_score_card`, `resposta_score_card`, `decisao_candidatura` | `/candidaturas/{id}/crossability`, `/papers`, `/score-cards`, `/candidaturas/{id}/decisoes` |
+| RF034–RF037 | Parcerias | `parceria`, `negociacao`, `contrapartida`, `contrato_parceria` | `/parcerias` |
+| RF038–RF042 | Execução | `plano_execucao`, `etapa_execucao`, `entrega`, `reuniao`, `touchpoint`, `pendencia` | `/parcerias/{id}/execucao`, `/parcerias/{id}/pendencias` |
+| RF043–RF047 | Acompanhamento e Resultados | `acompanhamento`, `indicador`, `medicao_indicador`, `resultado`, `calculo_roi`, `encerramento_projeto`, `encerramento_parceria` | `/parcerias/{id}/acompanhamento`, `/parcerias/{id}/resultados`, `/parcerias/{id}/roi` |
+| RF048–RF051 | Governança e IA | `fonte`, `evidencia`, `auditoria`, `documento` | `/fontes`, `/evidencias`, `/auditoria` |
+
+### Requisitos Não Funcionais → Mecanismo de garantia
+
+| RNF | Como é garantido hoje |
+|---|---|
+| RNF001–RNF004 (Arquitetura) | PostgreSQL 16; runner com verificação de checksum; UUID; migrations imutáveis |
+| RNF005–RNF009 (Segurança) | Papel `cross_app` de privilégio mínimo; auditoria/histórico imutáveis (migration `023`); validação de PII (`021`); RLS previsto como Evolução |
+| RNF010–RNF012 (Integridade) | Constraints e triggers no banco; operações transacionais; suíte `integridade.sql` (14 cenários) |
+| RNF013–RNF015 (Performance) | Índices de FK e trigram (`015`); `db:health`; meta de tempo a validar com dados reais |
+| RNF016–RNF018 (Disponibilidade) | Backups gerenciados do Supabase + `db:backup`; PITR/restore-drill como Evolução; `db:health` |
+| RNF019–RNF021 (Escalabilidade) | Schemas por domínio; tabelas candidatas a particionamento; vocabulários em tabelas de referência |
+| RNF022 (IA) | Estrutura relacional como fonte oficial; `pgvector` previsto em módulo separado |
+| RNF023 (Processo) | Integração contínua (`.github/workflows/db.yml`) |
 
 ---
 
@@ -2986,7 +3480,30 @@ A construção efetiva será realizada por meio de migrations versionadas no rep
 10. seeds;
 11. testes de integridade.
 
-Até a execução das migrations, esta seção deve ser considerada a especificação física proposta, e não a confirmação de que todas as estruturas já se encontram implementadas no ambiente PostgreSQL.
+**Estado atual (implementado):** as migrations `001` a `022` foram desenvolvidas e **aplicadas com sucesso** em um banco **PostgreSQL 16 hospedado no Supabase**, acessado via *Session pooler*. A implementação foi validada de ponta a ponta pela suíte de testes de integridade (`backend/database/tests/integridade.sql`), com **14 de 14 cenários** aprovados.
+
+Números do banco efetivamente implementado:
+
+| Objeto | Quantidade |
+|---|---|
+| Schemas de domínio | 9 |
+| Tabelas | 110 |
+| Índices | 207 |
+| Chaves estrangeiras | 256 |
+| Constraints de verificação (CHECK) | 58 |
+| Triggers | 70 |
+| Funções | 9 |
+| Migrations aplicadas | 22 |
+
+Além das estruturas descritas nas seções anteriores, migrations adicionais reforçam o banco:
+
+- `020` — regras de negócio que antes dependiam apenas da aplicação: parceria somente após decisão de aprovação e Paper validado (seção 7.3.14), avaliação do Cross Score Card somente sobre validação de Paper aprovada (seção 7.4.13) e índices únicos parciais de contratos e responsáveis ativos (seção 7.3.6).
+- `021` — endurecimento de integridade: formatos de CPF/CNPJ/e-mail, texto obrigatório não-vazio, faixas de versão/ordem/peso, hash SHA-256 e unicidade de e-mail *case-insensitive*.
+- `022` — ampliação da cobertura de auditoria técnica para as demais entidades de negócio.
+
+Como reforço de segurança, a aplicação passou a conectar com o papel de **privilégio mínimo `cross_app`** (sem DDL nem superusuário), enquanto as *migrations* usam uma conexão administrativa separada.
+
+A partir deste ponto, esta seção reflete o estado **implementado** do banco de dados, e não mais apenas a especificação proposta.
 
 ---
 
@@ -3030,7 +3547,14 @@ Essa estrutura fornece uma base robusta para a evolução da Plataforma Cross, p
 
 ## 8.4 Banco de Dados
 
-(SGBD, schema, políticas de acesso.)
+- **SGBD:** PostgreSQL 16, hospedado no Supabase.
+- **Conexão:** via *Session pooler* (IPv4). A *Direct connection* do Supabase é IPv6-only e não é utilizada no ambiente atual.
+- **Organização:** 9 schemas por domínio (`cross_core`, `cross_intelligence`, `cross_commercial`, `cross_projects`, `cross_methodologies`, `cross_partnerships`, `cross_execution`, `cross_analytics`, `cross_governance`), conforme a seção 7.4.2.
+- **Versionamento do schema:** migrations SQL numeradas em `backend/database/migrations/` (`001`…`020`), aplicadas por um runner em Node.js/TypeScript que registra o histórico em `public.schema_migrations`. Migrations já aplicadas nunca são modificadas; mudanças geram novos arquivos (seção 7.4.22).
+- **Integridade:** assegurada por constraints, índices únicos parciais, funções e triggers (especialização de Parte, Cross Score Card determinístico, regras de parceria e validação, auditoria), validada pela suíte `backend/database/tests/integridade.sql`.
+- **Controle de acesso:** papéis técnicos por finalidade (`cross_app`, `cross_readonly`, `cross_migration`, `cross_analytics`, `cross_ai`), conforme a seção 7.4.20. **A aplicação conecta com o papel de privilégio mínimo `cross_app`** (apenas `SELECT/INSERT/UPDATE/DELETE`, sem DDL nem superusuário); as *migrations* usam uma conexão administrativa separada. A trilha de auditoria e as tabelas de histórico são **imutáveis para a aplicação** (sem `UPDATE`/`DELETE`). Dados sensíveis (CPF, CNPJ, e-mails, telefones) tratados conforme a LGPD, com validação de formato no banco.
+- **Ferramental operacional:** runner de migrations com verificação de checksum (`db:migrate`/`db:status`), suíte de integridade (`db:test`), observabilidade (`db:health` — conexões, locks, consultas lentas, uso de índices, *cache hit ratio*) e backup lógico via `COPY` (`db:backup`).
+- **Integração contínua:** workflow (`.github/workflows/db.yml`) que, a cada alteração, aplica as migrations e roda os testes de integridade contra um PostgreSQL 16 descartável.
 
 ## 8.5 Integrações
 

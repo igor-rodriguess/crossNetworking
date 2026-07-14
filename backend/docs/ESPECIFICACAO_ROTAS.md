@@ -142,18 +142,19 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 
 | RF | Descrição | Método | Caminho | RNs | Status |
 |---|---|---|---|---|---|
-| RF016 | Registrar cliente | POST | `/v1/clientes` | RN007 | 🔜 |
-| RF016 | Listar clientes | GET | `/v1/clientes` | — | 🔜 |
-| RF016 | Obter cliente | GET | `/v1/clientes/:id` | — | 🔜 |
-| RF016 | Atualizar cliente | PATCH | `/v1/clientes/:id` | — | 🔜 |
-| RF016 | Encerrar vínculo | DELETE | `/v1/clientes/:id` | RN035 | 🔜 |
-| RF017 | Criar contrato | POST | `/v1/clientes/:id/contratos` | RN008, RN011, RN030 | 🔜 |
-| RF017 | Listar contratos | GET | `/v1/clientes/:id/contratos` | — | 🔜 |
-| RF017 | Obter/atualizar contrato | GET/PATCH | `/v1/contratos/:id` | RN011 | 🔜 |
-| RF018 | Definir modelos de contratação | PUT | `/v1/contratos/:id/modelos` | RN009 | 🔜 |
-| RF018 | Adicionar componente de remuneração | POST | `/v1/contratos/:id/componentes-remuneracao` | RN010, RN038 | 🔜 |
-| RF018 | Listar componentes | GET | `/v1/contratos/:id/componentes-remuneracao` | — | 🔜 |
-| RF018 | Remover componente | DELETE | `/v1/contratos/:id/componentes-remuneracao/:compId` | — | 🔜 |
+| RF016 | Registrar cliente | POST | `/v1/clientes` | RN007 | ✅ |
+| RF016 | Listar clientes | GET | `/v1/clientes` | — | ✅ |
+| RF016 | Obter cliente | GET | `/v1/clientes/:id` | — | ✅ |
+| RF016 | Atualizar cliente | PATCH | `/v1/clientes/:id` | — | ✅ |
+| RF016 | Encerrar vínculo | DELETE | `/v1/clientes/:id` | RN035 | ✅ |
+| RF017 | Criar contrato | POST | `/v1/clientes/:id/contratos` | RN008, RN011, RN030 | ✅ |
+| RF017 | Listar contratos | GET | `/v1/clientes/:id/contratos` | — | ✅ |
+| RF017 | Obter contrato | GET | `/v1/contratos/:id` | RN011 | ✅ |
+| RF017 | Atualizar contrato | PATCH | `/v1/contratos/:id` | RN011 | ✅ |
+| RF018 | Definir modelos de contratação | PUT | `/v1/contratos/:id/modelos` | RN009 | ✅ |
+| RF018 | Adicionar componente de remuneração | POST | `/v1/contratos/:id/componentes-remuneracao` | RN010, RN038 | ✅ |
+| RF018 | Listar componentes | GET | `/v1/contratos/:id/componentes-remuneracao` | — | ✅ |
+| RF018 | Remover componente | DELETE | `/v1/contratos/:id/componentes-remuneracao/:compId` | — | ✅ |
 
 **Detalhe**
 - `POST /v1/clientes` — `{ parte_id:uuid, responsavel_conta_id?:uuid, status_cliente_codigo?:string, inicio_relacionamento?:date }` → `201` · `409` a Parte já tem vínculo ativo (RN007).

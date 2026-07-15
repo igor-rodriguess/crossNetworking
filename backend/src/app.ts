@@ -20,6 +20,7 @@ import { parceriasRouter } from "./modules/parcerias/parcerias.routes";
 import { execucaoRouter } from "./modules/execucao/execucao.routes";
 import { resultadosRouter } from "./modules/resultados/resultados.routes";
 import { inteligenciaRouter } from "./modules/inteligencia/inteligencia.routes";
+import { governancaRouter } from "./modules/governanca/governanca.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -55,6 +56,7 @@ app.use("/v1", parceriasRouter);
 app.use("/v1", execucaoRouter);
 app.use("/v1", resultadosRouter);
 app.use("/v1", inteligenciaRouter);
+app.use("/v1", governancaRouter);
 
 // Middleware de erro (sempre por último)
 app.use(errorHandler);

@@ -52,6 +52,12 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Validar tipos
+        run: npm run typecheck
+
+      - name: Auditar dependências de produção
+        run: npm run audit:prod
+
       - name: Aplicar migrations
         run: npm run db:migrate
 
@@ -60,3 +66,6 @@ jobs:
 
       - name: Rodar testes de integridade
         run: npm run db:test
+
+      - name: Rodar testes de integração da API
+        run: npm test

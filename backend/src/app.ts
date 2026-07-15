@@ -18,6 +18,7 @@ import { frentesRouter } from "./modules/frentes/frentes.routes";
 import { metodologiasRouter } from "./modules/metodologias/metodologias.routes";
 import { parceriasRouter } from "./modules/parcerias/parcerias.routes";
 import { execucaoRouter } from "./modules/execucao/execucao.routes";
+import { resultadosRouter } from "./modules/resultados/resultados.routes";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -51,6 +52,7 @@ app.use("/v1", frentesRouter);
 app.use("/v1", metodologiasRouter);
 app.use("/v1", parceriasRouter);
 app.use("/v1", execucaoRouter);
+app.use("/v1", resultadosRouter);
 
 // Middleware de erro (sempre por último)
 app.use(errorHandler);

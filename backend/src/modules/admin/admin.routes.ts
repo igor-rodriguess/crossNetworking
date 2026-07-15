@@ -3,7 +3,7 @@ import { asyncHandler } from "../../shared/http";
 import { autorizar } from "../../shared/middleware/authz";
 import { registrarRota } from "../../shared/openapi";
 import * as c from "./admin.controller";
-import { atualizarUsuarioSchema, criarUsuarioSchema } from "./admin.schema";
+import { atualizarUsuarioSchema, criarUsuarioSchema, definirSenhaSchema } from "./admin.schema";
 
 export const adminRouter = Router();
 
@@ -15,6 +15,7 @@ adminRouter.post("/usuarios", admin, asyncHandler(c.criarUsuario));
 adminRouter.get("/usuarios", leitura, asyncHandler(c.listarUsuarios));
 adminRouter.get("/usuarios/:id", leitura, asyncHandler(c.obterUsuario));
 adminRouter.patch("/usuarios/:id", admin, asyncHandler(c.atualizarUsuario));
+adminRouter.put("/usuarios/:id/senha", admin, asyncHandler(c.definirSenha));
 adminRouter.delete("/usuarios/:id", admin, asyncHandler(c.inativarUsuario));
 
 // Catálogos de vocabulário controlado — RN018
@@ -43,6 +44,12 @@ registrarRota({
   summary: "Atualizar usuário (exige If-Match)",
   body: atualizarUsuarioSchema,
   responses: { "200": "Atualizado", "404": "Não encontrado", "409": "Versão desatualizada ou e-mail duplicado", "428": "If-Match ausente" },
+});
+registrarRota({
+  method: "PUT", path: "/v1/usuarios/:id/senha", tag: "Administração",
+  summary: "Definir/redefinir a senha do usuário (revoga as sessões abertas)",
+  body: definirSenhaSchema,
+  responses: { "204": "Senha definida", "404": "Não encontrado", "422": "Senha fraca" },
 });
 registrarRota({
   method: "DELETE", path: "/v1/usuarios/:id", tag: "Administração",

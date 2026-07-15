@@ -141,6 +141,48 @@ export async function existeParteAtiva(client: PoolClient, id: string): Promise<
   return rows.length > 0;
 }
 
+/** Tipo da Parte, para validar qual especialização o PATCH pode tocar. */
+export async function tipoDaParte(client: PoolClient, id: string): Promise<string | null> {
+  const { rows } = await client.query<{ tipo: string }>(
+    "SELECT tipo::text AS tipo FROM cross_core.parte WHERE id = $1 AND arquivado_em IS NULL",
+    [id]
+  );
+  return rows[0]?.tipo ?? null;
+}
+
+export async function atualizarOrganizacao(
+  client: PoolClient,
+  parteId: string,
+  org: { nome_fantasia?: string; razao_social?: string; cnpj?: string; segmento_principal?: string; site?: string }
+): Promise<void> {
+  await client.query(
+    `UPDATE cross_core.organizacao
+        SET nome_fantasia = COALESCE($2, nome_fantasia),
+            razao_social = COALESCE($3, razao_social),
+            cnpj = COALESCE($4, cnpj),
+            segmento_principal = COALESCE($5, segmento_principal),
+            site = COALESCE($6, site)
+      WHERE parte_id = $1`,
+    [parteId, org.nome_fantasia ?? null, org.razao_social ?? null, org.cnpj ?? null, org.segmento_principal ?? null, org.site ?? null]
+  );
+}
+
+export async function atualizarPessoa(
+  client: PoolClient,
+  parteId: string,
+  p: { nome_completo?: string; nome_artistico?: string; cpf?: string; nacionalidade?: string }
+): Promise<void> {
+  await client.query(
+    `UPDATE cross_core.pessoa
+        SET nome_completo = COALESCE($2, nome_completo),
+            nome_artistico = COALESCE($3, nome_artistico),
+            cpf = COALESCE($4, cpf),
+            nacionalidade = COALESCE($5, nacionalidade)
+      WHERE parte_id = $1`,
+    [parteId, p.nome_completo ?? null, p.nome_artistico ?? null, p.cpf ?? null, p.nacionalidade ?? null]
+  );
+}
+
 /** Arquivamento lógico da Parte (RN035). */
 export async function arquivarParte(
   client: PoolClient,

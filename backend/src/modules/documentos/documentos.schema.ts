@@ -18,3 +18,28 @@ export const criarDocumentoSchema = z.object({
 });
 
 export type CriarDocumentoInput = z.infer<typeof criarDocumentoSchema>;
+
+/**
+ * Alvos de vínculo de documento — FK explícita por tabela associativa, sem
+ * polimorfismo (WAD 7.4.16). O nome da tabela vem deste mapa fechado, nunca do
+ * usuário.
+ */
+export const ALVOS_DOCUMENTO = {
+  projeto: { tabela: "cross_projects.projeto_documento", coluna: "projeto_id", origem: "cross_projects.projeto" },
+  briefing: { tabela: "cross_projects.briefing_documento", coluna: "briefing_id", origem: "cross_projects.briefing" },
+  planejamento: { tabela: "cross_projects.planejamento_documento", coluna: "planejamento_estrategico_id", origem: "cross_projects.planejamento_estrategico" },
+  paper: { tabela: "cross_methodologies.paper_documento", coluna: "paper_id", origem: "cross_methodologies.paper" },
+  contrato_cliente: { tabela: "cross_commercial.contrato_cliente_documento", coluna: "contrato_cliente_id", origem: "cross_commercial.contrato_cliente" },
+  parceria: { tabela: "cross_partnerships.parceria_documento", coluna: "parceria_id", origem: "cross_partnerships.parceria" },
+  plano_execucao: { tabela: "cross_execution.plano_execucao_documento", coluna: "plano_execucao_id", origem: "cross_execution.plano_execucao" },
+} as const;
+export type AlvoDocumento = keyof typeof ALVOS_DOCUMENTO;
+
+export const vincularDocumentoSchema = z.object({
+  entidade: z.enum(Object.keys(ALVOS_DOCUMENTO) as [AlvoDocumento, ...AlvoDocumento[]]),
+  entidade_id: z.string().trim().regex(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    "entidade_id deve ser um UUID"
+  ),
+});
+export type VincularDocumentoInput = z.infer<typeof vincularDocumentoSchema>;

@@ -114,6 +114,19 @@ export async function atualizarParte(
       throw new ConflictError("O recurso foi modificado por outra operação; recarregue e tente de novo");
     }
 
+    // Especialização (RF005): só pode tocar a que corresponde ao tipo da Parte.
+    if (patch.organizacao || patch.pessoa) {
+      const tipo = await repo.tipoDaParte(client, id);
+      if (patch.organizacao) {
+        if (tipo !== "organizacao") throw new ValidationError("Esta Parte não é uma organização");
+        await repo.atualizarOrganizacao(client, id, patch.organizacao);
+      }
+      if (patch.pessoa) {
+        if (tipo !== "pessoa") throw new ValidationError("Esta Parte não é uma pessoa");
+        await repo.atualizarPessoa(client, id, patch.pessoa);
+      }
+    }
+
     const updated = await repo.buscarPorId(client, id);
     if (!updated) throw new NotFoundError("Parte não encontrada");
     return updated;

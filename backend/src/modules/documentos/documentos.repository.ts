@@ -1,5 +1,5 @@
 import { PoolClient } from "pg";
-import { CriarDocumentoInput } from "./documentos.schema";
+import { ALVOS_DOCUMENTO, AlvoDocumento, CriarDocumentoInput } from "./documentos.schema";
 
 export async function resolverStatusDocumentoId(
   client: PoolClient,
@@ -61,4 +61,56 @@ export async function buscarPorId(client: PoolClient, id: string): Promise<Docum
     [id]
   );
   return rows[0] ?? null;
+}
+
+// --- Vínculos de documento (RF009 — FK explícita por tabela associativa) -----
+
+export async function existeDocumento(client: PoolClient, id: string): Promise<boolean> {
+  const r = await client.query("SELECT 1 FROM cross_core.documento WHERE id = $1", [id]);
+  return r.rowCount !== 0;
+}
+
+export async function existeAlvoDocumento(
+  client: PoolClient,
+  entidade: AlvoDocumento,
+  id: string
+): Promise<boolean> {
+  const r = await client.query(`SELECT 1 FROM ${ALVOS_DOCUMENTO[entidade].origem} WHERE id = $1`, [id]);
+  return r.rowCount !== 0;
+}
+
+export async function vincularDocumento(
+  client: PoolClient,
+  entidade: AlvoDocumento,
+  entidadeId: string,
+  documentoId: string
+): Promise<void> {
+  const { tabela, coluna } = ALVOS_DOCUMENTO[entidade];
+  await client.query(
+    `INSERT INTO ${tabela} (${coluna}, documento_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+    [entidadeId, documentoId]
+  );
+}
+
+export async function desvincularDocumento(
+  client: PoolClient,
+  entidade: AlvoDocumento,
+  entidadeId: string,
+  documentoId: string
+): Promise<number> {
+  const { tabela, coluna } = ALVOS_DOCUMENTO[entidade];
+  const r = await client.query(
+    `DELETE FROM ${tabela} WHERE ${coluna} = $1 AND documento_id = $2`,
+    [entidadeId, documentoId]
+  );
+  return r.rowCount ?? 0;
+}
+
+export async function listarVinculosDocumento(client: PoolClient, documentoId: string) {
+  const partes = Object.entries(ALVOS_DOCUMENTO).map(
+    ([entidade, { tabela, coluna }]) =>
+      `SELECT '${entidade}' AS entidade, ${coluna} AS entidade_id FROM ${tabela} WHERE documento_id = $1`
+  );
+  const { rows } = await client.query(partes.join(" UNION ALL "), [documentoId]);
+  return rows;
 }

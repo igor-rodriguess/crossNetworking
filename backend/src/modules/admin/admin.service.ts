@@ -1,16 +1,28 @@
 import { withTransaction } from "../../shared/db";
 import { ConflictError, NotFoundError, ValidationError } from "../../shared/errors";
+import { hashSenha } from "../../shared/security/password";
 import * as repo from "./admin.repository";
 import { AtualizarUsuarioInput, CATALOGOS, CriarUsuarioInput } from "./admin.schema";
 
 // --- Usuários (RF002 — RN006: e-mail único, case-insensitive) --------------
 
 export async function criarUsuario(input: CriarUsuarioInput, usuarioId: string | null) {
+  const senhaHash = input.senha ? await hashSenha(input.senha) : null;
   return withTransaction(async (client) => {
     const id = await repo.inserirUsuario(client, input, usuarioId);
+    if (senhaHash) await repo.definirCredencial(client, id, senhaHash);
     const criado = await repo.buscarUsuarioPorId(client, id);
     if (!criado) throw new NotFoundError("Falha ao carregar o usuário recém-criado");
     return criado;
+  }, { usuarioId });
+}
+
+/** Define/redefine a senha do usuário (administrador). */
+export async function definirSenha(id: string, senha: string, usuarioId: string | null): Promise<void> {
+  const senhaHash = await hashSenha(senha);
+  await withTransaction(async (client) => {
+    if (!(await repo.existeUsuarioAtivo(client, id))) throw new NotFoundError("Usuário não encontrado");
+    await repo.definirCredencial(client, id, senhaHash);
   }, { usuarioId });
 }
 

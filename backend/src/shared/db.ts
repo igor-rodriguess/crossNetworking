@@ -1,9 +1,18 @@
 import { Pool, PoolClient } from "pg";
 import { env } from "../config/env";
 
+const usaSsl = env.databaseUrl.includes("supabase.") || env.isProd;
+
 export const pool = new Pool({
   connectionString: env.databaseUrl,
-  ssl: env.databaseUrl.includes("supabase.") ? { rejectUnauthorized: false } : undefined,
+  // TLS obrigatório em Supabase/produção. A verificação estrita do certificado
+  // é controlada por env (default relaxado para o pooler do Supabase).
+  ssl: usaSsl ? { rejectUnauthorized: env.databaseSslStrict } : undefined,
+  // Sondas TCP keepalive evitam que o pooler/NAT derrube conexões ociosas
+  // durante operações longas (visto em suítes pesadas contra o pooler).
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10_000,
+  connectionTimeoutMillis: 10_000,
 });
 
 // -----------------------------------------------------------------------------

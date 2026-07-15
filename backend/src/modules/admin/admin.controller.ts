@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { NotFoundError } from "../../shared/errors";
 import { exigirIfMatch } from "../../shared/optimistic-lock";
 import { envelopePaginado, parsePaginacao } from "../../shared/pagination";
-import { atualizarUsuarioSchema, criarUsuarioSchema } from "./admin.schema";
+import { atualizarUsuarioSchema, criarUsuarioSchema, definirSenhaSchema } from "./admin.schema";
 import * as service from "./admin.service";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -46,6 +46,13 @@ export async function atualizarUsuario(req: Request, res: Response): Promise<voi
 export async function inativarUsuario(req: Request, res: Response): Promise<void> {
   const id = exigirUuid(req.params.id, "Usuário não encontrado");
   await service.inativarUsuario(id, req.usuarioId);
+  res.status(204).send();
+}
+
+export async function definirSenha(req: Request, res: Response): Promise<void> {
+  const id = exigirUuid(req.params.id, "Usuário não encontrado");
+  const { senha } = definirSenhaSchema.parse(req.body);
+  await service.definirSenha(id, senha, req.usuarioId);
   res.status(204).send();
 }
 

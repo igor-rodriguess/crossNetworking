@@ -133,6 +133,26 @@ describe("PATCH /v1/partes/:id (optimistic lock)", () => {
       .send({ nome_exibicao: "X" });
     expect(res.status).toBe(404);
   });
+
+  it("atualiza a especialização de organização junto do PATCH (RF005)", async () => {
+    const criada = await request(app).post("/v1/partes").send(orgValida()).expect(201);
+    const res = await request(app)
+      .patch(`/v1/partes/${criada.body.id}`)
+      .set("If-Match", `"${criada.body.versao}"`)
+      .send({ organizacao: { segmento_principal: "Bebidas", site: "https://nova.com" } });
+    expect(res.status).toBe(200);
+    expect(res.body.especializacao.segmento_principal).toBe("Bebidas");
+    expect(res.body.especializacao.site).toBe("https://nova.com");
+  });
+
+  it("rejeita especialização incompatível com o tipo (422)", async () => {
+    const criada = await request(app).post("/v1/partes").send(orgValida()).expect(201);
+    const res = await request(app)
+      .patch(`/v1/partes/${criada.body.id}`)
+      .set("If-Match", `"${criada.body.versao}"`)
+      .send({ pessoa: { nome_completo: "Não deveria" } });
+    expect(res.status).toBe(422);
+  });
 });
 
 describe("Borda e contrato", () => {

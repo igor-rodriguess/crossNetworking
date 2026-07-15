@@ -42,13 +42,36 @@ export function parseCriarParte(body: unknown): CriarParteInput {
   return criarOrganizacaoSchema.parse(body);
 }
 
-// Atualização parcial dos campos base da Parte (PATCH).
+// Atualização parcial da Parte (PATCH): campos base + especialização aninhada.
 export const atualizarParteSchema = z
   .object({
     nome_exibicao: z.string().trim().min(1, "nome_exibicao não pode ser vazio").optional(),
     status_parte_codigo: z.string().trim().min(1).optional(),
+    organizacao: z
+      .object({
+        nome_fantasia: z.string().trim().min(1).optional(),
+        razao_social: textoOpcional,
+        cnpj: cnpj.optional(),
+        segmento_principal: textoOpcional,
+        site: textoOpcional,
+      })
+      .refine((o) => Object.keys(o).length > 0, { message: "organizacao vazia" })
+      .optional(),
+    pessoa: z
+      .object({
+        nome_completo: z.string().trim().min(1).optional(),
+        nome_artistico: textoOpcional,
+        cpf: cpf.optional(),
+        nacionalidade: textoOpcional,
+      })
+      .refine((o) => Object.keys(o).length > 0, { message: "pessoa vazia" })
+      .optional(),
   })
-  .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo para atualizar" });
+  .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo para atualizar" })
+  .refine((o) => !(o.organizacao && o.pessoa), {
+    message: "Informe a especialização de organizacao OU de pessoa, nunca ambas",
+    path: ["organizacao"],
+  });
 
 export type AtualizarParteInput = z.infer<typeof atualizarParteSchema>;
 

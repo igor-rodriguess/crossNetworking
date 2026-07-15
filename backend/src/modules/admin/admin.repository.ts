@@ -6,12 +6,13 @@ export interface UsuarioRow {
   nome: string;
   email: string;
   cargo: string | null;
+  persona: string | null;
   ativo: boolean;
   criado_em: string;
   versao: string;
 }
 
-const USUARIO_COLS = `u.id, u.nome, u.email, u.cargo, u.ativo, u.criado_em, u.xmin::text AS versao`;
+const USUARIO_COLS = `u.id, u.nome, u.email, u.cargo, u.persona, u.ativo, u.criado_em, u.xmin::text AS versao`;
 
 export async function inserirUsuario(
   client: PoolClient,
@@ -19,12 +20,31 @@ export async function inserirUsuario(
   criadoPorId: string | null
 ): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
-    `INSERT INTO cross_core.usuario_interno (nome, email, cargo, criado_por_id)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO cross_core.usuario_interno (nome, email, cargo, persona, criado_por_id)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING id`,
-    [input.nome, input.email, input.cargo ?? null, criadoPorId]
+    [input.nome, input.email, input.cargo ?? null, input.persona ?? null, criadoPorId]
   );
   return rows[0].id;
+}
+
+/** Define/atualiza a senha (hash) do usuário — upsert na tabela de credenciais. */
+export async function definirCredencial(
+  client: PoolClient,
+  usuarioId: string,
+  senhaHash: string
+): Promise<void> {
+  await client.query(
+    `INSERT INTO cross_core.credencial_usuario (usuario_id, senha_hash, senha_atualizada_em)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (usuario_id) DO UPDATE SET senha_hash = EXCLUDED.senha_hash, senha_atualizada_em = NOW()`,
+    [usuarioId, senhaHash]
+  );
+  // Trocar a senha revoga sessões abertas (força novo login).
+  await client.query(
+    "UPDATE cross_core.sessao_refresh SET revogado_em = NOW() WHERE usuario_id = $1 AND revogado_em IS NULL",
+    [usuarioId]
+  );
 }
 
 export async function buscarUsuarioPorId(
@@ -60,7 +80,7 @@ export async function listarUsuarios(
 export async function atualizarUsuario(
   client: PoolClient,
   id: string,
-  patch: { nome?: string; email?: string; cargo?: string; ativo?: boolean },
+  patch: { nome?: string; email?: string; cargo?: string; persona?: string; ativo?: boolean },
   versaoEsperada: string
 ): Promise<number> {
   const res = await client.query(
@@ -68,9 +88,10 @@ export async function atualizarUsuario(
         SET nome = COALESCE($2, nome),
             email = COALESCE($3, email),
             cargo = COALESCE($4, cargo),
-            ativo = COALESCE($5, ativo)
-      WHERE id = $1 AND arquivado_em IS NULL AND xmin::text = $6`,
-    [id, patch.nome ?? null, patch.email ?? null, patch.cargo ?? null, patch.ativo ?? null, versaoEsperada]
+            persona = COALESCE($5, persona),
+            ativo = COALESCE($6, ativo)
+      WHERE id = $1 AND arquivado_em IS NULL AND xmin::text = $7`,
+    [id, patch.nome ?? null, patch.email ?? null, patch.cargo ?? null, patch.persona ?? null, patch.ativo ?? null, versaoEsperada]
   );
   return res.rowCount ?? 0;
 }

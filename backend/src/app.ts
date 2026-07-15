@@ -9,6 +9,7 @@ import { requestContext } from "./shared/middleware/request-context";
 import { errorHandler } from "./shared/middleware/error-handler";
 import { healthRouter } from "./routes/health.routes";
 import { docsRouter } from "./modules/docs/docs.routes";
+import { authRouter } from "./modules/auth/auth.routes";
 import { partesRouter } from "./modules/partes/partes.routes";
 import { documentosRouter } from "./modules/documentos/documentos.routes";
 import { clientesRouter } from "./modules/clientes/clientes.routes";
@@ -21,18 +22,21 @@ import { execucaoRouter } from "./modules/execucao/execucao.routes";
 import { resultadosRouter } from "./modules/resultados/resultados.routes";
 import { inteligenciaRouter } from "./modules/inteligencia/inteligencia.routes";
 import { governancaRouter } from "./modules/governanca/governanca.routes";
+import { coletarMetricas } from "./shared/metrics";
 
 export const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", env.trustProxy);
 
 // Segurança e borda
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin === "*" ? true : env.corsOrigin.split(",").map((o) => o.trim()) }));
 app.use(requestContext);
+app.use(coletarMetricas);
 if (!env.isTest) {
   app.use(pinoHttp({ logger, genReqId: (req) => (req as { id?: string }).id ?? "" }));
 }
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: env.requestBodyLimit }));
 app.use(
   rateLimit({
     windowMs: env.rateLimitWindowMs,
@@ -45,7 +49,8 @@ app.use(
 // Rotas
 app.use(healthRouter); // /health — sem versão
 app.use(docsRouter); // /v1/docs, /v1/openapi.json
-app.use("/v1", partesRouter); // API versionada
+app.use("/v1", authRouter); // /v1/auth/* — público (login/refresh/logout)
+app.use("/v1", partesRouter); // API versionada (autenticada)
 app.use("/v1", documentosRouter);
 app.use("/v1", clientesRouter);
 app.use("/v1", adminRouter);

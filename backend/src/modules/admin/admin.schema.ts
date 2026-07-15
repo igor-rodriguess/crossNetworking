@@ -7,10 +7,23 @@ const email = z
 
 // --- Usuários internos (RF002 — RN006) -------------------------------------
 
+export const persona = z.enum(["estrategista", "gestor_contas", "coordenador", "administrador"]);
+
+/** Política mínima de senha. */
+const senha = z
+  .string()
+  .min(10, "a senha deve ter ao menos 10 caracteres")
+  .max(200, "senha longa demais")
+  .refine((s) => /[a-zA-Z]/.test(s) && /\d/.test(s), {
+    message: "a senha deve conter letras e números",
+  });
+
 export const criarUsuarioSchema = z.object({
   nome: z.string().trim().min(1, "nome não pode ser vazio"),
   email,
   cargo: z.string().trim().min(1).optional(),
+  persona: persona.optional(),
+  senha: senha.optional(),
 });
 export type CriarUsuarioInput = z.infer<typeof criarUsuarioSchema>;
 
@@ -19,10 +32,14 @@ export const atualizarUsuarioSchema = z
     nome: z.string().trim().min(1).optional(),
     email: email.optional(),
     cargo: z.string().trim().min(1).optional(),
+    persona: persona.optional(),
     ativo: z.boolean().optional(),
   })
   .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo para atualizar" });
 export type AtualizarUsuarioInput = z.infer<typeof atualizarUsuarioSchema>;
+
+export const definirSenhaSchema = z.object({ senha });
+export type DefinirSenhaInput = z.infer<typeof definirSenhaSchema>;
 
 // --- Catálogos de vocabulário controlado (RN018) ---------------------------
 

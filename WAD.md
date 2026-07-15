@@ -3480,7 +3480,7 @@ A construção efetiva será realizada por meio de migrations versionadas no rep
 10. seeds;
 11. testes de integridade.
 
-**Estado atual (implementado):** as migrations `001` a `022` foram desenvolvidas e **aplicadas com sucesso** em um banco **PostgreSQL 16 hospedado no Supabase**, acessado via *Session pooler*. A implementação foi validada de ponta a ponta pela suíte de testes de integridade (`backend/database/tests/integridade.sql`), com **14 de 14 cenários** aprovados.
+**Estado atual (implementado):** as migrations `001` a `024` foram desenvolvidas e **aplicadas com sucesso** em um banco **PostgreSQL 16 hospedado no Supabase**, acessado via *Session pooler*. A implementação foi validada de ponta a ponta pela suíte de testes de integridade (`backend/database/tests/integridade.sql`), com **14 de 14 cenários** aprovados, e reforçada por **10 suítes de teste de integração** da API que exercitam as regras de negócio contra o banco real.
 
 Números do banco efetivamente implementado:
 
@@ -3488,20 +3488,24 @@ Números do banco efetivamente implementado:
 |---|---|
 | Schemas de domínio | 9 |
 | Tabelas | 110 |
-| Índices | 207 |
+| Índices | 210+ |
 | Chaves estrangeiras | 256 |
-| Constraints de verificação (CHECK) | 58 |
+| Constraints de verificação (CHECK) | 58+ |
 | Triggers | 70 |
 | Funções | 9 |
-| Migrations aplicadas | 22 |
+| Migrations aplicadas | 24 |
 
 Além das estruturas descritas nas seções anteriores, migrations adicionais reforçam o banco:
 
 - `020` — regras de negócio que antes dependiam apenas da aplicação: parceria somente após decisão de aprovação e Paper validado (seção 7.3.14), avaliação do Cross Score Card somente sobre validação de Paper aprovada (seção 7.4.13) e índices únicos parciais de contratos e responsáveis ativos (seção 7.3.6).
 - `021` — endurecimento de integridade: formatos de CPF/CNPJ/e-mail, texto obrigatório não-vazio, faixas de versão/ordem/peso, hash SHA-256 e unicidade de e-mail *case-insensitive*.
 - `022` — ampliação da cobertura de auditoria técnica para as demais entidades de negócio.
+- `023` — privilégios de segurança: revogação de `UPDATE`/`DELETE` sobre a trilha de auditoria (imutável para a aplicação, RN037) e de `DELETE` sobre tabelas de histórico *append-only*.
+- `024` — unicidade dos encerramentos de projeto e parceria (RN034) e do período de medição por indicador (RN030).
 
 Como reforço de segurança, a aplicação passou a conectar com o papel de **privilégio mínimo `cross_app`** (sem DDL nem superusuário), enquanto as *migrations* usam uma conexão administrativa separada.
+
+**Camada de API (implementada):** sobre esse banco foi construído o backend REST em **Node.js + Express + TypeScript**, com **193 rotas** versionadas em `/v1` cobrindo **50 dos 51 Requisitos Funcionais** (apenas a autenticação real — RF001 — permanece adiada, com o middleware de autorização por persona já preparado). A arquitetura é em camadas (Router → Controller → Service → Repository), com validação por **zod**, concorrência otimista via `xmin`/`If-Match`, envelope de erro padronizado, contexto de auditoria propagado por transação e documentação **OpenAPI 3.1** servida em `/v1/docs`. O detalhamento das rotas está em `backend/docs/ESPECIFICACAO_ROTAS.md`.
 
 A partir deste ponto, esta seção reflete o estado **implementado** do banco de dados, e não mais apenas a especificação proposta.
 
@@ -3562,13 +3566,26 @@ Request → Router (Express)
 
 ```
 src/
-├── shared/         # db (pool + transação), errors, http, middleware
-├── modules/
-│   └── partes/     # schema, repository, service, controller, routes, test
+├── shared/         # db (pool + transação), errors, http, pagination,
+│                   #   optimistic-lock, openapi, middleware (request-context,
+│                   #   error-handler, authz)
+├── modules/        # cada módulo: schema · repository · service · controller · routes · test
+│   ├── partes/         # RF004–009  · Base de Relacionamentos
+│   ├── documentos/     # RF009      · metadados de documentos
+│   ├── clientes/       # RF016–018  · clientes e contratos
+│   ├── admin/          # RF002      · usuários + catálogos
+│   ├── projetos/       # RF019–023  · projeto, briefing/planejamento versionados
+│   ├── frentes/        # RF024–026  · frentes, candidaturas, movimentações
+│   ├── metodologias/   # RF027–033  · Crossability, Paper, Cross Score Card, decisões
+│   ├── parcerias/      # RF034–037  · formalização, negociação, contrapartidas, contratos
+│   ├── execucao/       # RF038–042  · plano, etapas, entregas, reuniões, pendências
+│   ├── resultados/     # RF043–047  · acompanhamento, indicadores, ROI, encerramentos
+│   ├── inteligencia/   # RF010–015  · perfil, públicos/territórios, ativos, mídia, artistas
+│   └── governanca/     # RF048–051  · evidências, auditoria, importação, base para IA
 ├── config/         # env
 ├── app.ts          # Express + rotas + middleware de erro
 └── server.ts
-tests/setup.ts      # harness de rollback por teste
+tests/setup.ts      # harness de rollback por teste (savepoints sobre transação externa)
 ```
 
 ### Testes (TDD)

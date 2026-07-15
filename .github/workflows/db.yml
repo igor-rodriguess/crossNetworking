@@ -1,0 +1,62 @@
+name: Banco de Dados (migrations + testes)
+
+# Valida, a cada push/PR, que as migrations aplicam limpo e que os testes de
+# integridade passam — contra um PostgreSQL 16 descartável (sem tocar no Supabase).
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/db.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/db.yml"
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cross_platform
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Em CI, app e migrations usam o mesmo Postgres local descartável.
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/cross_platform
+      MIGRATION_DATABASE_URL: postgres://postgres:postgres@localhost:5432/cross_platform
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Aplicar migrations
+        run: npm run db:migrate
+
+      - name: Verificar status das migrations
+        run: npm run db:status
+
+      - name: Rodar testes de integridade
+        run: npm run db:test

@@ -3559,17 +3559,26 @@ Request → Router (Express)
 - **Erros:** middleware central converte exceções no envelope `{ codigo, erro, mensagem, detalhes }` — `codigo` é o status HTTP e `erro` um identificador estável para o front tratar cada caso. Erros do PostgreSQL são mapeados: unicidade `23505` → **409**; FK `23503` → **409**; check `23514` e `RAISE EXCEPTION` de triggers `P0001` → **422**; UUID inválido `22P02` → **422**.
 - **Versionamento:** as rotas de negócio ficam sob o prefixo **`/v1`**; `/health` permanece sem versão.
 - **Resposta:** a Parte é serializada com a especialização **aninhada** em `especializacao{}`.
-- **Auditoria:** cada operação de escrita roda em transação que define `app.usuario_id` (`SET`/`set_config` local), ativando os triggers de auditoria (RN037).
+- **Auditoria:** cada operação de escrita roda em transação que define `app.usuario_id` (`SET`/`set_config` local), ativando os triggers de auditoria (RN037). O autor vem **do token autenticado**, nunca de um header enviado pelo cliente.
 - **Conexão:** a aplicação usa o papel de privilégio mínimo `cross_app`; a conexão administrativa é reservada às migrations.
+
+### Autenticação e autorização (RF001)
+
+- **Login por e-mail + senha.** A senha nunca é armazenada em texto: guarda-se um hash **scrypt** (KDF memória-dura, sal aleatório e parâmetros embutidos) numa tabela de credenciais **isolada** (`cross_core.credencial_usuario`), fora do alcance da auditoria — o hash jamais entra na trilha.
+- **Tokens.** O login emite um **access token** (JWT HS256, ~15 min) e um **refresh token** opaco (256 bits) cujo **SHA-256** é persistido em `cross_core.sessao_refresh`. O access token carrega `sub`, `persona` e validade; é assinado/verificado com o `crypto` nativo (sem dependências externas).
+- **Rotação e revogação.** Cada `refresh` **rotaciona** o token (revoga o anterior e emite um novo). O reúso de um token já rotacionado é tratado como comprometimento: **todas** as sessões do usuário são revogadas. Há logout do dispositivo (`/auth/logout`) e logout global (`/auth/logout-todos`); trocar a senha revoga as sessões abertas.
+- **Enforcement por persona.** O middleware `autorizar(...personas)` **exige autenticação** (401 sem token válido) e valida a persona do usuário (`estrategista`, `gestor_contas`, `coordenador`, `administrador`; o `administrador` é superconjunto) contra as personas declaradas na rota (**403** se insuficiente).
+- **Defesa em profundidade da borda.** `helmet`; CORS por ambiente; rate-limit global e **rate-limit estrito** em `/auth/login` e `/auth/refresh` (anti-força-bruta); detalhes internos de erro (nomes de constraint) omitidos em produção; TLS do banco com verificação configurável.
 
 ### Estrutura de pastas
 
 ```
 src/
 ├── shared/         # db (pool + transação), errors, http, pagination,
-│                   #   optimistic-lock, openapi, middleware (request-context,
-│                   #   error-handler, authz)
+│                   #   optimistic-lock, openapi, security (password/token),
+│                   #   middleware (request-context, error-handler, authz)
 ├── modules/        # cada módulo: schema · repository · service · controller · routes · test
+│   ├── auth/           # RF001      · login, refresh, logout, sessão
 │   ├── partes/         # RF004–009  · Base de Relacionamentos
 │   ├── documentos/     # RF009      · metadados de documentos
 │   ├── clientes/       # RF016–018  · clientes e contratos

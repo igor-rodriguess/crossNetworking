@@ -22,12 +22,12 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 
 ## Sumário Executivo
 
-> **Estado (15/07/2026):** todos os módulos de negócio estão implementados, montados e cobertos por testes de integração contra o Supabase real — **193 rotas Express, 10 suítes verdes**. A única parte adiada é a autenticação real (RF001, marcada ⏸): o middleware de autorização já declara as personas por rota, faltando apenas plugar a verificação quando o login existir.
+> **Estado (15/07/2026):** backend completo e **autenticado** — **51/51 Requisitos Funcionais** implementados e cobertos por testes de integração contra o Supabase real. A autenticação (RF001) usa e-mail + senha (hash scrypt) com JWT próprio, access token curto e refresh token com rotação/revogação; o middleware `autorizar` faz enforcement real por persona (401 sem token, 403 sem permissão); a auditoria registra o autor a partir do token.
 
 | # | Módulo | RFs | Endpoints | Estado |
 |---|---|---|---|---|
-| 0 | Administração & Autenticação | RF001–RF003 | 6 (+3 auth ⏸) | ✅ / RF001 ⏸ |
-| 1 | Partes (Base de Relacionamentos) | RF004–RF009 | 15 | ✅ |
+| 0 | Autenticação & Administração | RF001–RF003 | 12 | ✅ |
+| 1 | Partes (Base de Relacionamentos) | RF004–RF009 | 17 | ✅ |
 | 2 | Inteligência Estratégica | RF010–RF015 | 37 | ✅ |
 | 3 | Clientes & Contratos | RF016–RF018 | 13 | ✅ |
 | 4 | Projetos & Oportunidades | RF019–RF026 | 27 | ✅ |
@@ -36,7 +36,7 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 | 7 | Execução | RF038–RF042 | 26 | ✅ |
 | 8 | Acompanhamento & Resultados | RF043–RF047 | 18 | ✅ |
 | 9 | Governança & IA | RF048–RF051 | 9 | ✅ |
-| | **Total** | **RF001–RF051** | **193** | **50/51 RF** |
+| | **Total** | **RF001–RF051** | **202** | **51/51 RF** |
 
 > Catálogos de vocabulário controlado (status, tipos, papéis, territórios…) são expostos por um conjunto uniforme de rotas `GET /v1/catalogos/<nome>` (item no Módulo 0), evitando dezenas de endpoints repetidos.
 >
@@ -48,9 +48,12 @@ Especificação completa dos endpoints do backend, com cobertura de 100% dos Req
 
 | RF | Descrição | Método | Caminho | RNs | Status |
 |---|---|---|---|---|---|
-| RF001 | Autenticar | POST | `/v1/auth/login` | RN006 | ⏸ |
-| RF001 | Encerrar sessão | POST | `/v1/auth/logout` | — | ⏸ |
-| RF001 | Sessão atual | GET | `/v1/auth/sessao` | — | ⏸ |
+| RF001 | Autenticar (e-mail + senha) | POST | `/v1/auth/login` | RN006 | ✅ |
+| RF001 | Renovar sessão (refresh + rotação) | POST | `/v1/auth/refresh` | — | ✅ |
+| RF001 | Encerrar sessão (dispositivo) | POST | `/v1/auth/logout` | — | ✅ |
+| RF001 | Encerrar todas as sessões | POST | `/v1/auth/logout-todos` | — | ✅ |
+| RF001 | Sessão atual | GET | `/v1/auth/sessao` | — | ✅ |
+| RF002 | Definir/redefinir senha | PUT | `/v1/usuarios/:id/senha` | RN006 | ✅ |
 | RF002 | Criar usuário | POST | `/v1/usuarios` | RN006 | ✅ |
 | RF002 | Listar usuários | GET | `/v1/usuarios` | — | ✅ |
 | RF002 | Obter usuário | GET | `/v1/usuarios/:id` | — | ✅ |

@@ -25,9 +25,11 @@ import {
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useUI } from '../store/useUI';
+import { ErroApi } from '../api/erros';
 import { LogoCross } from './Logo';
 import { RotuloMono } from './ui';
 import { CommandPalette } from './CommandPalette';
+import { useToast } from './Toast';
 import { normalizar } from '../lib/texto';
 
 const PERSONA_ROTULO: Record<string, string> = {
@@ -82,14 +84,24 @@ function SeletorCliente() {
   const setClienteAtivo = useStore((s) => s.setClienteAtivo);
   const clientes = useStore((s) => s.clientes);
   const adicionarCliente = useStore((s) => s.adicionarCliente);
+  const carregarClientes = useStore((s) => s.carregarClientes);
+  const { toast } = useToast();
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState('');
   const [formAberto, setFormAberto] = useState(false);
+  const [salvando, setSalvando] = useState(false);
   const [nome, setNome] = useState('');
   const [segmento, setSegmento] = useState('');
   const [responsavel, setResponsavel] = useState('');
   const ref = useRef<HTMLDivElement>(null);
   const cliente = clientes.find((c) => c.id === clienteAtivoId) ?? clientes[0];
+
+  // Carrega os clientes reais do backend ao montar o shell.
+  useEffect(() => {
+    carregarClientes().catch((e) =>
+      toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar os clientes.'),
+    );
+  }, [carregarClientes, toast]);
 
   useEffect(() => {
     function fechar(e: MouseEvent) {
@@ -107,27 +119,27 @@ function SeletorCliente() {
     (c) => !busca || normalizar(`${c.nome} ${c.segmento}`).includes(normalizar(busca)),
   );
 
-  function criarCliente(e: React.FormEvent) {
+  async function criarCliente(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return;
-    const sigla = nome
-      .trim()
-      .split(/\s+/)
-      .map((p) => p[0])
-      .join('')
-      .slice(0, 3);
-    adicionarCliente({
-      nome: nome.trim(),
-      sigla,
-      segmento: segmento.trim() || 'A definir',
-      modeloContratacao: 'A definir',
-      responsavel: responsavel.trim() || 'A definir',
-    });
-    setNome('');
-    setSegmento('');
-    setResponsavel('');
-    setFormAberto(false);
-    setAberto(false);
+    if (!nome.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await adicionarCliente({
+        nome: nome.trim(),
+        segmento: segmento.trim() || undefined,
+        responsavel: responsavel.trim() || undefined,
+      });
+      toast(`${nome.trim()} foi cadastrado como cliente.`);
+      setNome('');
+      setSegmento('');
+      setResponsavel('');
+      setFormAberto(false);
+      setAberto(false);
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível cadastrar o cliente.');
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -142,12 +154,14 @@ function SeletorCliente() {
         aria-expanded={aberto}
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink font-mono text-[12px] font-bold text-paper">
-          {cliente.sigla}
+          {cliente?.sigla ?? '—'}
         </span>
         <span className="text-left">
-          <span className="block text-sm font-semibold leading-tight text-ink">{cliente.nome}</span>
+          <span className="block text-sm font-semibold leading-tight text-ink">
+            {cliente?.nome ?? 'Selecionar cliente'}
+          </span>
           <span className="block font-mono text-[11px] uppercase tracking-[0.1em] text-stone">
-            {cliente.segmento}
+            {cliente?.segmento ?? 'nenhum cliente cadastrado'}
           </span>
         </span>
         <ChevronsUpDown size={14} strokeWidth={1.5} className="ml-1 text-stone" />
@@ -233,9 +247,10 @@ function SeletorCliente() {
                 <div className="flex gap-2 pt-0.5">
                   <button
                     type="submit"
-                    className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition-colors hover:bg-graphite"
+                    disabled={salvando}
+                    className="rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-paper transition-colors hover:bg-graphite disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Cadastrar
+                    {salvando ? 'Cadastrando…' : 'Cadastrar'}
                   </button>
                   <button
                     type="button"

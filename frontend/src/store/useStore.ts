@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as authApi from '../api/auth';
 import * as partesApi from '../api/partes.api';
+import * as clientesApi from '../api/clientes.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -70,7 +71,9 @@ interface EstadoPlataforma {
   logout: () => Promise<void>;
 
   setClienteAtivo: (clienteId: string) => void;
-  adicionarCliente: (dados: Pick<Cliente, 'nome' | 'sigla' | 'segmento' | 'modeloContratacao' | 'responsavel'>) => void;
+  clientesCarregando: boolean;
+  carregarClientes: () => Promise<void>;
+  adicionarCliente: (dados: { nome: string; segmento?: string; responsavel?: string }) => Promise<void>;
 
   // Critérios & pesos (RF031)
   atualizarCriterio: (id: string, mudancas: Partial<Criterio>) => void;
@@ -166,6 +169,7 @@ export const useStore = create<EstadoPlataforma>()(
       autenticando: false,
       clienteAtivoId: CLIENTES[0].id,
       clientes: CLIENTES,
+      clientesCarregando: false,
       criterios: CRITERIOS,
       candidaturas: CANDIDATURAS,
       avaliacoes: AVALIACOES,
@@ -198,20 +202,30 @@ export const useStore = create<EstadoPlataforma>()(
 
       setClienteAtivo: (clienteId) => set({ clienteAtivoId: clienteId }),
 
-      adicionarCliente: (dados) =>
-        set((s) => {
-          const novo: Cliente = {
-            id: `cli-${Date.now()}`,
-            nome: dados.nome,
-            sigla: dados.sigla.toUpperCase().slice(0, 3),
-            segmento: dados.segmento,
-            modeloContratacao: dados.modeloContratacao,
-            responsavel: dados.responsavel,
-            desde: new Date().toISOString().slice(0, 10),
-          };
-          // Já entra como cliente ativo, para o usuário configurar o modelo em seguida
-          return { clientes: [...s.clientes, novo], clienteAtivoId: novo.id };
-        }),
+      // Carrega os clientes do backend (RF016). Reaponta o cliente ativo para
+      // um id real, já que o seed mock (CLIENTES[0].id) não existe na API.
+      carregarClientes: async () => {
+        set({ clientesCarregando: true });
+        try {
+          const { itens } = await clientesApi.listarClientes({ porPagina: 100 });
+          set((s) => ({
+            clientes: itens,
+            clientesCarregando: false,
+            clienteAtivoId: itens.some((c) => c.id === s.clienteAtivoId)
+              ? s.clienteAtivoId
+              : itens[0]?.id ?? '',
+          }));
+        } catch (e) {
+          set({ clientesCarregando: false });
+          throw e;
+        }
+      },
+
+      // Cria o cliente no backend (orquestra Parte → Cliente) e já o ativa.
+      adicionarCliente: async (dados) => {
+        const novo = await clientesApi.criarCliente(dados);
+        set((s) => ({ clientes: [...s.clientes, novo], clienteAtivoId: novo.id }));
+      },
 
       atualizarCriterio: (id, mudancas) =>
         set((s) => ({

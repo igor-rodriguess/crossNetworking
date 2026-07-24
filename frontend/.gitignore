@@ -1,0 +1,16 @@
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Ambiente (segredos/URLs locais) — use .env.example como referência
+.env
+.env.*
+!.env.example
+
+# Logs e caches
+*.log
+.vite/
+
+# Editor
+.DS_Store

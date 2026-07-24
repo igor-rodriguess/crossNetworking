@@ -22,9 +22,10 @@ export type StatusCandidatura =
 export type StatusParceria = 'planejada' | 'ativa' | 'concluida';
 
 export interface Usuario {
+  id: string;
   nome: string;
   email: string;
-  persona: string;
+  persona: string | null;
 }
 
 // Usuários internos e personas (RF002 / WAD 5.1)

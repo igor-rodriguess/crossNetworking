@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import * as authApi from '../api/auth';
+import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
 import type {
@@ -31,6 +33,11 @@ import type {
   ValidacaoPaper,
 } from '../types';
 
+// Sessão guardada no localStorage (tokens + expiração). O usuário fica em
+// `usuario`; aqui só o material que o cofre em memória (api/sessao) precisa
+// reidratar após um refresh de página.
+type SessaoPersistida = Sessao;
+
 // Equipe interna inicial (RF002) — os mesmos responsáveis usados na operação
 const USUARIOS_INICIAIS: UsuarioInterno[] = [
   { id: 'u-igor', nome: 'Igor Rodrigues', email: 'igor@crossnetworking.com.br', persona: 'administrador', ativo: true, criadoEm: '2025-09-01' },
@@ -42,6 +49,8 @@ const USUARIOS_INICIAIS: UsuarioInterno[] = [
 
 interface EstadoPlataforma {
   usuario: Usuario | null;
+  sessao: SessaoPersistida | null;
+  autenticando: boolean;
   clienteAtivoId: string;
   clientes: Cliente[];
   criterios: Criterio[];
@@ -55,9 +64,9 @@ interface EstadoPlataforma {
   usuarios: UsuarioInterno[];
   parcerias: Parceria[];
 
-  // Autenticação (mock — qualquer credencial válida em formato entra)
-  login: (nome: string, email: string) => void;
-  logout: () => void;
+  // Autenticação real (RF001 — /v1/auth). Lança ErroApi em falha.
+  login: (email: string, senha: string) => Promise<void>;
+  logout: () => Promise<void>;
 
   setClienteAtivo: (clienteId: string) => void;
   adicionarCliente: (dados: Pick<Cliente, 'nome' | 'sigla' | 'segmento' | 'modeloContratacao' | 'responsavel'>) => void;
@@ -148,6 +157,8 @@ export const useStore = create<EstadoPlataforma>()(
   persist(
     (set) => ({
       usuario: null,
+      sessao: null,
+      autenticando: false,
       clienteAtivoId: CLIENTES[0].id,
       clientes: CLIENTES,
       criterios: CRITERIOS,
@@ -161,9 +172,23 @@ export const useStore = create<EstadoPlataforma>()(
       usuarios: USUARIOS_INICIAIS,
       parcerias: PARCERIAS,
 
-      login: (nome, email) =>
-        set({ usuario: { nome, email, persona: 'Estrategista' } }),
-      logout: () => set({ usuario: null }),
+      // Login real: autentica no backend, guarda usuário + sessão. Propaga o
+      // ErroApi (mensagem PT-BR) para a tela tratar. `autenticando` cobre o
+      // estado de carregando do botão.
+      login: async (email, senha) => {
+        set({ autenticando: true });
+        try {
+          const { usuario, sessao } = await authApi.login(email, senha);
+          set({ usuario, sessao, autenticando: false });
+        } catch (e) {
+          set({ autenticando: false });
+          throw e;
+        }
+      },
+      logout: async () => {
+        set({ usuario: null, sessao: null });
+        await authApi.logout(); // revoga o refresh no servidor (best-effort)
+      },
 
       setClienteAtivo: (clienteId) => set({ clienteAtivoId: clienteId }),
 
@@ -703,10 +728,28 @@ export const useStore = create<EstadoPlataforma>()(
     }),
     {
       name: 'plataforma-cross-demo',
-      version: 10,
+      version: 11,
+      // Ao reidratar do localStorage, devolve a sessão salva ao cofre em
+      // memória (api/sessao) — é dele que o client.ts lê o Bearer. Sem isto,
+      // um F5 manteria `usuario` mas perderia os tokens.
+      onRehydrateStorage: () => (estado) => {
+        if (estado?.sessao) definirSessao(estado.sessao);
+      },
     },
   ),
 );
+
+// Quando o refresh automático rotaciona os tokens (fora do fluxo do store),
+// espelha a nova sessão no store para persistir e sobreviver a um F5. Também
+// zera `usuario` se a sessão morrer (refresh inválido → logout implícito).
+aoMudarSessao((sessao) => {
+  const atual = useStore.getState();
+  if (sessao) {
+    if (atual.sessao !== sessao) useStore.setState({ sessao });
+  } else if (atual.usuario || atual.sessao) {
+    useStore.setState({ usuario: null, sessao: null });
+  }
+});
 
 // Dados estáticos da base (somente leitura na demo).
 // Partes, parcerias e papers vivem no ESTADO do store (editáveis pela UI).

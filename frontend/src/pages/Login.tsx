@@ -1,7 +1,8 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, BarChart3, Blend, Eye, EyeOff, FileText, Lock, Mail, ShieldCheck, UserRound } from 'lucide-react';
+import { ArrowRight, BarChart3, Blend, Eye, EyeOff, FileText, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { LogoCross } from '../components/Logo';
 
 const METODOLOGIA = [
@@ -47,22 +48,28 @@ function CampoComIcone({
 
 export function Login() {
   const login = useStore((s) => s.login);
+  const autenticando = useStore((s) => s.autenticando);
   const navigate = useNavigate();
-  const [nome, setNome] = useState('Igor Rodrigues');
-  const [email, setEmail] = useState('igor@crossnetworking.com.br');
-  const [senha, setSenha] = useState('demo');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [lembrar, setLembrar] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
-  function entrar(e: React.FormEvent) {
+  async function entrar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim() || !email.includes('@') || !senha) {
-      setErro('Informe nome, e-mail válido e senha para entrar.');
+    setErro(null);
+    if (!email.includes('@') || !senha) {
+      setErro('Informe um e-mail válido e a senha para entrar.');
       return;
     }
-    login(nome.trim(), email.trim().toLowerCase());
-    navigate('/');
+    try {
+      await login(email.trim().toLowerCase(), senha);
+      navigate('/');
+    } catch (err) {
+      // Mensagem PT-BR vinda do backend (ex.: "E-mail ou senha inválidos").
+      setErro(err instanceof ErroApi ? err.message : 'Não foi possível entrar. Tente novamente.');
+    }
   }
 
   return (
@@ -127,13 +134,6 @@ export function Login() {
 
             <div className="mt-7 space-y-4">
               <CampoComIcone
-                rotulo="Nome"
-                icone={<UserRound size={15} strokeWidth={1.5} />}
-                valor={nome}
-                aoMudar={setNome}
-                placeholder="Seu nome"
-              />
-              <CampoComIcone
                 rotulo="E-mail"
                 icone={<Mail size={15} strokeWidth={1.5} />}
                 tipo="email"
@@ -180,15 +180,25 @@ export function Login() {
 
             <button
               type="submit"
-              className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3.5 text-sm font-semibold text-paper transition-colors hover:bg-graphite"
+              disabled={autenticando}
+              className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-ink py-3.5 text-sm font-semibold text-paper transition-colors hover:bg-graphite disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Entrar <ArrowRight size={15} strokeWidth={1.5} />
+              {autenticando ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-paper/40 border-t-paper" />
+                  Entrando…
+                </>
+              ) : (
+                <>
+                  Entrar <ArrowRight size={15} strokeWidth={1.5} />
+                </>
+              )}
             </button>
           </form>
 
           <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-xs text-stone">
             <ShieldCheck size={12} strokeWidth={1.5} className="text-accent-deep" />
-            Ambiente de demonstração — qualquer credencial em formato válido é aceita.
+            Acesso restrito à equipe Crossnetworking.
           </p>
         </div>
       </div>

@@ -1,8 +1,12 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Building2, Mail, MapPin, Music2, Plus, Radio, Trash2, UserRound } from 'lucide-react';
 import { CLIENTES, useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { PARCERIAS } from '../data/mock';
+
+// Ids reais do backend são UUID; ids de seed mock (ex.: "parte-...") não casam.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import { calcularScore } from '../lib/score';
 import { STATUS_CANDIDATURA, STATUS_PARCERIA, formatarData, formatarDataCurta } from '../lib/format';
 import { Botao, CampoTexto, Chip, RotuloMono } from '../components/ui';
@@ -17,16 +21,24 @@ function CardContatos({ parteId, contatos }: { parteId: string; contatos: { nome
   const [nome, setNome] = useState('');
   const [cargo, setCargo] = useState('');
   const [email, setEmail] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
-  function salvar(e: React.FormEvent) {
+  async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim() || !email.includes('@')) return;
-    adicionarContato(parteId, nome.trim(), cargo.trim() || 'Contato', email.trim().toLowerCase());
-    toast(`Contato ${nome.trim()} adicionado.`);
-    setNome('');
-    setCargo('');
-    setEmail('');
-    setAberto(false);
+    if (!nome.trim() || !email.includes('@') || salvando) return;
+    setSalvando(true);
+    try {
+      await adicionarContato(parteId, nome.trim(), cargo.trim() || 'Contato', email.trim().toLowerCase());
+      toast(`Contato ${nome.trim()} adicionado.`);
+      setNome('');
+      setCargo('');
+      setEmail('');
+      setAberto(false);
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível adicionar o contato.');
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -65,7 +77,7 @@ function CardContatos({ parteId, contatos }: { parteId: string; contatos: { nome
           <CampoTexto rotulo="Cargo" value={cargo} onChange={(e) => setCargo(e.target.value)} placeholder="Ex.: Diretora de marketing" />
           <CampoTexto rotulo="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contato@empresa.com" />
           <div className="flex gap-2 pt-1">
-            <Botao type="submit" pequeno>Adicionar</Botao>
+            <Botao type="submit" pequeno disabled={salvando}>{salvando ? 'Adicionando…' : 'Adicionar'}</Botao>
             <Botao type="button" variante="ghost" pequeno onClick={() => setAberto(false)}>Cancelar</Botao>
           </div>
         </form>
@@ -306,8 +318,21 @@ export function ParteDetalhe() {
   const candidaturas = useStore((s) => s.candidaturas);
   const criterios = useStore((s) => s.criterios);
   const avaliacoes = useStore((s) => s.avaliacoes);
+  const carregarParte = useStore((s) => s.carregarParte);
+  const { toast } = useToast();
 
   const parte = useStore((s) => s.partes.find((p) => p.id === parteId));
+
+  // Carrega a Parte completa do backend (papéis + contatos) ao abrir. Só
+  // dispara para ids reais (UUID); ignora os ids de seed mock ainda presentes.
+  useEffect(() => {
+    if (parteId && UUID_RE.test(parteId)) {
+      carregarParte(parteId).catch((e) =>
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar a Parte.'),
+      );
+    }
+  }, [parteId, carregarParte, toast]);
+
   if (!parte) return <Navigate to="/partes" replace />;
 
   // Histórico transversal: participações desta Parte em todos os clientes

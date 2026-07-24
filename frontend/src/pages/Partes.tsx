@@ -1,7 +1,8 @@
-﻿import { useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Plus, Search, UserRound } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { PARCERIAS } from '../data/mock';
 import {
   Botao,
@@ -45,31 +46,21 @@ function FormNovaParte({ aoFechar }: { aoFechar: () => void }) {
   const [tipo, setTipo] = useState<Parte['tipo']>('organizacao');
   const [nome, setNome] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [territorio, setTerritorio] = useState('');
-  const [publico, setPublico] = useState('');
   const [papel, setPapel] = useState<PapelParte>('parceiro_potencial');
-  const [descricao, setDescricao] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
-  function salvar(e: React.FormEvent) {
+  async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim() || !categoria.trim()) return;
-    adicionarParte({
-      id: `parte-${Date.now()}`,
-      tipo,
-      nome: nome.trim(),
-      categoria: categoria.trim(),
-      territorio: territorio.trim() || 'A mapear',
-      publico: publico.trim() || 'A mapear',
-      descricao: descricao.trim() || 'Parte cadastrada pela equipe — perfil estratégico a completar.',
-      papeis: [papel],
-      pracas: ['Nacional'],
-      ativos: [],
-      canais: [],
-      contatos: [],
-      cadastradaEm: new Date().toISOString().slice(0, 10),
-    });
-    toast(`${nome.trim()} foi adicionada à base de relacionamentos.`);
-    aoFechar();
+    if (!nome.trim() || !categoria.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await adicionarParte({ tipo, nome: nome.trim(), categoria: categoria.trim(), papel });
+      toast(`${nome.trim()} foi adicionada à base de relacionamentos.`);
+      aoFechar();
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível cadastrar a Parte.');
+      setSalvando(false);
+    }
   }
 
   return (
@@ -95,35 +86,15 @@ function FormNovaParte({ aoFechar }: { aoFechar: () => void }) {
           ))}
         </CampoSelecao>
         <CampoTexto
-          rotulo="Categoria / segmento"
+          rotulo={tipo === 'organizacao' ? 'Segmento principal' : 'Nacionalidade'}
           value={categoria}
           onChange={(e) => setCategoria(e.target.value)}
-          placeholder="Ex.: Varejo & Consumo"
-        />
-        <CampoTexto
-          rotulo="Território"
-          value={territorio}
-          onChange={(e) => setTerritorio(e.target.value)}
-          placeholder="Ex.: Casa & Decoração"
-        />
-        <CampoTexto
-          rotulo="Público"
-          value={publico}
-          onChange={(e) => setPublico(e.target.value)}
-          placeholder="Ex.: 25–45 · classes AB"
-        />
-      </div>
-      <div className="mt-4">
-        <CampoTexto
-          rotulo="Descrição"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          placeholder="O que essa Parte é e por que entrou na base"
+          placeholder={tipo === 'organizacao' ? 'Ex.: Varejo & Consumo' : 'Ex.: Brasileira'}
         />
       </div>
       <div className="mt-5 flex gap-2">
-        <Botao type="submit" pequeno>
-          Cadastrar Parte
+        <Botao type="submit" pequeno disabled={salvando}>
+          {salvando ? 'Cadastrando…' : 'Cadastrar Parte'}
         </Botao>
         <Botao type="button" variante="ghost" pequeno onClick={aoFechar}>
           Cancelar
@@ -136,10 +107,20 @@ function FormNovaParte({ aoFechar }: { aoFechar: () => void }) {
 export function Partes() {
   const candidaturas = useStore((s) => s.candidaturas);
   const partes = useStore((s) => s.partes);
+  const carregarPartes = useStore((s) => s.carregarPartes);
+  const partesCarregando = useStore((s) => s.partesCarregando);
+  const { toast } = useToast();
   const [busca, setBusca] = useState('');
   const [visao, setVisao] = useState<Visao>('todos');
   const [papel, setPapel] = useState('todos');
   const [formAberto, setFormAberto] = useState(false);
+
+  // Ao abrir a tela, busca a base real do backend (substitui o seed mock).
+  useEffect(() => {
+    carregarPartes().catch((e) =>
+      toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar as Partes.'),
+    );
+  }, [carregarPartes, toast]);
 
   const participacao = useMemo(() => {
     const mapa = new Map<string, { candidaturas: number; parcerias: number }>();
@@ -236,8 +217,13 @@ export function Partes() {
         </div>
       </div>
 
-      {filtradas.length === 0 ? (
-        <EstadoVazio titulo="Nenhuma Parte encontrada" descricao="Ajuste a busca ou os filtros." />
+      {partesCarregando && partes.length === 0 ? (
+        <EstadoVazio titulo="Carregando a base…" descricao="Buscando as Partes cadastradas no servidor." />
+      ) : filtradas.length === 0 ? (
+        <EstadoVazio
+          titulo="Nenhuma Parte encontrada"
+          descricao={partes.length === 0 ? 'Cadastre a primeira Parte com “Nova Parte”.' : 'Ajuste a busca ou os filtros.'}
+        />
       ) : (
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">

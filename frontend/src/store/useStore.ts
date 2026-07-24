@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as authApi from '../api/auth';
+import * as partesApi from '../api/partes.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -99,9 +100,13 @@ interface EstadoPlataforma {
   // Registrar validação do Paper (interna/cliente) — destrava o fluxo do Score Card (RN022)
   registrarValidacaoPaper: (paperId: string, tipo: 'interna' | 'cliente', status: ValidacaoPaper['status'], responsavel: string) => void;
 
-  // Base de Relacionamentos (RF004/RF005 — cadastro de Parte com especialização)
-  adicionarParte: (parte: Parte) => void;
-  adicionarContato: (parteId: string, nome: string, cargo: string, email: string) => void;
+  // Base de Relacionamentos (RF004–RF008) — integrada à API
+  partesCarregando: boolean;
+  carregarPartes: () => Promise<void>;
+  carregarParte: (id: string) => Promise<void>;
+  adicionarParte: (dados: { tipo: Parte['tipo']; nome: string; categoria: string; papel?: string }) => Promise<void>;
+  adicionarContato: (parteId: string, nome: string, cargo: string, email: string) => Promise<void>;
+  // Ativos/canais ainda não têm endpoint no backend de Partes — locais por ora.
   adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => void;
   removerAtivoParte: (parteId: string, nomeAtivo: string) => void;
 
@@ -168,6 +173,7 @@ export const useStore = create<EstadoPlataforma>()(
       analisesTriade: ANALISES_TRIADE,
       perfisArtistas: PERFIS_ARTISTAS,
       partes: PARTES,
+      partesCarregando: false,
       papers: PAPERS,
       usuarios: USUARIOS_INICIAIS,
       parcerias: PARCERIAS,
@@ -420,24 +426,49 @@ export const useStore = create<EstadoPlataforma>()(
           }),
         })),
 
-      adicionarParte: (parte) =>
-        set((s) => ({ partes: [parte, ...s.partes] })),
+      // Carrega a base de Partes do backend (RF004/RF008). Substitui o seed
+      // mock por dados reais — a partir daqui `partes` reflete a API.
+      carregarPartes: async () => {
+        set({ partesCarregando: true });
+        try {
+          const { itens } = await partesApi.listarPartes({ porPagina: 100 });
+          set({ partes: itens, partesCarregando: false });
+        } catch (e) {
+          set({ partesCarregando: false });
+          throw e;
+        }
+      },
 
-      adicionarContato: (parteId, nome, cargo, email) =>
+      // Recarrega uma Parte completa (detalhe + papéis + contatos) e a mescla
+      // na lista — usado ao abrir o detalhe.
+      carregarParte: async (id) => {
+        const completa = await partesApi.obterParte(id);
+        set((s) => ({
+          partes: s.partes.some((p) => p.id === id)
+            ? s.partes.map((p) => (p.id === id ? completa : p))
+            : [completa, ...s.partes],
+        }));
+      },
+
+      adicionarParte: async ({ tipo, nome, categoria, papel }) => {
+        const criada = await partesApi.criarParte({ tipo, nome, categoria });
+        if (papel) {
+          await partesApi.adicionarPapel(criada.id, papel);
+          // Reflete o papel efetivamente guardado (o backend normaliza, ex.:
+          // parceiro_potencial → parceiro).
+          criada.papeis = [partesApi.papelParaBackend(papel) as Parte['papeis'][number]];
+        }
+        set((s) => ({ partes: [criada, ...s.partes] }));
+      },
+
+      adicionarContato: async (parteId, nome, cargo, email) => {
+        const contato = await partesApi.adicionarContato(parteId, { nome, cargo, email });
         set((s) => ({
           partes: s.partes.map((p) =>
-            p.id !== parteId
-              ? p
-              : {
-                  ...p,
-                  // Primeiro contato vira principal (RN004: no máx. 1 principal ativo)
-                  contatos: [
-                    ...p.contatos,
-                    { nome, cargo, email, principal: p.contatos.length === 0 },
-                  ],
-                },
+            p.id !== parteId ? p : { ...p, contatos: [...p.contatos, contato] },
           ),
-        })),
+        }));
+      },
 
       adicionarAtivoParte: (parteId, ativo) =>
         set((s) => ({

@@ -1,7 +1,9 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import { CLIENTES, PROJETOS, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
+import { useToast } from '../components/Toast';
 import { FASES_PROJETO, formatarDataCurta } from '../lib/format';
 import { CabecalhoPagina, Chip, EstadoVazio, type TomChip } from '../components/ui';
 import { iniciais, normalizar } from '../lib/texto';
@@ -30,24 +32,36 @@ const ABAS: { id: Aba; rotulo: string }[] = [
 
 export function Projetos() {
   const clienteAtivoId = useStore((s) => s.clienteAtivoId);
+  const projetos = useStore((s) => s.projetos);
+  const clientes = useStore((s) => s.clientes);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const projetosCarregando = useStore((s) => s.projetosCarregando);
+  const { toast } = useToast();
   const [aba, setAba] = useState<Aba>('todos');
   const [busca, setBusca] = useState('');
   const [somenteClienteAtivo, setSomenteClienteAtivo] = useState(false);
 
-  const clienteAtivo = CLIENTES.find((c) => c.id === clienteAtivoId);
+  // Carrega os projetos reais do backend ao abrir a tela.
+  useEffect(() => {
+    carregarProjetos().catch((e) =>
+      toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar os projetos.'),
+    );
+  }, [carregarProjetos, toast]);
 
-  const filtrados = PROJETOS.filter((p) => {
+  const clienteAtivo = clientes.find((c) => c.id === clienteAtivoId);
+
+  const filtrados = projetos.filter((p) => {
     if (aba !== 'todos' && p.status !== aba) return false;
     if (somenteClienteAtivo && p.clienteId !== clienteAtivoId) return false;
     if (busca) {
-      const cliente = CLIENTES.find((c) => c.id === p.clienteId);
+      const cliente = clientes.find((c) => c.id === p.clienteId);
       if (!normalizar(`${p.nome} ${cliente?.nome} ${p.produto}`).includes(normalizar(busca))) return false;
     }
     return true;
   }).sort((a, b) => b.atualizadoEm.localeCompare(a.atualizadoEm));
 
   const contagem = (id: Aba) =>
-    id === 'todos' ? PROJETOS.length : PROJETOS.filter((p) => p.status === id).length;
+    id === 'todos' ? projetos.length : projetos.filter((p) => p.status === id).length;
 
   return (
     <div>
@@ -94,8 +108,13 @@ export function Projetos() {
         </label>
       </div>
 
-      {filtrados.length === 0 ? (
-        <EstadoVazio titulo="Nenhum projeto encontrado" descricao="Ajuste a busca, a aba ou o filtro de cliente." />
+      {projetosCarregando && projetos.length === 0 ? (
+        <EstadoVazio titulo="Carregando projetos…" descricao="Buscando os projetos no servidor." />
+      ) : filtrados.length === 0 ? (
+        <EstadoVazio
+          titulo="Nenhum projeto encontrado"
+          descricao={projetos.length === 0 ? 'Nenhum projeto cadastrado no servidor ainda.' : 'Ajuste a busca, a aba ou o filtro de cliente.'}
+        />
       ) : (
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
@@ -112,7 +131,7 @@ export function Projetos() {
               </thead>
               <tbody className="divide-y divide-cloud">
                 {filtrados.map((projeto) => {
-                  const cliente = CLIENTES.find((c) => c.id === projeto.clienteId)!;
+                  const cliente = clientes.find((c) => c.id === projeto.clienteId);
                   const fase = FASES_PROJETO.find((f) => f.id === projeto.faseAtual)!;
                   const st = STATUS_PROJETO[projeto.status];
                   return (
@@ -129,9 +148,9 @@ export function Projetos() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2.5">
                           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[11px] font-bold text-paper">
-                            {cliente.sigla}
+                            {cliente?.sigla ?? '—'}
                           </span>
-                          <span className="text-graphite">{cliente.nome}</span>
+                          <span className="text-graphite">{cliente?.nome ?? 'Cliente'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">

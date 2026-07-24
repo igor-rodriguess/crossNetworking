@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import * as authApi from '../api/auth';
 import * as partesApi from '../api/partes.api';
 import * as clientesApi from '../api/clientes.api';
+import * as projetosApi from '../api/projetos.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -20,10 +21,12 @@ import type {
   VereditoItem,
   EventoAgenda,
   EventoTurne,
+  Frente,
   Nivel,
   Paper,
   Parceria,
   Parte,
+  Projeto,
   PerfilArtista,
   Persona,
   Prioridade,
@@ -62,6 +65,9 @@ interface EstadoPlataforma {
   analisesTriade: AnaliseTriade[];
   perfisArtistas: PerfilArtista[];
   partes: Parte[];
+  projetos: Projeto[];
+  projetosCarregando: boolean;
+  frentes: Frente[];
   papers: Paper[];
   usuarios: UsuarioInterno[];
   parcerias: Parceria[];
@@ -112,6 +118,11 @@ interface EstadoPlataforma {
   // Ativos/canais ainda não têm endpoint no backend de Partes — locais por ora.
   adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => void;
   removerAtivoParte: (parteId: string, nomeAtivo: string) => void;
+
+  // Projetos & Frentes (RF019/RF024) — integrados à API
+  carregarProjetos: () => Promise<void>;
+  carregarFrentesDosProjetos: () => Promise<void>;
+  criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
   adicionarCandidatura: (dados: {
@@ -178,6 +189,9 @@ export const useStore = create<EstadoPlataforma>()(
       perfisArtistas: PERFIS_ARTISTAS,
       partes: PARTES,
       partesCarregando: false,
+      projetos: PROJETOS,
+      projetosCarregando: false,
+      frentes: FRENTES,
       papers: PAPERS,
       usuarios: USUARIOS_INICIAIS,
       parcerias: PARCERIAS,
@@ -495,6 +509,34 @@ export const useStore = create<EstadoPlataforma>()(
             p.id === parteId ? { ...p, ativos: p.ativos.filter((a) => a.nome !== nomeAtivo) } : p,
           ),
         })),
+
+      // --- Projetos & Frentes (integrados à API) ---------------------------
+      carregarProjetos: async () => {
+        set({ projetosCarregando: true });
+        try {
+          const { itens } = await projetosApi.listarProjetos({ porPagina: 100 });
+          set({ projetos: itens, projetosCarregando: false });
+        } catch (e) {
+          set({ projetosCarregando: false });
+          throw e;
+        }
+      },
+
+      // Busca as frentes de todos os projetos já carregados e as agrega.
+      carregarFrentesDosProjetos: async () => {
+        const ids = useStore.getState().projetos.map((p) => p.id);
+        if (ids.length === 0) {
+          set({ frentes: [] });
+          return;
+        }
+        const frentes = await projetosApi.listarFrentesDeProjetos(ids);
+        set({ frentes });
+      },
+
+      criarProjeto: async (dados) => {
+        const novo = await projetosApi.criarProjeto(dados);
+        set((s) => ({ projetos: [novo, ...s.projetos] }));
+      },
 
       adicionarCandidatura: ({ clienteId, frenteId, marcaId, prioridade, interesseCliente }) =>
         set((s) => {

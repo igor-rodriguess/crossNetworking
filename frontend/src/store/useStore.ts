@@ -4,6 +4,7 @@ import * as authApi from '../api/auth';
 import * as partesApi from '../api/partes.api';
 import * as clientesApi from '../api/clientes.api';
 import * as projetosApi from '../api/projetos.api';
+import * as candidaturasApi from '../api/candidaturas.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -125,14 +126,16 @@ interface EstadoPlataforma {
   criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
+  candidaturasCarregando: boolean;
+  carregarCandidaturas: () => Promise<void>;
   adicionarCandidatura: (dados: {
     clienteId: string;
     frenteId: string;
     marcaId: string;
     prioridade: Prioridade;
     interesseCliente: Nivel;
-  }) => void;
-  moverCandidatura: (candidaturaId: string, novoStatus: StatusCandidatura, justificativa?: string) => void;
+  }) => Promise<void>;
+  moverCandidatura: (candidaturaId: string, novoStatus: StatusCandidatura, justificativa?: string) => Promise<void>;
 
   // Crossability (RF027 — versões nunca sobrescrevem anteriores, RN019)
   atualizarAnalise: (candidaturaId: string, mudancas: Partial<AnaliseCrossability>) => void;
@@ -183,6 +186,7 @@ export const useStore = create<EstadoPlataforma>()(
       clientesCarregando: false,
       criterios: CRITERIOS,
       candidaturas: CANDIDATURAS,
+      candidaturasCarregando: false,
       avaliacoes: AVALIACOES,
       analises: ANALISES_CROSSABILITY,
       analisesTriade: ANALISES_TRIADE,
@@ -538,52 +542,46 @@ export const useStore = create<EstadoPlataforma>()(
         set((s) => ({ projetos: [novo, ...s.projetos] }));
       },
 
-      adicionarCandidatura: ({ clienteId, frenteId, marcaId, prioridade, interesseCliente }) =>
-        set((s) => {
-          const hoje = new Date().toISOString().slice(0, 10);
-          const nova: Candidatura = {
-            id: `cand-${Date.now()}`,
-            clienteId,
-            frenteId,
-            marcaId,
-            status: 'identificada',
-            interesseCliente,
-            interesseParceiro: 'desconhecido',
-            prioridade,
-            dataEntrada: hoje,
-            historico: [
-              {
-                data: hoje,
-                de: null,
-                para: 'identificada',
-                responsavel: s.usuario?.nome ?? 'Equipe Cross',
-                justificativa: 'Candidatura registrada na plataforma.',
-              },
+      // Carrega as candidaturas do cliente ativo (projetos → frentes →
+      // candidaturas). Substitui só as do cliente, preservando as demais.
+      carregarCandidaturas: async () => {
+        const clienteId = useStore.getState().clienteAtivoId;
+        if (!clienteId) {
+          set({ candidaturas: [] });
+          return;
+        }
+        set({ candidaturasCarregando: true });
+        try {
+          const doCliente = await candidaturasApi.carregarDoCliente(clienteId);
+          set((s) => ({
+            candidaturas: [
+              ...s.candidaturas.filter((c) => c.clienteId !== clienteId),
+              ...doCliente,
             ],
-          };
-          return { candidaturas: [...s.candidaturas, nova] };
-        }),
+            candidaturasCarregando: false,
+          }));
+        } catch (e) {
+          set({ candidaturasCarregando: false });
+          throw e;
+        }
+      },
 
-      moverCandidatura: (candidaturaId, novoStatus, justificativa) =>
+      adicionarCandidatura: async ({ clienteId, frenteId, marcaId, prioridade, interesseCliente }) => {
+        const nova = await candidaturasApi.criarCandidatura(
+          frenteId,
+          { marcaId, prioridade, interesseCliente },
+          clienteId,
+        );
+        set((s) => ({ candidaturas: [...s.candidaturas, nova] }));
+      },
+
+      moverCandidatura: async (candidaturaId, novoStatus, justificativa) => {
+        const clienteId = useStore.getState().clienteAtivoId;
+        const atualizada = await candidaturasApi.movimentar(candidaturaId, novoStatus, clienteId, justificativa);
         set((s) => ({
-          candidaturas: s.candidaturas.map((c) => {
-            if (c.id !== candidaturaId || c.status === novoStatus) return c;
-            return {
-              ...c,
-              status: novoStatus,
-              historico: [
-                ...c.historico,
-                {
-                  data: new Date().toISOString().slice(0, 10),
-                  de: c.status,
-                  para: novoStatus,
-                  responsavel: s.usuario?.nome ?? 'Equipe Cross',
-                  justificativa,
-                },
-              ],
-            };
-          }),
-        })),
+          candidaturas: s.candidaturas.map((c) => (c.id === candidaturaId ? atualizada : c)),
+        }));
+      },
 
       atualizarAnalise: (candidaturaId, mudancas) =>
         set((s) => {

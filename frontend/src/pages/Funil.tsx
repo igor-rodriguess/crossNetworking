@@ -1,7 +1,8 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GripVertical, Plus } from 'lucide-react';
-import { FRENTES, PROJETOS, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { useDadosCliente, type CandidaturaEnriquecida } from '../lib/useDadosCliente';
 import { NIVEL, PRIORIDADE, STATUS_CANDIDATURA, diasDesde } from '../lib/format';
 import { Botao, CabecalhoPagina, CampoSelecao, Chip, RotuloMono } from '../components/ui';
@@ -182,16 +183,19 @@ function FormNovaCandidatura({
 }) {
   const partes = useStore((s) => s.partes);
   const candidaturas = useStore((s) => s.candidaturas);
+  const projetos = useStore((s) => s.projetos);
+  const frentes = useStore((s) => s.frentes);
   const adicionarCandidatura = useStore((s) => s.adicionarCandidatura);
   const { toast } = useToast();
 
-  const frentesDoCliente = FRENTES.filter((f) =>
-    PROJETOS.some((p) => p.id === f.projetoId && p.clienteId === clienteId),
+  const frentesDoCliente = frentes.filter((f) =>
+    projetos.some((p) => p.id === f.projetoId && p.clienteId === clienteId),
   );
   const [frenteId, setFrenteId] = useState(frentesDoCliente[0]?.id ?? '');
   const [marcaId, setMarcaId] = useState('');
   const [prioridade, setPrioridade] = useState<Prioridade>('media');
   const [interesse, setInteresse] = useState<Nivel>('medio');
+  const [salvando, setSalvando] = useState(false);
 
   // RN015: a mesma Parte não pode ter duas candidaturas ativas na mesma frente
   const ENCERRADAS: StatusCandidatura[] = ['recusada_cliente', 'recusada_parceiro', 'encerrada'];
@@ -203,13 +207,19 @@ function FormNovaCandidatura({
       ),
   );
 
-  function salvar(e: React.FormEvent) {
+  async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!frenteId || !marcaId) return;
-    adicionarCandidatura({ clienteId, frenteId, marcaId, prioridade, interesseCliente: interesse });
-    const nomeMarca = partes.find((p) => p.id === marcaId)?.nome ?? 'Candidatura';
-    toast(`${nomeMarca} entrou no funil como “Identificada”.`);
-    aoFechar();
+    if (!frenteId || !marcaId || salvando) return;
+    setSalvando(true);
+    try {
+      await adicionarCandidatura({ clienteId, frenteId, marcaId, prioridade, interesseCliente: interesse });
+      const nomeMarca = partes.find((p) => p.id === marcaId)?.nome ?? 'Candidatura';
+      toast(`${nomeMarca} entrou no funil como “Identificada”.`);
+      aoFechar();
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível adicionar a candidatura.');
+      setSalvando(false);
+    }
   }
 
   return (
@@ -268,8 +278,8 @@ function FormNovaCandidatura({
         na Base de Relacionamentos e volte aqui.
       </p>
       <div className="mt-4 flex gap-2">
-        <Botao type="submit" pequeno disabled={!marcaId || !frenteId}>
-          Adicionar ao funil
+        <Botao type="submit" pequeno disabled={!marcaId || !frenteId || salvando}>
+          {salvando ? 'Adicionando…' : 'Adicionar ao funil'}
         </Botao>
         <Botao type="button" variante="ghost" pequeno onClick={aoFechar}>
           Cancelar
@@ -281,8 +291,28 @@ function FormNovaCandidatura({
 
 export function Funil() {
   const { cliente, itens } = useDadosCliente();
+  const clienteAtivoId = useStore((s) => s.clienteAtivoId);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
+  const carregarPartes = useStore((s) => s.carregarPartes);
+  const carregarCandidaturas = useStore((s) => s.carregarCandidaturas);
+  const { toast } = useToast();
   const [arrastandoId, setArrastandoId] = useState<string | null>(null);
   const [formAberto, setFormAberto] = useState(false);
+
+  // Carrega a cadeia que o funil precisa: partes (as "marcas"), projetos e
+  // frentes do cliente, e então as candidaturas. Refaz ao trocar de cliente.
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([carregarPartes(), carregarProjetos()]);
+        await carregarFrentesDosProjetos();
+        await carregarCandidaturas();
+      } catch (e) {
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar o funil.');
+      }
+    })();
+  }, [clienteAtivoId, carregarPartes, carregarProjetos, carregarFrentesDosProjetos, carregarCandidaturas, toast]);
 
   const porStatus = (status: StatusCandidatura) =>
     itens

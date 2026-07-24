@@ -29,7 +29,12 @@ export function useDadosCliente(): DadosCliente {
   const todasParcerias = useStore((s) => s.parcerias);
 
   return useMemo(() => {
-    const cliente = clientes.find((c) => c.id === clienteAtivoId) ?? clientes[0];
+    // Placeholder quando ainda não há cliente carregado (base vazia / carregando)
+    // — evita quebrar as telas que dependem deste agregador.
+    const cliente: Cliente =
+      clientes.find((c) => c.id === clienteAtivoId) ??
+      clientes[0] ??
+      { id: '', nome: 'Sem cliente', sigla: '—', segmento: '—', modeloContratacao: '', responsavel: '', desde: '' };
     const todosCriterios = criterios
       .filter((c) => c.clienteId === cliente.id)
       .sort((a, b) => a.ordem - b.ordem);
@@ -38,8 +43,11 @@ export function useDadosCliente(): DadosCliente {
     const itens: CandidaturaEnriquecida[] = candidaturas
       .filter((c) => c.clienteId === cliente.id)
       .map((candidatura) => {
-        // A Parte é a fonte da identidade da marca — cobre também as cadastradas pela UI
-        const marca = partes.find((p) => p.id === candidatura.marcaId)!;
+        // A Parte é a fonte da identidade da marca. Se ainda não carregou (dados
+        // reais chegam de forma assíncrona), usa um placeholder para não quebrar.
+        const marca: Marca =
+          partes.find((p) => p.id === candidatura.marcaId) ??
+          { id: candidatura.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' };
         const avaliacao = avaliacoes.find((a) => a.candidaturaId === candidatura.id);
         return { candidatura, marca, avaliacao, score: calcularScore(ativos, avaliacao) };
       });

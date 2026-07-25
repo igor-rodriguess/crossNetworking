@@ -7,6 +7,7 @@ import * as projetosApi from '../api/projetos.api';
 import * as candidaturasApi from '../api/candidaturas.api';
 import * as decisoesApi from '../api/decisoes.api';
 import * as parceriasApi from '../api/parcerias.api';
+import * as usuariosApi from '../api/usuarios.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -100,10 +101,12 @@ interface EstadoPlataforma {
   setPotencialDisruptivo: (candidaturaId: string, potencial: number) => void;
 
   // Equipe & acessos (RF002 — criar conta, persona, ativar/desativar; RN006)
-  adicionarUsuario: (nome: string, email: string, persona: Persona) => void;
-  alternarAtivoUsuario: (id: string) => void;
-  mudarPersonaUsuario: (id: string, persona: Persona) => void;
-  removerUsuario: (id: string) => void;
+  usuariosCarregando: boolean;
+  carregarUsuarios: () => Promise<void>;
+  adicionarUsuario: (nome: string, email: string, persona: Persona, senha?: string) => Promise<void>;
+  alternarAtivoUsuario: (id: string) => Promise<void>;
+  mudarPersonaUsuario: (id: string, persona: Persona) => Promise<void>;
+  removerUsuario: (id: string) => Promise<void>;
 
   // Execução (RF039/RF042 — avançar entrega, resolver pendência)
   avancarEntrega: (parceriaId: string, nomeEtapa: string) => void;
@@ -206,6 +209,7 @@ export const useStore = create<EstadoPlataforma>()(
       frentes: FRENTES,
       papers: PAPERS,
       usuarios: USUARIOS_INICIAIS,
+      usuariosCarregando: false,
       parcerias: PARCERIAS,
       parceriasCarregando: false,
 
@@ -352,38 +356,38 @@ export const useStore = create<EstadoPlataforma>()(
           };
         }),
 
-      adicionarUsuario: (nome, email, persona) =>
-        set((s) => {
-          // RN006: e-mail único, sem diferenciar maiúsculas/minúsculas
-          const normalizado = email.trim().toLowerCase();
-          if (s.usuarios.some((u) => u.email.toLowerCase() === normalizado)) return s;
-          return {
-            usuarios: [
-              ...s.usuarios,
-              {
-                id: `u-${Date.now()}`,
-                nome: nome.trim(),
-                email: normalizado,
-                persona,
-                ativo: true,
-                criadoEm: new Date().toISOString().slice(0, 10),
-              },
-            ],
-          };
-        }),
+      carregarUsuarios: async () => {
+        set({ usuariosCarregando: true });
+        try {
+          const itens = await usuariosApi.listarUsuarios();
+          set({ usuarios: itens, usuariosCarregando: false });
+        } catch (e) {
+          set({ usuariosCarregando: false });
+          throw e;
+        }
+      },
 
-      alternarAtivoUsuario: (id) =>
-        set((s) => ({
-          usuarios: s.usuarios.map((u) => (u.id === id ? { ...u, ativo: !u.ativo } : u)),
-        })),
+      adicionarUsuario: async (nome, email, persona, senha) => {
+        const novo = await usuariosApi.criarUsuario({ nome: nome.trim(), email: email.trim().toLowerCase(), persona, senha });
+        set((s) => ({ usuarios: [...s.usuarios, novo] }));
+      },
 
-      mudarPersonaUsuario: (id, persona) =>
-        set((s) => ({
-          usuarios: s.usuarios.map((u) => (u.id === id ? { ...u, persona } : u)),
-        })),
+      alternarAtivoUsuario: async (id) => {
+        const atual = useStore.getState().usuarios.find((u) => u.id === id);
+        if (!atual) return;
+        const atualizado = await usuariosApi.atualizarUsuario(id, { ativo: !atual.ativo });
+        set((s) => ({ usuarios: s.usuarios.map((u) => (u.id === id ? atualizado : u)) }));
+      },
 
-      removerUsuario: (id) =>
-        set((s) => ({ usuarios: s.usuarios.filter((u) => u.id !== id) })),
+      mudarPersonaUsuario: async (id, persona) => {
+        const atualizado = await usuariosApi.atualizarUsuario(id, { persona });
+        set((s) => ({ usuarios: s.usuarios.map((u) => (u.id === id ? atualizado : u)) }));
+      },
+
+      removerUsuario: async (id) => {
+        await usuariosApi.inativarUsuario(id);
+        set((s) => ({ usuarios: s.usuarios.filter((u) => u.id !== id) }));
+      },
 
       avancarEntrega: (parceriaId, nomeEtapa) =>
         set((s) => ({

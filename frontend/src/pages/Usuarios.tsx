@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Search, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { formatarData } from '../lib/format';
 import {
   Botao,
@@ -31,10 +32,13 @@ function FormNovoUsuario({ aoFechar }: { aoFechar: () => void }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [persona, setPersona] = useState<Persona>('estrategista');
+  const [senha, setSenha] = useState('');
   const [erro, setErro] = useState<string | null>(null);
+  const [salvando, setSalvando] = useState(false);
 
-  function salvar(e: React.FormEvent) {
+  async function salvar(e: React.FormEvent) {
     e.preventDefault();
+    setErro(null);
     const normalizado = email.trim().toLowerCase();
     if (!nome.trim() || !normalizado.includes('@')) {
       setErro('Informe nome e um e-mail válido.');
@@ -45,9 +49,24 @@ function FormNovoUsuario({ aoFechar }: { aoFechar: () => void }) {
       setErro('Já existe um usuário com este e-mail (RN006 — e-mail único).');
       return;
     }
-    adicionarUsuario(nome, normalizado, persona);
-    toast(`Conta de ${nome.trim()} criada com acesso de ${PERSONAS[persona].rotulo.toLowerCase()}.`);
-    aoFechar();
+    // Senha opcional; se informada, o backend exige ≥10 caracteres com letras e números.
+    if (senha && (senha.length < 10 || !/[a-zA-Z]/.test(senha) || !/\d/.test(senha))) {
+      setErro('A senha deve ter ao menos 10 caracteres, com letras e números.');
+      return;
+    }
+    setSalvando(true);
+    try {
+      await adicionarUsuario(nome, normalizado, persona, senha || undefined);
+      toast(
+        senha
+          ? `Conta de ${nome.trim()} criada com acesso de ${PERSONAS[persona].rotulo.toLowerCase()}.`
+          : `Conta de ${nome.trim()} criada. Defina uma senha para habilitar o login.`,
+      );
+      aoFechar();
+    } catch (err) {
+      setErro(err instanceof ErroApi ? err.message : 'Não foi possível criar a conta.');
+      setSalvando(false);
+    }
   }
 
   return (
@@ -75,12 +94,19 @@ function FormNovoUsuario({ aoFechar }: { aoFechar: () => void }) {
             </option>
           ))}
         </CampoSelecao>
+        <CampoTexto
+          rotulo="Senha inicial (opcional)"
+          type="password"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          placeholder="mín. 10 caracteres, com letras e números"
+        />
       </div>
-      <p className="mt-2 text-xs text-stone">{PERSONAS[persona].descricao}.</p>
+      <p className="mt-2 text-xs text-stone">{PERSONAS[persona].descricao}. Sem senha, a conta é criada mas só entra após definir uma.</p>
       {erro && <p className="mt-3 rounded-md bg-status-negsoft px-3 py-2 text-xs text-status-neg">{erro}</p>}
       <div className="mt-4 flex gap-2">
-        <Botao type="submit" pequeno>
-          Criar conta
+        <Botao type="submit" pequeno disabled={salvando}>
+          {salvando ? 'Criando…' : 'Criar conta'}
         </Botao>
         <Botao type="button" variante="ghost" pequeno onClick={aoFechar}>
           Cancelar
@@ -92,10 +118,18 @@ function FormNovoUsuario({ aoFechar }: { aoFechar: () => void }) {
 
 export function Usuarios() {
   const usuarios = useStore((s) => s.usuarios);
+  const carregarUsuarios = useStore((s) => s.carregarUsuarios);
   const alternarAtivoUsuario = useStore((s) => s.alternarAtivoUsuario);
   const mudarPersonaUsuario = useStore((s) => s.mudarPersonaUsuario);
   const removerUsuario = useStore((s) => s.removerUsuario);
   const { toast } = useToast();
+
+  // Carrega a equipe real do backend ao abrir a tela.
+  useEffect(() => {
+    carregarUsuarios().catch((e) =>
+      toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar a equipe.'),
+    );
+  }, [carregarUsuarios, toast]);
   const [formAberto, setFormAberto] = useState(false);
   const [busca, setBusca] = useState('');
   const [aDesativar, setADesativar] = useState<UsuarioInterno | null>(null);
@@ -190,7 +224,11 @@ export function Usuarios() {
                   <td className="px-6 py-4">
                     <select
                       value={u.persona}
-                      onChange={(e) => mudarPersonaUsuario(u.id, e.target.value as Persona)}
+                      onChange={(e) =>
+                        mudarPersonaUsuario(u.id, e.target.value as Persona).catch((err) =>
+                          toast(err instanceof ErroApi ? err.message : 'Não foi possível alterar o cargo.'),
+                        )
+                      }
                       className="cursor-pointer rounded-full border border-mist bg-paper px-3 py-1.5 text-sm font-semibold text-ink focus:border-accent"
                       title={PERSONAS[u.persona].descricao}
                     >
@@ -214,7 +252,9 @@ export function Usuarios() {
                           if (u.ativo) {
                             setADesativar(u); // desativar pede confirmação
                           } else {
-                            alternarAtivoUsuario(u.id); // reativar é seguro
+                            alternarAtivoUsuario(u.id).catch((err) =>
+                              toast(err instanceof ErroApi ? err.message : 'Não foi possível reativar.'),
+                            ); // reativar é seguro
                             toast(`${u.nome} reativada(o) — acesso liberado.`);
                           }
                         }}
@@ -258,7 +298,9 @@ export function Usuarios() {
         perigo
         aoConfirmar={() => {
           if (aDesativar) {
-            alternarAtivoUsuario(aDesativar.id);
+            alternarAtivoUsuario(aDesativar.id).catch((err) =>
+              toast(err instanceof ErroApi ? err.message : 'Não foi possível desativar.'),
+            );
             toast(`Acesso de ${aDesativar.nome} desativado.`, 'info');
           }
         }}
@@ -279,7 +321,9 @@ export function Usuarios() {
         perigo
         aoConfirmar={() => {
           if (aApagar) {
-            removerUsuario(aApagar.id);
+            removerUsuario(aApagar.id).catch((err) =>
+              toast(err instanceof ErroApi ? err.message : 'Não foi possível apagar.'),
+            );
             toast(`${aApagar.nome} foi apagada(o) da lista.`, 'info');
           }
         }}

@@ -6,6 +6,7 @@ import * as clientesApi from '../api/clientes.api';
 import * as projetosApi from '../api/projetos.api';
 import * as candidaturasApi from '../api/candidaturas.api';
 import * as decisoesApi from '../api/decisoes.api';
+import * as parceriasApi from '../api/parcerias.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -44,6 +45,10 @@ import type {
 // `usuario`; aqui só o material que o cofre em memória (api/sessao) precisa
 // reidratar após um refresh de página.
 type SessaoPersistida = Sessao;
+
+// Ids reais do backend são UUID; ids de seed mock (ex.: "parc-1") não casam —
+// usado para só chamar a API em registros que vieram do servidor.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Equipe interna inicial (RF002) — os mesmos responsáveis usados na operação
 const USUARIOS_INICIAIS: UsuarioInterno[] = [
@@ -105,7 +110,9 @@ interface EstadoPlataforma {
   avancarPendencia: (parceriaId: string, descricao: string) => void;
 
   // Edição de parceria (status, vigência, fases) — RF de acompanhamento
-  atualizarParceria: (parceriaId: string, mudancas: Partial<Pick<Parceria, 'status' | 'dataInicio' | 'dataFim' | 'nome' | 'tipo'>>) => void;
+  parceriasCarregando: boolean;
+  carregarParcerias: () => Promise<void>;
+  atualizarParceria: (parceriaId: string, mudancas: Partial<Pick<Parceria, 'status' | 'dataInicio' | 'dataFim' | 'nome' | 'tipo'>>) => Promise<void>;
   alternarFaseConcluida: (parceriaId: string, nomeFase: string) => void;
 
   // Registrar validação do Paper (interna/cliente) — destrava o fluxo do Score Card (RN022)
@@ -200,6 +207,7 @@ export const useStore = create<EstadoPlataforma>()(
       papers: PAPERS,
       usuarios: USUARIOS_INICIAIS,
       parcerias: PARCERIAS,
+      parceriasCarregando: false,
 
       // Login real: autentica no backend, guarda usuário + sessão. Propaga o
       // ErroApi (mensagem PT-BR) para a tela tratar. `autenticando` cobre o
@@ -425,10 +433,42 @@ export const useStore = create<EstadoPlataforma>()(
           ),
         })),
 
-      atualizarParceria: (parceriaId, mudancas) =>
+      // Carrega as parcerias do cliente ativo (via seus projetos).
+      carregarParcerias: async () => {
+        const clienteId = useStore.getState().clienteAtivoId;
+        if (!clienteId) {
+          set({ parcerias: [] });
+          return;
+        }
+        set({ parceriasCarregando: true });
+        try {
+          const doCliente = await parceriasApi.carregarDoCliente(clienteId);
+          set((s) => ({
+            parcerias: [...s.parcerias.filter((p) => p.clienteId !== clienteId), ...doCliente],
+            parceriasCarregando: false,
+          }));
+        } catch (e) {
+          set({ parceriasCarregando: false });
+          throw e;
+        }
+      },
+
+      atualizarParceria: async (parceriaId, mudancas) => {
+        // Atualização otimista imediata na UI…
         set((s) => ({
           parcerias: s.parcerias.map((p) => (p.id === parceriaId ? { ...p, ...mudancas } : p)),
-        })),
+        }));
+        // …e persiste os campos que o backend guarda. Ids de seed mock (não
+        // UUID) ficam só locais, sem chamar a API.
+        if (UUID_RE.test(parceriaId)) {
+          try {
+            const atualizada = await parceriasApi.atualizarParceria(parceriaId, mudancas);
+            set((s) => ({ parcerias: s.parcerias.map((p) => (p.id === parceriaId ? { ...p, ...atualizada } : p)) }));
+          } catch {
+            // mantém o estado otimista; a UI já refletiu a mudança
+          }
+        }
+      },
 
       alternarFaseConcluida: (parceriaId, nomeFase) =>
         set((s) => ({

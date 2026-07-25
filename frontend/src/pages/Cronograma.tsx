@@ -1,8 +1,11 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useDadosCliente } from '../lib/useDadosCliente';
 import { HOJE, STATUS_PARCERIA, formatarDataCurta } from '../lib/format';
-import { MARCAS } from '../store/useStore';
+import { MARCAS, useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
+import { useToast } from '../components/Toast';
 import { CabecalhoPagina, Chip, EstadoVazio, RotuloMono, type TomChip } from '../components/ui';
 import type { FaseParceria, Parceria } from '../types';
 
@@ -41,6 +44,23 @@ function faseAtualDe(parceria: Parceria): FaseParceria | undefined {
 
 export function Cronograma() {
   const { cliente, parcerias } = useDadosCliente();
+  const clienteAtivoId = useStore((s) => s.clienteAtivoId);
+  const carregarParcerias = useStore((s) => s.carregarParcerias);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarPartes = useStore((s) => s.carregarPartes);
+  const { toast } = useToast();
+
+  // Carrega parcerias reais (via projetos do cliente) e as partes (marcas).
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([carregarPartes(), carregarProjetos()]);
+        await carregarParcerias();
+      } catch (e) {
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar as parcerias.');
+      }
+    })();
+  }, [clienteAtivoId, carregarPartes, carregarProjetos, carregarParcerias, toast]);
   const fracaoHoje = (HOJE.getTime() - INICIO_ANO) / DURACAO_ANO;
 
   const ativas = parcerias.filter((p) => p.status === 'ativa').length;

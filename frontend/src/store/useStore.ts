@@ -5,6 +5,7 @@ import * as partesApi from '../api/partes.api';
 import * as clientesApi from '../api/clientes.api';
 import * as projetosApi from '../api/projetos.api';
 import * as candidaturasApi from '../api/candidaturas.api';
+import * as decisoesApi from '../api/decisoes.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
 import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
 import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
@@ -576,11 +577,14 @@ export const useStore = create<EstadoPlataforma>()(
       },
 
       moverCandidatura: async (candidaturaId, novoStatus, justificativa) => {
-        const clienteId = useStore.getState().clienteAtivoId;
-        const atualizada = await candidaturasApi.movimentar(candidaturaId, novoStatus, clienteId, justificativa);
+        const { clienteAtivoId, usuario } = useStore.getState();
+        const atualizada = await candidaturasApi.movimentar(candidaturaId, novoStatus, clienteAtivoId, justificativa);
         set((s) => ({
           candidaturas: s.candidaturas.map((c) => (c.id === candidaturaId ? atualizada : c)),
         }));
+        // Persiste a decisão de auditoria quando o status é terminal (modelo
+        // híbrido de Metodologias) — em paralelo, sem bloquear o funil.
+        void decisoesApi.registrarDecisaoDoStatus(candidaturaId, novoStatus, usuario?.persona, justificativa);
       },
 
       atualizarAnalise: (candidaturaId, mudancas) =>

@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, MapPin, Music2, Plus, Radio, Trash2, UserRound } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, MapPin, Music2, Pencil, Plus, Radio, Trash2, UserRound } from 'lucide-react';
 import { CLIENTES, useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { PARCERIAS } from '../data/mock';
@@ -319,7 +319,13 @@ export function ParteDetalhe() {
   const criterios = useStore((s) => s.criterios);
   const avaliacoes = useStore((s) => s.avaliacoes);
   const carregarParte = useStore((s) => s.carregarParte);
+  const editarParte = useStore((s) => s.editarParte);
   const { toast } = useToast();
+
+  const [editando, setEditando] = useState(false);
+  const [editNome, setEditNome] = useState('');
+  const [editCategoria, setEditCategoria] = useState('');
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
   const parte = useStore((s) => s.partes.find((p) => p.id === parteId));
 
@@ -353,6 +359,27 @@ export function ParteDetalhe() {
 
   const ehCliente = parte.papeis.includes('cliente');
 
+  function abrirEdicao() {
+    setEditNome(parte!.nome);
+    setEditCategoria(parte!.categoria);
+    setEditando(true);
+  }
+
+  async function salvarEdicao(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editNome.trim() || salvandoEdicao) return;
+    setSalvandoEdicao(true);
+    try {
+      await editarParte(parte!.id, parte!.tipo, { nome: editNome.trim(), categoria: editCategoria.trim() || undefined });
+      toast('Dados atualizados.');
+      setEditando(false);
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível salvar as alterações.');
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  }
+
   return (
     <div>
       <Link
@@ -377,15 +404,50 @@ export function ParteDetalhe() {
               {parte.tipo === 'organizacao' ? 'Organização' : 'Pessoa'} · {parte.categoria} · na base desde{' '}
               {formatarData(parte.cadastradaEm)}
             </RotuloMono>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">{parte.nome}</h1>
-            <p className="mt-2 max-w-2xl text-sm text-stone">{parte.descricao}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {parte.papeis.map((papel) => (
-                <Chip key={papel} tom={papel === 'cliente' ? 'info' : 'neutro'}>
-                  {PAPEL_PARTE[papel]}
-                </Chip>
-              ))}
-            </div>
+            {editando ? (
+              <form onSubmit={salvarEdicao} className="mt-1 space-y-2">
+                <input
+                  value={editNome}
+                  onChange={(e) => setEditNome(e.target.value)}
+                  className="w-full max-w-md rounded-lg border border-mist bg-paper px-3 py-2 font-display text-2xl font-extrabold text-ink focus:border-accent"
+                  autoFocus
+                  aria-label="Nome da Parte"
+                />
+                <input
+                  value={editCategoria}
+                  onChange={(e) => setEditCategoria(e.target.value)}
+                  placeholder={parte.tipo === 'organizacao' ? 'Segmento' : 'Nacionalidade'}
+                  className="w-full max-w-md rounded-md border border-mist bg-paper px-3 py-1.5 text-sm text-ink placeholder:text-mist focus:border-accent"
+                  aria-label="Categoria"
+                />
+                <div className="flex gap-2 pt-1">
+                  <Botao type="submit" pequeno disabled={salvandoEdicao}>{salvandoEdicao ? 'Salvando…' : 'Salvar'}</Botao>
+                  <Botao type="button" variante="ghost" pequeno onClick={() => setEditando(false)}>Cancelar</Botao>
+                </div>
+              </form>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">{parte.nome}</h1>
+                  <button
+                    type="button"
+                    onClick={abrirEdicao}
+                    className="flex items-center gap-1 rounded-full border border-mist px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-stone transition-colors hover:border-graphite hover:text-ink"
+                    title="Editar nome e categoria"
+                  >
+                    <Pencil size={11} strokeWidth={1.5} /> Editar
+                  </button>
+                </div>
+                {parte.descricao && <p className="mt-2 max-w-2xl text-sm text-stone">{parte.descricao}</p>}
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {parte.papeis.map((papel) => (
+                    <Chip key={papel} tom={papel === 'cliente' ? 'info' : 'neutro'}>
+                      {PAPEL_PARTE[papel]}
+                    </Chip>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import {
   paraCriarFrente,
   paraCriarProjeto,
   projetoDeBackend,
+  statusProjetoParaBackend,
   type FrenteBackend,
   type ProjetoBackend,
 } from './mappers/projetos.mapper';
@@ -65,6 +66,29 @@ export async function criarProjeto(dados: {
   });
   if (criado.versao) versaoPorId.set(criado.id, criado.versao);
   return projetoDeBackend(criado);
+}
+
+/** Atualiza campos base do projeto (nome, objetivo, produto, status) com If-Match. */
+export async function atualizarProjeto(
+  id: string,
+  mudancas: { nome?: string; objetivo?: string; produto?: string; status?: StatusProjeto },
+): Promise<Projeto> {
+  // A listagem não traz a versão (ETag); se ainda não a conhecemos, obtém o
+  // projeto primeiro — o backend exige If-Match no PATCH.
+  if (!versaoPorId.has(id)) await obterProjeto(id);
+  const versao = versaoPorId.get(id);
+  const corpo: Record<string, unknown> = {};
+  if (mudancas.nome !== undefined) corpo.nome = mudancas.nome;
+  if (mudancas.objetivo !== undefined) corpo.objetivo = mudancas.objetivo;
+  if (mudancas.produto !== undefined) corpo.produto = mudancas.produto;
+  if (mudancas.status !== undefined) corpo.status_projeto_codigo = statusProjetoParaBackend(mudancas.status);
+  const atualizado = await requisitar<ProjetoBackend>(`/projetos/${id}`, {
+    metodo: 'PATCH',
+    corpo,
+    cabecalhos: versao ? { 'If-Match': `"${versao}"` } : undefined,
+  });
+  if (atualizado.versao) versaoPorId.set(atualizado.id, atualizado.versao);
+  return projetoDeBackend(atualizado);
 }
 
 export async function arquivarProjeto(id: string): Promise<void> {

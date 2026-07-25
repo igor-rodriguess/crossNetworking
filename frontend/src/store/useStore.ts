@@ -38,6 +38,7 @@ import type {
   Prioridade,
   RespostaValor,
   StatusCandidatura,
+  StatusProjeto,
   Turne,
   Usuario,
   UsuarioInterno,
@@ -120,6 +121,7 @@ interface EstadoPlataforma {
   carregarPartes: () => Promise<void>;
   carregarParte: (id: string) => Promise<void>;
   adicionarParte: (dados: { tipo: Parte['tipo']; nome: string; categoria: string; papel?: string }) => Promise<void>;
+  editarParte: (id: string, tipo: Parte['tipo'], mudancas: { nome?: string; categoria?: string }) => Promise<void>;
   adicionarContato: (parteId: string, nome: string, cargo: string, email: string) => Promise<void>;
   // Ativos/canais ainda não têm endpoint no backend de Partes — locais por ora.
   adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => void;
@@ -130,6 +132,7 @@ interface EstadoPlataforma {
   carregarFrentesDosProjetos: () => Promise<void>;
   criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
   criarFrente: (projetoId: string, dados: { nome: string; objetivo: string; categoria?: string }) => Promise<void>;
+  atualizarProjeto: (id: string, mudancas: { nome?: string; objetivo?: string; produto?: string; status?: StatusProjeto }) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
   candidaturasCarregando: boolean;
@@ -535,6 +538,11 @@ export const useStore = create<EstadoPlataforma>()(
         set((s) => ({ partes: [criada, ...s.partes] }));
       },
 
+      editarParte: async (id, tipo, mudancas) => {
+        const atualizada = await partesApi.atualizarParte(id, tipo, mudancas);
+        set((s) => ({ partes: s.partes.map((p) => (p.id === id ? atualizada : p)) }));
+      },
+
       adicionarContato: async (parteId, nome, cargo, email) => {
         const contato = await partesApi.adicionarContato(parteId, { nome, cargo, email });
         set((s) => ({
@@ -587,6 +595,11 @@ export const useStore = create<EstadoPlataforma>()(
       criarFrente: async (projetoId, dados) => {
         const nova = await projetosApi.criarFrente(projetoId, dados);
         set((s) => ({ frentes: [...s.frentes, nova] }));
+      },
+
+      atualizarProjeto: async (id, mudancas) => {
+        const atualizado = await projetosApi.atualizarProjeto(id, mudancas);
+        set((s) => ({ projetos: s.projetos.map((p) => (p.id === id ? atualizado : p)) }));
       },
 
       // Carrega as candidaturas do cliente ativo (projetos → frentes →

@@ -88,6 +88,7 @@ export function ProjetoDetalhe() {
   const carregarProjetos = useStore((s) => s.carregarProjetos);
   const carregarClientes = useStore((s) => s.carregarClientes);
   const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
+  const atualizarProjeto = useStore((s) => s.atualizarProjeto);
   const usuario = useStore((s) => s.usuario);
   const { toast } = useToast();
 
@@ -141,7 +142,28 @@ export function ProjetoDetalhe() {
             </span>
           </div>
         </div>
-        <Chip tom={st.tom}>{st.rotulo}</Chip>
+        <label className="flex flex-col items-end gap-1">
+          <span className="label-mono">Status do projeto</span>
+          <select
+            value={projeto.status}
+            onChange={(e) => {
+              const novo = e.target.value as typeof projeto.status;
+              atualizarProjeto(projeto.id, { status: novo })
+                .then(() => toast(`Projeto movido para “${STATUS_PROJETO[novo].rotulo}”.`))
+                .catch((err) => toast(err instanceof ErroApi ? err.message : 'Não foi possível mudar o status.'));
+            }}
+            className={`cursor-pointer rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-colors focus:border-accent ${
+              st.tom === 'pos' ? 'border-status-pos text-status-pos' : st.tom === 'info' ? 'border-accent text-accent-deep' : 'border-ink text-ink'
+            } bg-paper hover:bg-off`}
+            title="Mudar o status do projeto"
+          >
+            {(['planejamento', 'em_andamento', 'concluido'] as const).map((s) => (
+              <option key={s} value={s}>
+                {STATUS_PROJETO[s].rotulo}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {/* Stepper do ciclo do projeto */}

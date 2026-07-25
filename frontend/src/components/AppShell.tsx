@@ -467,7 +467,7 @@ export function AppShell() {
             © 2026 Crossnetworking
           </span>
           <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-stone">
-            <ListOrdered size={11} strokeWidth={1.5} /> Demo offline · dados fictícios
+            <ListOrdered size={11} strokeWidth={1.5} /> Conectado à API · dados reais
           </span>
         </footer>
       </div>

@@ -1,6 +1,9 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AlertCircle, ArrowRight, CalendarClock, FileWarning } from 'lucide-react';
-import { CLIENTES, FRENTES, PROJETOS, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
+import { useToast } from '../components/Toast';
 import { FASES_PROJETO, HOJE, formatarDataCurta, indiceFase } from '../lib/format';
 import { Chip, FaixaEstatisticas, RotuloMono } from '../components/ui';
 import { STATUS_PROJETO } from './Projetos';
@@ -52,8 +55,31 @@ export function Dashboard() {
   const usuario = useStore((s) => s.usuario);
   const candidaturas = useStore((s) => s.candidaturas);
   const partes = useStore((s) => s.partes);
+  const PROJETOS = useStore((s) => s.projetos);
+  const FRENTES = useStore((s) => s.frentes);
+  const CLIENTES = useStore((s) => s.clientes);
   const PARCERIAS = useStore((s) => s.parcerias);
   const PAPERS = useStore((s) => s.papers);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
+  const carregarCandidaturas = useStore((s) => s.carregarCandidaturas);
+  const carregarParcerias = useStore((s) => s.carregarParcerias);
+  const carregarPartes = useStore((s) => s.carregarPartes);
+  const clienteAtivoId = useStore((s) => s.clienteAtivoId);
+  const { toast } = useToast();
+
+  // Central de operação: consolida os dados reais do cliente ativo ao abrir.
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([carregarPartes(), carregarProjetos()]);
+        await carregarFrentesDosProjetos();
+        await Promise.all([carregarCandidaturas(), carregarParcerias()]);
+      } catch (e) {
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar o painel.');
+      }
+    })();
+  }, [clienteAtivoId, carregarPartes, carregarProjetos, carregarFrentesDosProjetos, carregarCandidaturas, carregarParcerias, toast]);
 
   const primeiroNome = (usuario?.nome ?? 'Equipe Cross').split(' ')[0];
 
@@ -266,7 +292,7 @@ export function Dashboard() {
             </thead>
             <tbody className="divide-y divide-cloud">
               {projetosRecentes.map((projeto) => {
-                const cliente = CLIENTES.find((c) => c.id === projeto.clienteId)!;
+                const cliente = CLIENTES.find((c) => c.id === projeto.clienteId);
                 const fase = FASES_PROJETO.find((f) => f.id === projeto.faseAtual)!;
                 const st = STATUS_PROJETO[projeto.status];
                 return (
@@ -279,7 +305,7 @@ export function Dashboard() {
                         {projeto.nome}
                       </Link>
                     </td>
-                    <td className="px-6 py-3.5 text-graphite">{cliente.nome}</td>
+                    <td className="px-6 py-3.5 text-graphite">{cliente?.nome ?? '—'}</td>
                     <td className="px-6 py-3.5">
                       <span className="text-sm font-semibold text-accent">{fase.rotulo}</span>
                     </td>

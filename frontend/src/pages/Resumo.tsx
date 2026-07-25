@@ -1,8 +1,11 @@
-﻿import { Printer } from 'lucide-react';
+﻿import { useEffect } from 'react';
+import { Printer } from 'lucide-react';
 import { useDadosCliente } from '../lib/useDadosCliente';
 import { STATUS_CANDIDATURA, STATUS_PARCERIA, formatarData } from '../lib/format';
 import { classificarScore } from '../lib/score';
-import { FRENTES, MARCAS, PROJETOS } from '../store/useStore';
+import { MARCAS, useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
+import { useToast } from '../components/Toast';
 import { LogoCross } from '../components/Logo';
 import { Botao, CabecalhoPagina, Chip, RotuloMono } from '../components/ui';
 import type { StatusCandidatura } from '../types';
@@ -18,6 +21,28 @@ const ETAPAS: StatusCandidatura[] = [
 
 export function Resumo() {
   const { cliente, itens, ranking, parcerias } = useDadosCliente();
+  const clienteAtivoId = useStore((s) => s.clienteAtivoId);
+  const projetos = useStore((s) => s.projetos);
+  const frentes = useStore((s) => s.frentes);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
+  const carregarCandidaturas = useStore((s) => s.carregarCandidaturas);
+  const carregarParcerias = useStore((s) => s.carregarParcerias);
+  const carregarPartes = useStore((s) => s.carregarPartes);
+  const { toast } = useToast();
+
+  // Consolida os dados reais do cliente para o resumo executivo.
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([carregarPartes(), carregarProjetos()]);
+        await carregarFrentesDosProjetos();
+        await Promise.all([carregarCandidaturas(), carregarParcerias()]);
+      } catch (e) {
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar o resumo.');
+      }
+    })();
+  }, [clienteAtivoId, carregarPartes, carregarProjetos, carregarFrentesDosProjetos, carregarCandidaturas, carregarParcerias, toast]);
 
   const avaliadas = ranking.length;
   const scoreMedio =
@@ -25,8 +50,8 @@ export function Resumo() {
   const parceriasAtivas = parcerias.filter((p) => p.status === 'ativa').length;
 
   // Frentes abertas para o cliente: todas as frentes dos projetos deste cliente.
-  const projetosCliente = PROJETOS.filter((p) => p.clienteId === cliente.id);
-  const frentesCliente = FRENTES.filter((f) => projetosCliente.some((p) => p.id === f.projetoId));
+  const projetosCliente = projetos.filter((p) => p.clienteId === cliente.id);
+  const frentesCliente = frentes.filter((f) => projetosCliente.some((p) => p.id === f.projetoId));
   const frentesAtivas = frentesCliente.filter((f) => f.status !== 'encerrada').length;
 
   return (

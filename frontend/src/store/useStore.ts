@@ -9,8 +9,10 @@ import * as decisoesApi from '../api/decisoes.api';
 import * as parceriasApi from '../api/parcerias.api';
 import * as usuariosApi from '../api/usuarios.api';
 import { aoMudarSessao, definirSessao, type Sessao } from '../api/sessao';
-import { AVALIACOES, CANDIDATURAS, CLIENTES, CRITERIOS, MARCAS, PARCERIAS } from '../data/mock';
-import { ANALISES_CROSSABILITY, ANALISES_TRIADE, FRENTES, PAPERS, PARTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
+// Constantes de mock reexportadas para lookups estáticos em telas ainda não
+// migradas (histórico). O ESTADO de domínio agora vem 100% do backend.
+import { CLIENTES, MARCAS } from '../data/mock';
+import { FRENTES, PERFIS_ARTISTAS, PROJETOS } from '../data/mock-plataforma';
 import type {
   AnaliseCrossability,
   AnaliseTriade,
@@ -52,14 +54,6 @@ type SessaoPersistida = Sessao;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Equipe interna inicial (RF002) — os mesmos responsáveis usados na operação
-const USUARIOS_INICIAIS: UsuarioInterno[] = [
-  { id: 'u-igor', nome: 'Igor Rodrigues', email: 'igor@crossnetworking.com.br', persona: 'administrador', ativo: true, criadoEm: '2025-09-01' },
-  { id: 'u-marina', nome: 'Marina Duarte', email: 'marina.duarte@crossnetworking.com.br', persona: 'gestor_contas', ativo: true, criadoEm: '2025-09-01' },
-  { id: 'u-caio', nome: 'Caio Nogueira', email: 'caio.nogueira@crossnetworking.com.br', persona: 'gestor_contas', ativo: true, criadoEm: '2025-09-15' },
-  { id: 'u-ana', nome: 'Ana Beltrão', email: 'ana.beltrao@crossnetworking.com.br', persona: 'coordenador', ativo: true, criadoEm: '2025-10-01' },
-  { id: 'u-luisa', nome: 'Luísa Prado', email: 'luisa.prado@crossnetworking.com.br', persona: 'estrategista', ativo: true, criadoEm: '2026-01-10' },
-];
-
 interface EstadoPlataforma {
   usuario: Usuario | null;
   sessao: SessaoPersistida | null;
@@ -192,25 +186,27 @@ export const useStore = create<EstadoPlataforma>()(
       usuario: null,
       sessao: null,
       autenticando: false,
-      clienteAtivoId: CLIENTES[0].id,
-      clientes: CLIENTES,
+      // Estado de domínio começa VAZIO — tudo vem do backend via ações
+      // carregar*. Os seeds mock foram removidos (integração concluída).
+      clienteAtivoId: '',
+      clientes: [],
       clientesCarregando: false,
-      criterios: CRITERIOS,
-      candidaturas: CANDIDATURAS,
+      criterios: [],
+      candidaturas: [],
       candidaturasCarregando: false,
-      avaliacoes: AVALIACOES,
-      analises: ANALISES_CROSSABILITY,
-      analisesTriade: ANALISES_TRIADE,
-      perfisArtistas: PERFIS_ARTISTAS,
-      partes: PARTES,
+      avaliacoes: [],
+      analises: [],
+      analisesTriade: [],
+      perfisArtistas: [],
+      partes: [],
       partesCarregando: false,
-      projetos: PROJETOS,
+      projetos: [],
       projetosCarregando: false,
-      frentes: FRENTES,
-      papers: PAPERS,
-      usuarios: USUARIOS_INICIAIS,
+      frentes: [],
+      papers: [],
+      usuarios: [],
       usuariosCarregando: false,
-      parcerias: PARCERIAS,
+      parcerias: [],
       parceriasCarregando: false,
 
       // Login real: autentica no backend, guarda usuário + sessão. Propaga o
@@ -843,28 +839,32 @@ export const useStore = create<EstadoPlataforma>()(
           ),
         })),
 
-      restaurarDemo: () =>
-        set({
-          clientes: CLIENTES,
-          criterios: CRITERIOS,
-          candidaturas: CANDIDATURAS,
-          avaliacoes: AVALIACOES,
-          analises: ANALISES_CROSSABILITY,
-          analisesTriade: ANALISES_TRIADE,
-          perfisArtistas: PERFIS_ARTISTAS,
-          partes: PARTES,
-          papers: PAPERS,
-          usuarios: USUARIOS_INICIAIS,
-          parcerias: PARCERIAS,
-          clienteAtivoId: CLIENTES[0].id,
-        }),
+      // "Recarregar": rebusca todo o estado de domínio do backend. (Antes
+      // restaurava seeds mock; agora que tudo vem da API, recarrega o real.)
+      restaurarDemo: () => {
+        const s = useStore.getState();
+        void (async () => {
+          try {
+            await Promise.all([s.carregarClientes(), s.carregarPartes(), s.carregarUsuarios()]);
+            await s.carregarProjetos();
+            await s.carregarFrentesDosProjetos();
+            await Promise.all([s.carregarCandidaturas(), s.carregarParcerias()]);
+          } catch {
+            // silencioso — cada carregar* já trata seus próprios erros na UI
+          }
+        })();
+      },
     }),
     {
       name: 'plataforma-cross-demo',
-      version: 11,
-      // Ao reidratar do localStorage, devolve a sessão salva ao cofre em
-      // memória (api/sessao) — é dele que o client.ts lê o Bearer. Sem isto,
-      // um F5 manteria `usuario` mas perderia os tokens.
+      version: 12,
+      // Persiste APENAS a sessão (usuário + tokens). Os dados de domínio vêm
+      // 100% do backend a cada carregamento — nada de estado mock no
+      // localStorage. O bump de versão descarta persistências antigas.
+      partialize: (s) => ({ usuario: s.usuario, sessao: s.sessao }),
+      // Ao reidratar, devolve a sessão salva ao cofre em memória (api/sessao) —
+      // é dele que o client.ts lê o Bearer. Sem isto, um F5 manteria `usuario`
+      // mas perderia os tokens.
       onRehydrateStorage: () => (estado) => {
         if (estado?.sessao) definirSessao(estado.sessao);
       },

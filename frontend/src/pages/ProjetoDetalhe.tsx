@@ -1,6 +1,8 @@
-﻿import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Undo2, Users } from 'lucide-react';
-import { CLIENTES, FRENTES, MARCAS, PROJETOS, useStore } from '../store/useStore';
+﻿import { useEffect, useState } from 'react';
+import { Link, Navigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Plus, Undo2, Users } from 'lucide-react';
+import { MARCAS, useStore } from '../store/useStore';
+import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
 import {
   FASES_PROJETO,
@@ -10,7 +12,7 @@ import {
   indiceFase,
 } from '../lib/format';
 import { calcularScore } from '../lib/score';
-import { Chip, RotuloMono, type TomChip } from '../components/ui';
+import { Botao, CampoTexto, Chip, RotuloMono, type TomChip } from '../components/ui';
 import { ORIGEM_DEMANDA, STATUS_PROJETO } from './Projetos';
 import type { StatusFrente, StatusVersaoPaper, ValidacaoPaper } from '../types';
 
@@ -33,23 +35,81 @@ const STATUS_VALIDACAO: Record<ValidacaoPaper['status'], { rotulo: string; tom: 
   ajustes_solicitados: { rotulo: 'Ajustes solicitados', tom: 'neg' },
 };
 
+// ─── Nova frente de oportunidade (RF024) ────────────────────────────────────
+function FormNovaFrente({ projetoId, aoFechar }: { projetoId: string; aoFechar: () => void }) {
+  const criarFrente = useStore((s) => s.criarFrente);
+  const { toast } = useToast();
+  const [nome, setNome] = useState('');
+  const [objetivo, setObjetivo] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim() || !objetivo.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await criarFrente(projetoId, { nome: nome.trim(), objetivo: objetivo.trim(), categoria: categoria.trim() || undefined });
+      toast(`Frente “${nome.trim()}” aberta.`);
+      aoFechar();
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível abrir a frente.');
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={salvar} className="card anim-abre mb-4 p-5">
+      <div className="grid gap-3 md:grid-cols-3">
+        <CampoTexto rotulo="Nome da frente" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Público jovem urbano" autoFocus />
+        <CampoTexto rotulo="Objetivo" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} placeholder="O que esta frente busca" />
+        <CampoTexto rotulo="Território / categoria (opcional)" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ex.: Cultura urbana" />
+      </div>
+      <div className="mt-4 flex gap-2">
+        <Botao type="submit" pequeno disabled={salvando}>{salvando ? 'Abrindo…' : 'Abrir frente'}</Botao>
+        <Botao type="button" variante="ghost" pequeno onClick={aoFechar}>Cancelar</Botao>
+      </div>
+    </form>
+  );
+}
+
 export function ProjetoDetalhe() {
   const { projetoId } = useParams();
+  const [formFrenteAberto, setFormFrenteAberto] = useState(false);
   const todosCriterios = useStore((s) => s.criterios);
   const candidaturas = useStore((s) => s.candidaturas);
   const avaliacoes = useStore((s) => s.avaliacoes);
   const papers = useStore((s) => s.papers);
+  const projetos = useStore((s) => s.projetos);
+  const frentesStore = useStore((s) => s.frentes);
+  const clientes = useStore((s) => s.clientes);
+  const partes = useStore((s) => s.partes);
   const registrarValidacaoPaper = useStore((s) => s.registrarValidacaoPaper);
+  const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarClientes = useStore((s) => s.carregarClientes);
+  const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
   const usuario = useStore((s) => s.usuario);
   const { toast } = useToast();
 
-  const projeto = PROJETOS.find((p) => p.id === projetoId);
+  // Garante que projeto, clientes e frentes reais estejam carregados ao abrir.
+  useEffect(() => {
+    (async () => {
+      try {
+        await Promise.all([carregarProjetos(), carregarClientes()]);
+        await carregarFrentesDosProjetos();
+      } catch (e) {
+        toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar o projeto.');
+      }
+    })();
+  }, [carregarProjetos, carregarClientes, carregarFrentesDosProjetos, toast]);
+
+  const projeto = projetos.find((p) => p.id === projetoId);
   if (!projeto) return <Navigate to="/projetos" replace />;
 
   // Critérios do cliente dono do projeto (não do cliente ativo no topo)
   const criterios = todosCriterios.filter((c) => c.clienteId === projeto.clienteId && c.ativo);
 
-  const frentes = FRENTES.filter((f) => f.projetoId === projeto.id);
+  const frentes = frentesStore.filter((f) => f.projetoId === projeto.id);
   const st = STATUS_PROJETO[projeto.status];
   const briefingsOrdenados = [...projeto.briefings].sort((a, b) => b.versao - a.versao);
 
@@ -174,12 +234,24 @@ export function ProjetoDetalhe() {
             </div>
           </div>
           {/* Frentes com candidaturas e Papers */}
+          <div className="mb-3 flex items-center justify-between">
+            <RotuloMono>Frentes de oportunidade</RotuloMono>
+            <Botao variante="ghost" pequeno onClick={() => setFormFrenteAberto((v) => !v)}>
+              <Plus size={13} strokeWidth={1.5} /> Nova frente
+            </Botao>
+          </div>
+          {formFrenteAberto && <FormNovaFrente projetoId={projeto.id} aoFechar={() => setFormFrenteAberto(false)} />}
+          {frentes.length === 0 && !formFrenteAberto && (
+            <p className="mb-4 rounded-lg border border-dashed border-mist px-4 py-6 text-center text-sm text-stone">
+              Nenhuma frente ainda — abra a primeira para começar a mapear candidatos.
+            </p>
+          )}
           {frentes.map((frente) => {
             const cands = candidaturas
               .filter((c) => c.frenteId === frente.id)
               .map((c) => ({
                 candidatura: c,
-                marca: MARCAS.find((m) => m.id === c.marcaId)!,
+                marca: partes.find((m) => m.id === c.marcaId) ?? MARCAS.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
                 score: calcularScore(criterios, avaliacoes.find((a) => a.candidaturaId === c.id)),
               }))
               .sort((a, b) => (b.score?.total ?? -1) - (a.score?.total ?? -1));
@@ -314,7 +386,7 @@ export function ProjetoDetalhe() {
               <div>
                 <dt className="text-xs text-stone">Cliente (quem busca a parceria)</dt>
                 <dd className="font-semibold text-ink">
-                  {CLIENTES.find((c) => c.id === projeto.clienteId)?.nome}
+                  {clientes.find((c) => c.id === projeto.clienteId)?.nome}
                 </dd>
               </div>
               <div>
@@ -379,7 +451,7 @@ export function ProjetoDetalhe() {
                 .flatMap((c) =>
                   c.historico.map((mov) => ({
                     mov,
-                    marca: MARCAS.find((m) => m.id === c.marcaId)!,
+                    marca: partes.find((m) => m.id === c.marcaId) ?? MARCAS.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
                   })),
                 )
                 .sort((a, b) => b.mov.data.localeCompare(a.mov.data))

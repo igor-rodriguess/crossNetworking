@@ -129,6 +129,7 @@ interface EstadoPlataforma {
   carregarProjetos: () => Promise<void>;
   carregarFrentesDosProjetos: () => Promise<void>;
   criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
+  criarFrente: (projetoId: string, dados: { nome: string; objetivo: string; categoria?: string }) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
   candidaturasCarregando: boolean;
@@ -581,6 +582,11 @@ export const useStore = create<EstadoPlataforma>()(
       criarProjeto: async (dados) => {
         const novo = await projetosApi.criarProjeto(dados);
         set((s) => ({ projetos: [novo, ...s.projetos] }));
+      },
+
+      criarFrente: async (projetoId, dados) => {
+        const nova = await projetosApi.criarFrente(projetoId, dados);
+        set((s) => ({ frentes: [...s.frentes, nova] }));
       },
 
       // Carrega as candidaturas do cliente ativo (projetos → frentes →

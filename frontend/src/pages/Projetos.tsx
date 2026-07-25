@@ -1,11 +1,11 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
 import { FASES_PROJETO, formatarDataCurta } from '../lib/format';
-import { CabecalhoPagina, Chip, EstadoVazio, type TomChip } from '../components/ui';
+import { Botao, CabecalhoPagina, CampoTexto, Chip, EstadoVazio, RotuloMono, type TomChip } from '../components/ui';
 import { iniciais, normalizar } from '../lib/texto';
 import type { StatusProjeto } from '../types';
 
@@ -29,26 +29,71 @@ const ABAS: { id: Aba; rotulo: string }[] = [
   { id: 'concluido', rotulo: 'Concluídos' },
 ];
 
+// ─── Novo projeto (RF019 — vinculado ao cliente ativo) ──────────────────────
+function FormNovoProjeto({ clienteId, nomeCliente, aoFechar }: { clienteId: string; nomeCliente: string; aoFechar: () => void }) {
+  const criarProjeto = useStore((s) => s.criarProjeto);
+  const { toast } = useToast();
+  const [nome, setNome] = useState('');
+  const [objetivo, setObjetivo] = useState('');
+  const [produto, setProduto] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim() || !objetivo.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await criarProjeto({ clienteId, nome: nome.trim(), objetivo: objetivo.trim(), produto: produto.trim() || undefined });
+      toast(`Projeto “${nome.trim()}” criado para ${nomeCliente}.`);
+      aoFechar();
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível criar o projeto.');
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={salvar} className="card anim-abre mb-6 p-6">
+      <RotuloMono className="mb-4">Novo projeto — para {nomeCliente}</RotuloMono>
+      <div className="grid gap-4 md:grid-cols-3">
+        <CampoTexto rotulo="Nome do projeto" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Plataforma de Verão 2026" autoFocus />
+        <CampoTexto rotulo="Objetivo" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} placeholder="O que o projeto busca alcançar" />
+        <CampoTexto rotulo="Produto / marca (opcional)" value={produto} onChange={(e) => setProduto(e.target.value)} placeholder="Ex.: Aurora Zero" />
+      </div>
+      <div className="mt-5 flex gap-2">
+        <Botao type="submit" pequeno disabled={salvando}>
+          {salvando ? 'Criando…' : 'Criar projeto'}
+        </Botao>
+        <Botao type="button" variante="ghost" pequeno onClick={aoFechar}>
+          Cancelar
+        </Botao>
+      </div>
+    </form>
+  );
+}
+
 
 export function Projetos() {
   const clienteAtivoId = useStore((s) => s.clienteAtivoId);
   const projetos = useStore((s) => s.projetos);
   const clientes = useStore((s) => s.clientes);
   const carregarProjetos = useStore((s) => s.carregarProjetos);
+  const carregarClientes = useStore((s) => s.carregarClientes);
   const projetosCarregando = useStore((s) => s.projetosCarregando);
   const { toast } = useToast();
   const [aba, setAba] = useState<Aba>('todos');
   const [busca, setBusca] = useState('');
   const [somenteClienteAtivo, setSomenteClienteAtivo] = useState(false);
+  const [formAberto, setFormAberto] = useState(false);
 
-  // Carrega os projetos reais do backend ao abrir a tela.
+  // Carrega projetos e clientes reais ao abrir a tela.
   useEffect(() => {
-    carregarProjetos().catch((e) =>
+    Promise.all([carregarProjetos(), carregarClientes()]).catch((e) =>
       toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar os projetos.'),
     );
-  }, [carregarProjetos, toast]);
+  }, [carregarProjetos, carregarClientes, toast]);
 
-  const clienteAtivo = clientes.find((c) => c.id === clienteAtivoId);
+  const clienteAtivo = clientes.find((c) => c.id === clienteAtivoId) ?? clientes[0];
 
   const filtrados = projetos.filter((p) => {
     if (aba !== 'todos' && p.status !== aba) return false;
@@ -69,7 +114,18 @@ export function Projetos() {
         sobretitulo="Base histórica da Cross"
         titulo="Projetos"
         descricao="Todos os projetos de todos os clientes — a memória completa da operação. Cada projeto percorre o ciclo briefing → planejamento → Crossability → Plano tático → Score Card → implementação → acompanhamento."
+        acoes={
+          clienteAtivo ? (
+            <Botao pequeno onClick={() => setFormAberto((v) => !v)}>
+              <Plus size={14} strokeWidth={1.5} /> Novo projeto
+            </Botao>
+          ) : undefined
+        }
       />
+
+      {formAberto && clienteAtivo && (
+        <FormNovoProjeto clienteId={clienteAtivo.id} nomeCliente={clienteAtivo.nome} aoFechar={() => setFormAberto(false)} />
+      )}
 
       {/* Abas + filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-4">

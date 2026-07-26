@@ -26,6 +26,15 @@ const schema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
   // Protege /metrics. Obrigatório em produção para não expor telemetria.
   METRICS_TOKEN: z.string().min(32, "METRICS_TOKEN deve ter ao menos 32 caracteres").optional(),
+
+  // --- Agentes de IA (RF de IA — pipeline multiagente) ---------------------
+  // Chaves opcionais: sem elas, os agentes rodam em MODO MOCK (stub
+  // determinístico), o que permite desenvolver e testar sem custo/credencial.
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  FIRECRAWL_API_KEY: z.string().min(1).optional(),
+  // Força o modo mock mesmo com chave presente (útil para testes/CI).
+  AI_MOCK: z.coerce.boolean().default(false),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -75,6 +84,12 @@ export const env = {
   accessTokenTtlMin: data.ACCESS_TOKEN_TTL_MIN,
   refreshTokenTtlDays: data.REFRESH_TOKEN_TTL_DAYS,
   metricsToken: data.METRICS_TOKEN,
+  // Agentes de IA
+  openaiApiKey: data.OPENAI_API_KEY,
+  openaiModel: data.OPENAI_MODEL,
+  firecrawlApiKey: data.FIRECRAWL_API_KEY,
+  // Sem chave OpenAI (ou AI_MOCK ligado) → agentes usam o stub determinístico.
+  aiMock: data.AI_MOCK || !data.OPENAI_API_KEY,
   isTest,
   isProd,
 };

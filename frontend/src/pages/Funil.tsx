@@ -110,7 +110,44 @@ function CartaoCandidatura({
           ))}
         </select>
       </div>
+
+      {item.candidatura.status === 'aprovada' && (
+        <BotaoFormalizar candidaturaId={item.candidatura.id} nomeMarca={item.marca.nome} />
+      )}
     </div>
+  );
+}
+
+// Botão que fecha o ciclo: formaliza a parceria da candidatura aprovada,
+// orquestrando os pré-requisitos do backend (decisão + Paper validado).
+function BotaoFormalizar({ candidaturaId, nomeMarca }: { candidaturaId: string; nomeMarca: string }) {
+  const formalizarParceria = useStore((s) => s.formalizarParceria);
+  const { toast } = useToast();
+  const [formalizando, setFormalizando] = useState(false);
+
+  async function formalizar(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (formalizando) return;
+    setFormalizando(true);
+    try {
+      await formalizarParceria(candidaturaId);
+      toast(`Parceria com ${nomeMarca} formalizada! 🎉`);
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível formalizar a parceria.');
+    } finally {
+      setFormalizando(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={formalizar}
+      disabled={formalizando}
+      className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-paper transition-colors hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {formalizando ? 'Formalizando…' : 'Formalizar parceria'}
+    </button>
   );
 }
 

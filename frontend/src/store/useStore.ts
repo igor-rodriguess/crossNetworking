@@ -110,6 +110,7 @@ interface EstadoPlataforma {
   // Edição de parceria (status, vigência, fases) — RF de acompanhamento
   parceriasCarregando: boolean;
   carregarParcerias: () => Promise<void>;
+  formalizarParceria: (candidaturaId: string) => Promise<void>;
   atualizarParceria: (parceriaId: string, mudancas: Partial<Pick<Parceria, 'status' | 'dataInicio' | 'dataFim' | 'nome' | 'tipo'>>) => Promise<void>;
   alternarFaseConcluida: (parceriaId: string, nomeFase: string) => void;
 
@@ -455,6 +456,20 @@ export const useStore = create<EstadoPlataforma>()(
           set({ parceriasCarregando: false });
           throw e;
         }
+      },
+
+      // Formaliza a parceria de uma candidatura aprovada, orquestrando os
+      // pré-requisitos do backend (decisão + Paper validado) nos bastidores.
+      formalizarParceria: async (candidaturaId) => {
+        const s = useStore.getState();
+        const cand = s.candidaturas.find((c) => c.id === candidaturaId);
+        if (!cand) throw new Error('Candidatura não encontrada');
+        const marca = s.partes.find((p) => p.id === cand.marcaId);
+        const nova = await parceriasApi.formalizarComPreRequisitos(
+          { id: candidaturaId, frenteId: cand.frenteId, marcaNome: marca?.nome },
+          {},
+        );
+        set((st) => ({ parcerias: [...st.parcerias, nova] }));
       },
 
       atualizarParceria: async (parceriaId, mudancas) => {

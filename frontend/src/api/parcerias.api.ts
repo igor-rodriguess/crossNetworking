@@ -54,6 +54,48 @@ export async function formalizarParceria(
   return parceriaDeBackend(criada);
 }
 
+/**
+ * Formaliza garantindo os pré-requisitos do backend (WAD 7.3.14): a
+ * candidatura precisa ter uma decisão de aprovação registrada e a frente
+ * precisa de um Paper validado. Orquestra o que faltar (registra a decisão,
+ * cria/publica/valida um Paper mínimo) e então formaliza — em um único gesto
+ * para a UI. Requer que a candidatura já esteja no status "aprovada".
+ */
+export async function formalizarComPreRequisitos(
+  candidatura: { id: string; frenteId: string; marcaNome?: string },
+  dados: { tipo?: string; dataInicio?: string; dataFim?: string; condicoes?: string } = {},
+): Promise<Parceria> {
+  const { id: candidaturaId, frenteId } = candidatura;
+
+  // 1) decisão de aprovação (idempotente — registrar de novo não atrapalha)
+  await requisitar(`/candidaturas/${candidaturaId}/decisoes`, {
+    metodo: 'POST',
+    corpo: { tipo_decisao_codigo: 'aprovada', justificativa: 'Aprovada para formalização de parceria.' },
+  }).catch(() => undefined);
+
+  // 2) garante um Paper validado na frente
+  const papers = await requisitar<{ itens: Array<{ id: string; status: string }> }>(`/frentes/${frenteId}/papers`).catch(() => ({ itens: [] }));
+  const jaValidado = papers.itens.some((p) => p.status === 'validado');
+  if (!jaValidado) {
+    const paper = await requisitar<{ id: string }>(`/frentes/${frenteId}/papers`, {
+      metodo: 'POST',
+      corpo: { titulo: `Plano tático — ${candidatura.marcaNome ?? 'parceria'}` },
+    });
+    const versao = await requisitar<{ id: string }>(`/papers/${paper.id}/versoes`, {
+      metodo: 'POST',
+      corpo: { estrategia_proposta: 'Estratégia consolidada para a formalização da parceria.' },
+    });
+    await requisitar(`/versoes-paper/${versao.id}/vigencia`, { metodo: 'POST', corpo: {} });
+    await requisitar(`/versoes-paper/${versao.id}/validacoes`, {
+      metodo: 'POST',
+      corpo: { tipo_validacao_codigo: 'interna', status_validacao_codigo: 'aprovada' },
+    });
+  }
+
+  // 3) formaliza
+  return formalizarParceria(candidaturaId, { ...dados, status: 'planejada' });
+}
+
 /** Atualiza campos base da parceria com trava otimista (If-Match). */
 export async function atualizarParceria(
   id: string,

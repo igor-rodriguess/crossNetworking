@@ -1,9 +1,10 @@
 ﻿import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Plus, Undo2, Users } from 'lucide-react';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Plus, Trash2, Undo2, Users } from 'lucide-react';
 import { MARCAS, useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import {
   FASES_PROJETO,
   STATUS_CANDIDATURA,
@@ -76,6 +77,8 @@ function FormNovaFrente({ projetoId, aoFechar }: { projetoId: string; aoFechar: 
 export function ProjetoDetalhe() {
   const { projetoId } = useParams();
   const [formFrenteAberto, setFormFrenteAberto] = useState(false);
+  const [confirmarArquivar, setConfirmarArquivar] = useState(false);
+  const navigate = useNavigate();
   const todosCriterios = useStore((s) => s.criterios);
   const candidaturas = useStore((s) => s.candidaturas);
   const avaliacoes = useStore((s) => s.avaliacoes);
@@ -89,6 +92,7 @@ export function ProjetoDetalhe() {
   const carregarClientes = useStore((s) => s.carregarClientes);
   const carregarFrentesDosProjetos = useStore((s) => s.carregarFrentesDosProjetos);
   const atualizarProjeto = useStore((s) => s.atualizarProjeto);
+  const arquivarProjeto = useStore((s) => s.arquivarProjeto);
   const usuario = useStore((s) => s.usuario);
   const { toast } = useToast();
 
@@ -114,14 +118,44 @@ export function ProjetoDetalhe() {
   const st = STATUS_PROJETO[projeto.status];
   const briefingsOrdenados = [...projeto.briefings].sort((a, b) => b.versao - a.versao);
 
+  async function confirmarArquivamento() {
+    try {
+      await arquivarProjeto(projeto!.id);
+      toast(`Projeto “${projeto!.nome}” arquivado.`, 'info');
+      navigate('/projetos');
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível arquivar o projeto.');
+    }
+  }
+
   return (
     <div>
-      <Link
-        to="/projetos"
-        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-stone transition-colors hover:text-ink"
-      >
-        <ArrowLeft size={15} strokeWidth={1.5} /> Projetos
-      </Link>
+      <ConfirmDialog
+        aberto={confirmarArquivar}
+        titulo="Arquivar este projeto?"
+        descricao={`O projeto “${projeto.nome}” sai da lista ativa. O histórico é preservado (exclusão lógica).`}
+        rotuloConfirmar="Arquivar"
+        perigo
+        aoConfirmar={confirmarArquivamento}
+        aoFechar={() => setConfirmarArquivar(false)}
+      />
+
+      <div className="mb-6 flex items-center justify-between">
+        <Link
+          to="/projetos"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-stone transition-colors hover:text-ink"
+        >
+          <ArrowLeft size={15} strokeWidth={1.5} /> Projetos
+        </Link>
+        <button
+          type="button"
+          onClick={() => setConfirmarArquivar(true)}
+          className="flex items-center gap-1 rounded-full border border-mist px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-stone transition-colors hover:border-status-neg hover:text-status-neg"
+          title="Arquivar este projeto"
+        >
+          <Trash2 size={11} strokeWidth={1.5} /> Arquivar
+        </button>
+      </div>
 
       {/* Cabeçalho */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">

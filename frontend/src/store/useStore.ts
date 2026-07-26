@@ -123,6 +123,7 @@ interface EstadoPlataforma {
   carregarParte: (id: string) => Promise<void>;
   adicionarParte: (dados: { tipo: Parte['tipo']; nome: string; categoria: string; papel?: string }) => Promise<void>;
   editarParte: (id: string, tipo: Parte['tipo'], mudancas: { nome?: string; categoria?: string }) => Promise<void>;
+  arquivarParte: (id: string) => Promise<void>;
   adicionarContato: (parteId: string, nome: string, cargo: string, email: string) => Promise<void>;
   // Ativos/canais ainda não têm endpoint no backend de Partes — locais por ora.
   adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => void;
@@ -134,6 +135,7 @@ interface EstadoPlataforma {
   criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
   criarFrente: (projetoId: string, dados: { nome: string; objetivo: string; categoria?: string }) => Promise<void>;
   atualizarProjeto: (id: string, mudancas: { nome?: string; objetivo?: string; produto?: string; status?: StatusProjeto }) => Promise<void>;
+  arquivarProjeto: (id: string) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
   candidaturasCarregando: boolean;
@@ -146,6 +148,7 @@ interface EstadoPlataforma {
     interesseCliente: Nivel;
   }) => Promise<void>;
   moverCandidatura: (candidaturaId: string, novoStatus: StatusCandidatura, justificativa?: string) => Promise<void>;
+  arquivarCandidatura: (candidaturaId: string) => Promise<void>;
 
   // Crossability (RF027 — versões nunca sobrescrevem anteriores, RN019)
   atualizarAnalise: (candidaturaId: string, mudancas: Partial<AnaliseCrossability>) => void;
@@ -558,6 +561,11 @@ export const useStore = create<EstadoPlataforma>()(
         set((s) => ({ partes: s.partes.map((p) => (p.id === id ? atualizada : p)) }));
       },
 
+      arquivarParte: async (id) => {
+        await partesApi.arquivarParte(id);
+        set((s) => ({ partes: s.partes.filter((p) => p.id !== id) }));
+      },
+
       adicionarContato: async (parteId, nome, cargo, email) => {
         const contato = await partesApi.adicionarContato(parteId, { nome, cargo, email });
         set((s) => ({
@@ -617,6 +625,11 @@ export const useStore = create<EstadoPlataforma>()(
         set((s) => ({ projetos: s.projetos.map((p) => (p.id === id ? atualizado : p)) }));
       },
 
+      arquivarProjeto: async (id) => {
+        await projetosApi.arquivarProjeto(id);
+        set((s) => ({ projetos: s.projetos.filter((p) => p.id !== id) }));
+      },
+
       // Carrega as candidaturas do cliente ativo (projetos → frentes →
       // candidaturas). Substitui só as do cliente, preservando as demais.
       carregarCandidaturas: async () => {
@@ -659,6 +672,11 @@ export const useStore = create<EstadoPlataforma>()(
         // Persiste a decisão de auditoria quando o status é terminal (modelo
         // híbrido de Metodologias) — em paralelo, sem bloquear o funil.
         void decisoesApi.registrarDecisaoDoStatus(candidaturaId, novoStatus, usuario?.persona, justificativa);
+      },
+
+      arquivarCandidatura: async (candidaturaId) => {
+        await candidaturasApi.arquivarCandidatura(candidaturaId);
+        set((s) => ({ candidaturas: s.candidaturas.filter((c) => c.id !== candidaturaId) }));
       },
 
       atualizarAnalise: (candidaturaId, mudancas) =>

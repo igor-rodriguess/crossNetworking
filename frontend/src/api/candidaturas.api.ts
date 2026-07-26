@@ -4,7 +4,7 @@
 // `carregarDoCliente` percorre projetos → frentes → candidaturas e resolve o
 // clienteId em cada uma. Movimentar status usa o endpoint de histórico.
 
-import { requisitar, type Pagina } from './client';
+import { requisitar, requisitarVazio, type Pagina } from './client';
 import {
   candidaturaDeBackend,
   movimentacaoDeBackend,
@@ -60,6 +60,12 @@ export async function criarCandidatura(
   });
   if (criada.versao) versaoPorId.set(criada.id, criada.versao);
   return candidaturaDeBackend(criada, clienteId);
+}
+
+/** Arquiva (exclusão lógica) uma candidatura. */
+export async function arquivarCandidatura(candidaturaId: string): Promise<void> {
+  await requisitarVazio(`/candidaturas/${candidaturaId}`, { metodo: 'DELETE' });
+  versaoPorId.delete(candidaturaId);
 }
 
 /** Move a candidatura para um novo status, registrando o histórico (RF026). */

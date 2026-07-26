@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Building2, Mail, MapPin, Music2, Pencil, Plus, Radio, Trash2, UserRound } from 'lucide-react';
 import { CLIENTES, useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
@@ -10,6 +10,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 import { calcularScore } from '../lib/score';
 import { STATUS_CANDIDATURA, STATUS_PARCERIA, formatarData, formatarDataCurta } from '../lib/format';
 import { Botao, CampoTexto, Chip, RotuloMono } from '../components/ui';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 import { PAPEL_PARTE } from './Partes';
 
@@ -320,12 +321,15 @@ export function ParteDetalhe() {
   const avaliacoes = useStore((s) => s.avaliacoes);
   const carregarParte = useStore((s) => s.carregarParte);
   const editarParte = useStore((s) => s.editarParte);
+  const arquivarParte = useStore((s) => s.arquivarParte);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [editando, setEditando] = useState(false);
   const [editNome, setEditNome] = useState('');
   const [editCategoria, setEditCategoria] = useState('');
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  const [confirmarArquivar, setConfirmarArquivar] = useState(false);
 
   const parte = useStore((s) => s.partes.find((p) => p.id === parteId));
 
@@ -380,6 +384,16 @@ export function ParteDetalhe() {
     }
   }
 
+  async function confirmarArquivamento() {
+    try {
+      await arquivarParte(parte!.id);
+      toast(`${parte!.nome} foi arquivada.`, 'info');
+      navigate('/partes');
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível arquivar.');
+    }
+  }
+
   return (
     <div>
       <Link
@@ -388,6 +402,16 @@ export function ParteDetalhe() {
       >
         <ArrowLeft size={15} strokeWidth={1.5} /> Base de relacionamentos
       </Link>
+
+      <ConfirmDialog
+        aberto={confirmarArquivar}
+        titulo="Arquivar esta Parte?"
+        descricao={`${parte.nome} sai da base ativa. O histórico é preservado (exclusão lógica), mas ela deixa de aparecer nas listas e buscas.`}
+        rotuloConfirmar="Arquivar"
+        perigo
+        aoConfirmar={confirmarArquivamento}
+        aoFechar={() => setConfirmarArquivar(false)}
+      />
 
       {/* Cabeçalho */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
@@ -436,6 +460,14 @@ export function ParteDetalhe() {
                     title="Editar nome e categoria"
                   >
                     <Pencil size={11} strokeWidth={1.5} /> Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmarArquivar(true)}
+                    className="flex items-center gap-1 rounded-full border border-mist px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-stone transition-colors hover:border-status-neg hover:text-status-neg"
+                    title="Arquivar esta Parte"
+                  >
+                    <Trash2 size={11} strokeWidth={1.5} /> Arquivar
                   </button>
                 </div>
                 {parte.descricao && <p className="mt-2 max-w-2xl text-sm text-stone">{parte.descricao}</p>}

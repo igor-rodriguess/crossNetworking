@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import { envelopePaginado, parsePaginacao } from "../../shared/pagination";
 import * as service from "./agentes.service";
+import * as ragService from "./rag.service";
 import {
   avaliarCredibilidadeSchema,
+  buscarRagSchema,
   coletarFontesSchema,
   decidirHumanGateSchema,
   extrairInformacoesSchema,
+  ingerirRagSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
   recomendarParceirosSchema,
@@ -74,6 +77,20 @@ export async function decidirHumanGate(req: Request, res: Response): Promise<voi
   const input = decidirHumanGateSchema.parse(req.body);
   const resultado = await service.decidirHumanGate(input, req.usuarioId);
   res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/rag/ingerir — indexa trechos na base de conhecimento.
+export async function ingerirRag(req: Request, res: Response): Promise<void> {
+  const input = ingerirRagSchema.parse(req.body);
+  const resultado = await ragService.ingerir(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/rag/buscar — busca semântica na base de conhecimento.
+export async function buscarRag(req: Request, res: Response): Promise<void> {
+  const input = buscarRagSchema.parse(req.body);
+  const resultado = await ragService.buscar(input);
+  res.json(resultado);
 }
 
 // GET /v1/agentes/execucoes?agente=&pagina=&por_pagina= — auditoria.

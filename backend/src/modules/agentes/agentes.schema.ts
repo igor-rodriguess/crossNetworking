@@ -386,3 +386,50 @@ export const humanGateSaidaSchema = z.object({
   mensagem: z.string(),
 });
 export type HumanGateSaida = z.infer<typeof humanGateSaidaSchema>;
+
+// --- RAG: ingestão e busca semântica ----------------------------------------
+//
+// A base de conhecimento vetorial. Ingerir = guardar trechos + embedding;
+// buscar = recuperar os mais relevantes para uma consulta (o "R" do RAG).
+
+export const origemDocumento = z.enum(["paper", "perfil_parte", "decisao", "coleta_web", "manual"]);
+export type OrigemDocumento = z.infer<typeof origemDocumento>;
+
+export const ingerirRagSchema = z.object({
+  origem: origemDocumento,
+  // Trechos de texto a indexar (cada um vira um documento com seu embedding).
+  trechos: z.array(z.string().trim().min(1)).min(1).max(100),
+  // Vínculo opcional à entidade de domínio de origem.
+  referencia_id: uuid.optional(),
+  // Metadados livres (título, url…), aplicados a todos os trechos.
+  metadados: z.record(z.string(), z.unknown()).optional(),
+});
+export type IngerirRagInput = z.infer<typeof ingerirRagSchema>;
+
+export const ingestaoSaidaSchema = z.object({
+  inseridos: z.number().int(),
+  embedding_origem: z.enum(["openai", "mock"]),
+});
+export type IngestaoSaida = z.infer<typeof ingestaoSaidaSchema>;
+
+export const buscarRagSchema = z.object({
+  consulta: z.string().trim().min(1, "consulta é obrigatória").max(2000),
+  origem: origemDocumento.optional(),
+  limite: z.number().int().min(1).max(20).default(5),
+});
+export type BuscarRagInput = z.infer<typeof buscarRagSchema>;
+
+export const trechoRelevanteSchema = z.object({
+  id: z.string(),
+  origem: z.string(),
+  conteudo: z.string(),
+  similaridade: z.number(),
+  metadados: z.unknown(),
+});
+
+export const buscaRagSaidaSchema = z.object({
+  total: z.number().int(),
+  embedding_origem: z.enum(["openai", "mock"]),
+  trechos: z.array(trechoRelevanteSchema),
+});
+export type BuscaRagSaida = z.infer<typeof buscaRagSaidaSchema>;

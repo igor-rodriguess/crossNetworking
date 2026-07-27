@@ -32,6 +32,9 @@ const schema = z.object({
   // determinístico), o que permite desenvolver e testar sem custo/credencial.
   OPENAI_API_KEY: z.string().min(1).optional(),
   OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  // Modelo de embeddings do RAG. text-embedding-3-small = 1536 dimensões
+  // (deve casar com a dimensão da coluna vector no banco).
+  OPENAI_EMBED_MODEL: z.string().min(1).default("text-embedding-3-small"),
   FIRECRAWL_API_KEY: z.string().min(1).optional(),
   // Força o modo mock mesmo com chave presente (útil para testes/CI).
   AI_MOCK: z.coerce.boolean().default(false),
@@ -87,6 +90,7 @@ export const env = {
   // Agentes de IA
   openaiApiKey: data.OPENAI_API_KEY,
   openaiModel: data.OPENAI_MODEL,
+  openaiEmbedModel: data.OPENAI_EMBED_MODEL,
   firecrawlApiKey: data.FIRECRAWL_API_KEY,
   // Sem chave OpenAI (ou AI_MOCK ligado) → agentes usam o stub determinístico.
   aiMock: data.AI_MOCK || !data.OPENAI_API_KEY,

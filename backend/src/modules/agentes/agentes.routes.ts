@@ -5,9 +5,11 @@ import { registrarRota } from "../../shared/openapi";
 import * as c from "./agentes.controller";
 import {
   avaliarCredibilidadeSchema,
+  buscarRagSchema,
   coletarFontesSchema,
   decidirHumanGateSchema,
   extrairInformacoesSchema,
+  ingerirRagSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
   recomendarParceirosSchema,
@@ -50,6 +52,10 @@ agentesRouter.post("/agentes/recommendation", executar, asyncHandler(c.recomenda
 
 // Human Gate — curadoria que promove/rejeita à base (exige decisão)
 agentesRouter.post("/agentes/human-gate", decisao, asyncHandler(c.decidirHumanGate));
+
+// RAG — base de conhecimento vetorial (ingerir escreve; buscar é leitura)
+agentesRouter.post("/agentes/rag/ingerir", executar, asyncHandler(c.ingerirRag));
+agentesRouter.post("/agentes/rag/buscar", leitura, asyncHandler(c.buscarRag));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -127,6 +133,22 @@ registrarRota({
   summary: "Human Gate — curadoria: aprova (promove à base como rascunho) ou rejeita a saída de um agente",
   body: decidirHumanGateSchema,
   responses: { "201": "Decisão registrada", "404": "Execução não encontrada", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/rag/ingerir",
+  tag: "Agentes de IA · RAG",
+  summary: "Ingerir trechos na base de conhecimento (gera embeddings e indexa)",
+  body: ingerirRagSchema,
+  responses: { "201": "Trechos indexados", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/rag/buscar",
+  tag: "Agentes de IA · RAG",
+  summary: "Busca semântica — recupera os trechos mais relevantes para uma consulta",
+  body: buscarRagSchema,
+  responses: { "200": "Trechos relevantes", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

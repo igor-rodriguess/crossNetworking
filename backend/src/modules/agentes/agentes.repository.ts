@@ -57,6 +57,34 @@ export interface ExecucaoRow {
   criado_em: string;
 }
 
+export interface ParteBusca {
+  id: string;
+  nome: string;
+}
+
+/**
+ * Busca Partes ativas cujo nome_exibicao contém o termo (case-insensitive) —
+ * usado pelo Entity Resolver para casar entidades da pesquisa com a base.
+ */
+export async function buscarPartesPorNome(
+  client: PoolClient,
+  termo: string,
+  tipo: string | null,
+  limite = 10
+): Promise<ParteBusca[]> {
+  const { rows } = await client.query<ParteBusca>(
+    `SELECT id, nome_exibicao AS nome
+       FROM cross_core.parte
+      WHERE arquivado_em IS NULL
+        AND nome_exibicao ILIKE '%' || $1 || '%'
+        AND ($2::text IS NULL OR tipo::text = $2)
+      ORDER BY length(nome_exibicao)
+      LIMIT $3`,
+    [termo, tipo, limite]
+  );
+  return rows;
+}
+
 /** Lista as execuções mais recentes de um agente (para auditoria/telemetria). */
 export async function listarExecucoes(
   client: PoolClient,

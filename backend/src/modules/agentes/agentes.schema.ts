@@ -188,3 +188,48 @@ export const verificacaoSaidaSchema = z.object({
   verificacoes: z.array(afirmacaoVerificadaSchema),
 });
 export type VerificacaoSaida = z.infer<typeof verificacaoSaidaSchema>;
+
+// --- Entity Resolver --------------------------------------------------------
+//
+// Parte 3 da validação: dedupe das entidades encontradas na pesquisa e
+// casamento com as Partes JÁ cadastradas na plataforma. É o primeiro agente
+// que consulta a base real — evita cadastrar duplicata de algo que já existe.
+
+export const resolverEntidadesSchema = z.object({
+  // Nomes de entidades (empresas/marcas/pessoas) encontradas na pesquisa.
+  entidades: z.array(z.string().trim().min(1)).min(1),
+  // Tipo esperado, para filtrar a busca na base (opcional).
+  tipo: z.enum(["organizacao", "pessoa"]).optional(),
+  projeto_id: uuid.optional(),
+  frente_id: uuid.optional(),
+});
+export type ResolverEntidadesInput = z.infer<typeof resolverEntidadesSchema>;
+
+export const statusEntidade = z.enum(["nova", "possivel_duplicata", "ambigua"]);
+export type StatusEntidade = z.infer<typeof statusEntidade>;
+
+export const parteCandidataSchema = z.object({
+  parte_id: z.string(),
+  nome: z.string(),
+  // Similaridade 0..100 entre o nome buscado e o nome da Parte.
+  similaridade: z.number().int().min(0).max(100),
+});
+
+export const entidadeResolvidaSchema = z.object({
+  entidade: z.string(),
+  status: statusEntidade,
+  // Partes existentes que podem ser a mesma entidade (ordenadas por similaridade).
+  candidatas: z.array(parteCandidataSchema),
+  observacao: z.string(),
+});
+
+export const entidadesSaidaSchema = z.object({
+  total: z.number().int(),
+  resumo: z.object({
+    nova: z.number().int(),
+    possivel_duplicata: z.number().int(),
+    ambigua: z.number().int(),
+  }),
+  resolucoes: z.array(entidadeResolvidaSchema),
+});
+export type EntidadesSaida = z.infer<typeof entidadesSaidaSchema>;

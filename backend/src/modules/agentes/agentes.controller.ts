@@ -5,6 +5,7 @@ import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
   planejarPesquisaSchema,
+  resolverEntidadesSchema,
   verificarFatosSchema,
 } from "./agentes.schema";
 
@@ -33,6 +34,13 @@ export async function avaliarCredibilidade(req: Request, res: Response): Promise
 export async function verificarFatos(req: Request, res: Response): Promise<void> {
   const input = verificarFatosSchema.parse(req.body);
   const resultado = await service.executarVerificacao(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/entity-resolver — dedupe e casa entidades com a base.
+export async function resolverEntidades(req: Request, res: Response): Promise<void> {
+  const input = resolverEntidadesSchema.parse(req.body);
+  const resultado = await service.executarResolucaoEntidades(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

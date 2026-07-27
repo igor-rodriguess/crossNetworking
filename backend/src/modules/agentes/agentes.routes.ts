@@ -7,6 +7,7 @@ import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
   planejarPesquisaSchema,
+  resolverEntidadesSchema,
   verificarFatosSchema,
 } from "./agentes.schema";
 
@@ -28,6 +29,9 @@ agentesRouter.post("/agentes/source-credibility", executar, asyncHandler(c.avali
 
 // Fact Verifier
 agentesRouter.post("/agentes/fact-verifier", executar, asyncHandler(c.verificarFatos));
+
+// Entity Resolver
+agentesRouter.post("/agentes/entity-resolver", executar, asyncHandler(c.resolverEntidades));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -65,6 +69,14 @@ registrarRota({
   summary: "Verificar fatos — uma afirmação é corroborada por 2+ fontes independentes?",
   body: verificarFatosSchema,
   responses: { "201": "Afirmações verificadas", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/entity-resolver",
+  tag: "Agentes de IA",
+  summary: "Resolver entidades — dedupe e casa nomes encontrados com as Partes já cadastradas",
+  body: resolverEntidadesSchema,
+  responses: { "201": "Entidades resolvidas", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

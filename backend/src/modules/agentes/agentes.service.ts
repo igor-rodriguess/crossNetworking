@@ -5,13 +5,16 @@ import { planejarPesquisa } from "./search-planning.agent";
 import { coletarFontes } from "./source-collector.agent";
 import { avaliarCredibilidade } from "./source-credibility.agent";
 import { verificarFatos } from "./fact-verifier.agent";
+import { resolverEntidades } from "./entity-resolver.agent";
 import type {
   AvaliarCredibilidadeInput,
   ColetaFontesSaida,
   ColetarFontesInput,
   CredibilidadeSaida,
+  EntidadesSaida,
   PlanejarPesquisaInput,
   PlanoPesquisa,
+  ResolverEntidadesInput,
   VerificacaoSaida,
   VerificarFatosInput,
 } from "./agentes.schema";
@@ -225,6 +228,57 @@ export async function executarVerificacao(
         status: "erro",
         origem: "heuristica",
         entrada: { num_afirmacoes: input.afirmacoes.length },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaEntidades {
+  execucao_id: string;
+  entidades: EntidadesSaida;
+}
+
+/**
+ * Executa o Entity Resolver (consulta a base de Partes) e registra para
+ * auditoria — tudo na mesma transação, já que o agente lê o banco.
+ */
+export async function executarResolucaoEntidades(
+  input: ResolverEntidadesInput,
+  usuarioId: string | null
+): Promise<RespostaEntidades> {
+  const inicio = Date.now();
+  try {
+    return await withTransaction(async (client) => {
+      const { saida } = await resolverEntidades(client, input);
+      const duracaoMs = Date.now() - inicio;
+      const execucaoId = await repo.registrarExecucao(client, {
+        agente: "entity_resolver",
+        status: "sucesso",
+        origem: "heuristica",
+        entrada: { num_entidades: input.entidades.length, tipo: input.tipo ?? null },
+        saida,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      });
+      return { execucao_id: execucaoId, entidades: saida };
+    });
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "entity_resolver",
+        status: "erro",
+        origem: "heuristica",
+        entrada: { num_entidades: input.entidades.length },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

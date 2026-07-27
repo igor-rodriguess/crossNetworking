@@ -4,6 +4,7 @@ import * as service from "./agentes.service";
 import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
+  decidirHumanGateSchema,
   extrairInformacoesSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
@@ -65,6 +66,13 @@ export async function raciocinarCrossability(req: Request, res: Response): Promi
 export async function recomendarParceiros(req: Request, res: Response): Promise<void> {
   const input = recomendarParceirosSchema.parse(req.body);
   const resultado = await service.executarRecomendacao(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/human-gate — curadoria: promove/rejeita a saída de um agente.
+export async function decidirHumanGate(req: Request, res: Response): Promise<void> {
+  const input = decidirHumanGateSchema.parse(req.body);
+  const resultado = await service.decidirHumanGate(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

@@ -9,9 +9,14 @@ import { resolverEntidades } from "./entity-resolver.agent";
 import { extrairInformacoes } from "./information-extractor.agent";
 import { raciocinarCrossability } from "./crossability-reasoning.agent";
 import { recomendarParceiros } from "./recommendation.agent";
+import { criarAnalise } from "../metodologias/metodologias.service";
+import { ValidationError, NotFoundError } from "../../shared/errors";
+import { analiseCrossabilitySchema } from "./agentes.schema";
 import type {
   AnaliseCrossabilitySaida,
   AvaliarCredibilidadeInput,
+  DecidirHumanGateInput,
+  HumanGateSaida,
   ColetaFontesSaida,
   ColetarFontesInput,
   CredibilidadeSaida,
@@ -458,6 +463,86 @@ export async function executarRecomendacao(
     ).catch(() => undefined);
     throw erro;
   }
+}
+
+/** Converte a análise Crossability do agente (6 dimensões niveladas) no texto
+ * que o backend de metodologias persiste (um campo de texto por dimensão). */
+function analiseParaTexto(a: AnaliseCrossabilitySaida) {
+  const linha = (d: { nivel: string; texto: string }) => `[${d.nivel.toUpperCase()}] ${d.texto}`;
+  return {
+    compatibilidade_publicos: linha(a.compatibilidade_publicos),
+    compatibilidade_territorios: linha(a.compatibilidade_territorios),
+    complementaridade_ativos: linha(a.complementaridade_ativos),
+    sinergias: linha(a.sinergias),
+    fit_estrategico: linha(a.fit_estrategico),
+    momento_estrategico: linha(a.momento_estrategico),
+    racional_recomendacao: `Recomendação: ${a.recomendacao} (confiança ${a.confianca}%). ${a.racional_recomendacao}`,
+    status_crossability_codigo: "em_elaboracao" as const,
+  };
+}
+
+/**
+ * Human Gate — promove (ou rejeita) uma saída de agente para a base real, com
+ * decisão humana. Só aqui a IA vira dado de domínio, sempre como RASCUNHO
+ * (status em_elaboracao) no fluxo humano existente. Hoje: promove uma análise
+ * Crossability para uma candidatura.
+ */
+export async function decidirHumanGate(
+  input: DecidirHumanGateInput,
+  usuarioId: string | null
+): Promise<HumanGateSaida> {
+  const inicio = Date.now();
+
+  // Rejeição: registra a decisão e não escreve nada na base.
+  if (input.decisao === "rejeitar") {
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "human_gate",
+        status: "sucesso",
+        origem: "humano",
+        entrada: { execucao_id: input.execucao_id, decisao: "rejeitar", justificativa: input.justificativa ?? null },
+        saida: { decisao: "rejeitar", artefato_id: null },
+        duracaoMs: Date.now() - inicio,
+        criadoPorId: usuarioId,
+      })
+    );
+    return { decisao: "rejeitar", artefato_id: null, mensagem: "Rascunho rejeitado — nada foi escrito na base." };
+  }
+
+  // Aprovação: busca a execução, valida e promove.
+  if (!input.candidatura_id) {
+    throw new ValidationError("candidatura_id é obrigatório para aprovar uma análise.");
+  }
+
+  const execucao = await withTransaction((client) => repo.buscarExecucao(client, input.execucao_id));
+  if (!execucao) throw new NotFoundError("Execução de agente não encontrada.");
+  if (execucao.agente !== "crossability_reasoning") {
+    throw new ValidationError(`O Human Gate hoje só promove análises Crossability (execução é '${execucao.agente}').`);
+  }
+
+  // A saída da execução é a análise; valida o formato antes de promover.
+  const analise = analiseCrossabilitySchema.parse(execucao.saida);
+  const artefato = await criarAnalise(input.candidatura_id, analiseParaTexto(analise), usuarioId);
+  const artefatoId = (artefato as { id?: string })?.id ?? null;
+
+  // Auditoria da promoção.
+  await withTransaction((client) =>
+    repo.registrarExecucao(client, {
+      agente: "human_gate",
+      status: "sucesso",
+      origem: "humano",
+      entrada: { execucao_id: input.execucao_id, decisao: "aprovar", candidatura_id: input.candidatura_id, justificativa: input.justificativa ?? null },
+      saida: { decisao: "aprovar", artefato_id: artefatoId },
+      duracaoMs: Date.now() - inicio,
+      criadoPorId: usuarioId,
+    })
+  ).catch(() => undefined);
+
+  return {
+    decisao: "aprovar",
+    artefato_id: artefatoId,
+    mensagem: "Análise Crossability promovida à base como rascunho (em_elaboracao).",
+  };
 }
 
 /** Lista o histórico de execuções de agentes (auditoria). */

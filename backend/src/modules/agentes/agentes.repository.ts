@@ -57,6 +57,23 @@ export interface ExecucaoRow {
   criado_em: string;
 }
 
+export interface ExecucaoCompleta {
+  id: string;
+  agente: string;
+  status: string;
+  saida: unknown;
+}
+
+/** Busca uma execução por id (para o Human Gate curar sua saída). */
+export async function buscarExecucao(client: PoolClient, id: string): Promise<ExecucaoCompleta | null> {
+  const { rows } = await client.query<ExecucaoCompleta>(
+    `SELECT id, agente::text AS agente, status::text AS status, saida
+       FROM cross_ai.execucao_agente WHERE id = $1`,
+    [id]
+  );
+  return rows[0] ?? null;
+}
+
 export interface ParteBusca {
   id: string;
   nome: string;

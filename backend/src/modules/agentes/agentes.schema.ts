@@ -358,3 +358,31 @@ export const recomendacaoSaidaSchema = z.object({
   ranking: z.array(candidatoRankeadoSchema),
 });
 export type RecomendacaoSaida = z.infer<typeof recomendacaoSaidaSchema>;
+
+// --- Human Gate -------------------------------------------------------------
+//
+// O portão de curadoria: promove (ou rejeita) uma saída de agente para a base
+// REAL, com decisão humana obrigatória. Só aqui algo de IA vira dado de
+// domínio — e sempre como rascunho no fluxo humano que já existe. Hoje
+// suporta promover uma análise Crossability (execução do crossability_reasoning)
+// para uma candidatura, criando a Análise Crossability via módulo metodologias.
+
+export const decidirHumanGateSchema = z.object({
+  // A execução de agente a curar (fica na auditoria cross_ai.execucao_agente).
+  execucao_id: uuid,
+  // Decisão do especialista.
+  decisao: z.enum(["aprovar", "rejeitar"]),
+  // Onde aplicar quando aprovado (obrigatório para aprovar uma análise).
+  candidatura_id: uuid.optional(),
+  // Justificativa da decisão (auditoria).
+  justificativa: z.string().trim().max(2000).optional(),
+});
+export type DecidirHumanGateInput = z.infer<typeof decidirHumanGateSchema>;
+
+export const humanGateSaidaSchema = z.object({
+  decisao: z.enum(["aprovar", "rejeitar"]),
+  // ID do artefato criado na base (ex.: a análise Crossability), se aprovado.
+  artefato_id: z.string().nullable(),
+  mensagem: z.string(),
+});
+export type HumanGateSaida = z.infer<typeof humanGateSaidaSchema>;

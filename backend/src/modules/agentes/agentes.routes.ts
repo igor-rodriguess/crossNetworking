@@ -6,6 +6,7 @@ import * as c from "./agentes.controller";
 import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
+  decidirHumanGateSchema,
   extrairInformacoesSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
@@ -17,8 +18,10 @@ import {
 export const agentesRouter = Router();
 
 // Executar agentes é ação de estrategista/coordenador/admin; leitura da
-// auditoria fica aberta a qualquer usuário autenticado.
+// auditoria fica aberta a qualquer usuário autenticado. Promover à base
+// (Human Gate) exige curadoria — só coordenador/administrador.
 const executar = autorizar("estrategista", "coordenador", "administrador");
+const decisao = autorizar("coordenador", "administrador");
 const leitura = autorizar();
 
 // Search Planning Agent
@@ -44,6 +47,9 @@ agentesRouter.post("/agentes/crossability-reasoning", executar, asyncHandler(c.r
 
 // Recommendation
 agentesRouter.post("/agentes/recommendation", executar, asyncHandler(c.recomendarParceiros));
+
+// Human Gate — curadoria que promove/rejeita à base (exige decisão)
+agentesRouter.post("/agentes/human-gate", decisao, asyncHandler(c.decidirHumanGate));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -113,6 +119,14 @@ registrarRota({
   summary: "Recomendação — ranqueia candidatos a parceiro pela análise Crossability",
   body: recomendarParceirosSchema,
   responses: { "201": "Ranking gerado", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/human-gate",
+  tag: "Agentes de IA",
+  summary: "Human Gate — curadoria: aprova (promove à base como rascunho) ou rejeita a saída de um agente",
+  body: decidirHumanGateSchema,
+  responses: { "201": "Decisão registrada", "404": "Execução não encontrada", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

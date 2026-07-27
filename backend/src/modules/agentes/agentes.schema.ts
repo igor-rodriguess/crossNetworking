@@ -103,3 +103,44 @@ export const coletaFontesSaidaSchema = z.object({
   coletas: z.array(coletaPorConsultaSchema),
 });
 export type ColetaFontesSaida = z.infer<typeof coletaFontesSaidaSchema>;
+
+// --- Source Credibility -----------------------------------------------------
+//
+// Avalia a REPUTABILIDADE da origem de cada resultado coletado (a fonte é
+// confiável?) — separado de "o fato é verdade" (Fact Verifier) e de "é a mesma
+// entidade" (Entity Resolver). Heurística barata e determinística.
+
+// Aceita a saída do Collector (para encadear) ou uma lista solta de resultados.
+export const avaliarCredibilidadeSchema = z
+  .object({
+    coleta: coletaFontesSaidaSchema.optional(),
+    resultados: z.array(resultadoBuscaSchema).min(1).optional(),
+    projeto_id: uuid.optional(),
+    frente_id: uuid.optional(),
+  })
+  .refine((o) => o.coleta || o.resultados, {
+    message: "Informe 'coleta' ou 'resultados'.",
+  });
+export type AvaliarCredibilidadeInput = z.infer<typeof avaliarCredibilidadeSchema>;
+
+export const nivelCredibilidade = z.enum(["alta", "media", "baixa"]);
+export type NivelCredibilidade = z.infer<typeof nivelCredibilidade>;
+
+export const resultadoAvaliadoSchema = z.object({
+  titulo: z.string(),
+  url: z.string(),
+  fonte: z.string(),
+  // Score 0..100 e nível derivado.
+  score: z.number().int().min(0).max(100),
+  nivel: nivelCredibilidade,
+  // Por que recebeu esse score (sinais que pesaram).
+  sinais: z.array(z.string()),
+});
+
+export const credibilidadeSaidaSchema = z.object({
+  total: z.number().int(),
+  // Distribuição por nível, para leitura rápida.
+  resumo: z.object({ alta: z.number().int(), media: z.number().int(), baixa: z.number().int() }),
+  avaliacoes: z.array(resultadoAvaliadoSchema),
+});
+export type CredibilidadeSaida = z.infer<typeof credibilidadeSaidaSchema>;

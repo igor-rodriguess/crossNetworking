@@ -3,7 +3,7 @@ import { asyncHandler } from "../../shared/http";
 import { autorizar } from "../../shared/middleware/authz";
 import { registrarRota } from "../../shared/openapi";
 import * as c from "./agentes.controller";
-import { coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
+import { avaliarCredibilidadeSchema, coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
 
 export const agentesRouter = Router();
 
@@ -17,6 +17,9 @@ agentesRouter.post("/agentes/search-planning", executar, asyncHandler(c.planejar
 
 // Source Collector
 agentesRouter.post("/agentes/source-collector", executar, asyncHandler(c.coletarFontes));
+
+// Source Credibility
+agentesRouter.post("/agentes/source-credibility", executar, asyncHandler(c.avaliarCredibilidade));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -38,6 +41,14 @@ registrarRota({
   summary: "Coletar fontes — executa as buscas do plano de pesquisa (Firecrawl) e devolve resultados brutos",
   body: coletarFontesSchema,
   responses: { "201": "Fontes coletadas", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/source-credibility",
+  tag: "Agentes de IA",
+  summary: "Avaliar credibilidade das fontes coletadas (heurística: a origem é reputável?)",
+  body: avaliarCredibilidadeSchema,
+  responses: { "201": "Fontes avaliadas", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

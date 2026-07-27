@@ -3,9 +3,12 @@ import { Paginacao } from "../../shared/pagination";
 import * as repo from "./agentes.repository";
 import { planejarPesquisa } from "./search-planning.agent";
 import { coletarFontes } from "./source-collector.agent";
+import { avaliarCredibilidade } from "./source-credibility.agent";
 import type {
+  AvaliarCredibilidadeInput,
   ColetaFontesSaida,
   ColetarFontesInput,
+  CredibilidadeSaida,
   PlanejarPesquisaInput,
   PlanoPesquisa,
 } from "./agentes.schema";
@@ -116,6 +119,59 @@ export async function executarColeta(
         status: "erro",
         origem: "mock",
         entrada: { tem_plano: Boolean(input.plano), num_consultas_soltas: input.consultas?.length ?? 0 },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaCredibilidade {
+  execucao_id: string;
+  credibilidade: CredibilidadeSaida;
+}
+
+/** Executa o Source Credibility (heurística) e registra para auditoria. */
+export async function executarCredibilidade(
+  input: AvaliarCredibilidadeInput,
+  usuarioId: string | null
+): Promise<RespostaCredibilidade> {
+  const inicio = Date.now();
+  try {
+    const { saida } = avaliarCredibilidade(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "source_credibility",
+        status: "sucesso",
+        origem: "heuristica",
+        entrada: {
+          tem_coleta: Boolean(input.coleta),
+          num_resultados_soltos: input.resultados?.length ?? 0,
+        },
+        saida,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, credibilidade: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "source_credibility",
+        status: "erro",
+        origem: "heuristica",
+        entrada: { tem_coleta: Boolean(input.coleta) },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

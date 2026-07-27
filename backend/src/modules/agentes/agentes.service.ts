@@ -6,12 +6,15 @@ import { coletarFontes } from "./source-collector.agent";
 import { avaliarCredibilidade } from "./source-credibility.agent";
 import { verificarFatos } from "./fact-verifier.agent";
 import { resolverEntidades } from "./entity-resolver.agent";
+import { extrairInformacoes } from "./information-extractor.agent";
 import type {
   AvaliarCredibilidadeInput,
   ColetaFontesSaida,
   ColetarFontesInput,
   CredibilidadeSaida,
   EntidadesSaida,
+  ExtracaoSaida,
+  ExtrairInformacoesInput,
   PlanejarPesquisaInput,
   PlanoPesquisa,
   ResolverEntidadesInput,
@@ -279,6 +282,59 @@ export async function executarResolucaoEntidades(
         status: "erro",
         origem: "heuristica",
         entrada: { num_entidades: input.entidades.length },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaExtracao {
+  execucao_id: string;
+  origem: "openai" | "mock";
+  extracao: ExtracaoSaida;
+}
+
+/** Executa o Information Extractor e registra para auditoria. */
+export async function executarExtracao(
+  input: ExtrairInformacoesInput,
+  usuarioId: string | null
+): Promise<RespostaExtracao> {
+  const inicio = Date.now();
+  try {
+    const { saida, origem, tokens } = await extrairInformacoes(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "information_extractor",
+        status: "sucesso",
+        origem,
+        entrada: { num_conteudos: input.conteudos.length, foco: input.foco ?? null },
+        saida,
+        tokensEntrada: tokens?.entrada ?? 0,
+        tokensSaida: tokens?.saida ?? 0,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, origem, extracao: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "information_extractor",
+        status: "erro",
+        origem: "mock",
+        entrada: { num_conteudos: input.conteudos.length },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

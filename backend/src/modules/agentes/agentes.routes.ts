@@ -6,6 +6,7 @@ import * as c from "./agentes.controller";
 import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
+  extrairInformacoesSchema,
   planejarPesquisaSchema,
   resolverEntidadesSchema,
   verificarFatosSchema,
@@ -32,6 +33,9 @@ agentesRouter.post("/agentes/fact-verifier", executar, asyncHandler(c.verificarF
 
 // Entity Resolver
 agentesRouter.post("/agentes/entity-resolver", executar, asyncHandler(c.resolverEntidades));
+
+// Information Extractor
+agentesRouter.post("/agentes/information-extractor", executar, asyncHandler(c.extrairInformacoes));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -77,6 +81,14 @@ registrarRota({
   summary: "Resolver entidades — dedupe e casa nomes encontrados com as Partes já cadastradas",
   body: resolverEntidadesSchema,
   responses: { "201": "Entidades resolvidas", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/information-extractor",
+  tag: "Agentes de IA",
+  summary: "Extrair informações — estrutura conteúdo bruto em setor/públicos/territórios/ativos/sinais",
+  body: extrairInformacoesSchema,
+  responses: { "201": "Perfis extraídos", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

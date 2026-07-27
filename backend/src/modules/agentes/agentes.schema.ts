@@ -233,3 +233,44 @@ export const entidadesSaidaSchema = z.object({
   resolucoes: z.array(entidadeResolvidaSchema),
 });
 export type EntidadesSaida = z.infer<typeof entidadesSaidaSchema>;
+
+// --- Information Extractor ---------------------------------------------------
+//
+// Transforma conteúdo BRUTO coletado (texto de páginas) em campos ESTRUTURADOS
+// que o Crossability Reasoning consegue usar. Alinha com o domínio: setor,
+// públicos, territórios, ativos e sinais de parceria — o vocabulário das Partes
+// e da metodologia. Usa LLM (extração estruturada) com stub mock sem chave.
+
+export const extrairInformacoesSchema = z
+  .object({
+    // Texto(s) brutos a estruturar. Pode vir dos trechos coletados.
+    conteudos: z.array(z.string().trim().min(1)).min(1),
+    // Foco opcional: o que se quer extrair (ex.: "potencial de patrocínio").
+    foco: z.string().trim().max(500).optional(),
+    projeto_id: uuid.optional(),
+    frente_id: uuid.optional(),
+  });
+export type ExtrairInformacoesInput = z.infer<typeof extrairInformacoesSchema>;
+
+export const perfilExtraidoSchema = z.object({
+  // Nome da entidade principal identificada no conteúdo.
+  nome: z.string(),
+  // Setor/segmento de atuação.
+  setor: z.string(),
+  // Públicos-alvo mencionados ou inferidos.
+  publicos: z.array(z.string()),
+  // Territórios/praças de atuação.
+  territorios: z.array(z.string()),
+  // Ativos relevantes (propriedades, canais, patrocínios, etc.).
+  ativos: z.array(z.string()),
+  // Sinais de interesse/potencial de parceria.
+  sinais_parceria: z.array(z.string()),
+  // Confiança da extração (0..100) — o quanto o conteúdo sustentou os campos.
+  confianca: z.number().int().min(0).max(100),
+});
+
+export const extracaoSaidaSchema = z.object({
+  total_conteudos: z.number().int(),
+  perfis: z.array(perfilExtraidoSchema),
+});
+export type ExtracaoSaida = z.infer<typeof extracaoSaidaSchema>;

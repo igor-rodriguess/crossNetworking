@@ -4,6 +4,7 @@ import * as service from "./agentes.service";
 import {
   avaliarCredibilidadeSchema,
   coletarFontesSchema,
+  extrairInformacoesSchema,
   planejarPesquisaSchema,
   resolverEntidadesSchema,
   verificarFatosSchema,
@@ -41,6 +42,13 @@ export async function verificarFatos(req: Request, res: Response): Promise<void>
 export async function resolverEntidades(req: Request, res: Response): Promise<void> {
   const input = resolverEntidadesSchema.parse(req.body);
   const resultado = await service.executarResolucaoEntidades(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/information-extractor — estrutura conteúdo coletado.
+export async function extrairInformacoes(req: Request, res: Response): Promise<void> {
+  const input = extrairInformacoesSchema.parse(req.body);
+  const resultado = await service.executarExtracao(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

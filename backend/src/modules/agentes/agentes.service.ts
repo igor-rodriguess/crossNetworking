@@ -4,6 +4,7 @@ import * as repo from "./agentes.repository";
 import { planejarPesquisa } from "./search-planning.agent";
 import { coletarFontes } from "./source-collector.agent";
 import { avaliarCredibilidade } from "./source-credibility.agent";
+import { verificarFatos } from "./fact-verifier.agent";
 import type {
   AvaliarCredibilidadeInput,
   ColetaFontesSaida,
@@ -11,6 +12,8 @@ import type {
   CredibilidadeSaida,
   PlanejarPesquisaInput,
   PlanoPesquisa,
+  VerificacaoSaida,
+  VerificarFatosInput,
 } from "./agentes.schema";
 
 export interface RespostaPlanejamento {
@@ -172,6 +175,56 @@ export async function executarCredibilidade(
         status: "erro",
         origem: "heuristica",
         entrada: { tem_coleta: Boolean(input.coleta) },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaVerificacao {
+  execucao_id: string;
+  verificacao: VerificacaoSaida;
+}
+
+/** Executa o Fact Verifier (heurística) e registra para auditoria. */
+export async function executarVerificacao(
+  input: VerificarFatosInput,
+  usuarioId: string | null
+): Promise<RespostaVerificacao> {
+  const inicio = Date.now();
+  try {
+    const { saida } = verificarFatos(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "fact_verifier",
+        status: "sucesso",
+        origem: "heuristica",
+        entrada: { num_afirmacoes: input.afirmacoes.length },
+        saida,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, verificacao: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "fact_verifier",
+        status: "erro",
+        origem: "heuristica",
+        entrada: { num_afirmacoes: input.afirmacoes.length },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

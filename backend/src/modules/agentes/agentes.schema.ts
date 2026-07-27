@@ -144,3 +144,47 @@ export const credibilidadeSaidaSchema = z.object({
   avaliacoes: z.array(resultadoAvaliadoSchema),
 });
 export type CredibilidadeSaida = z.infer<typeof credibilidadeSaidaSchema>;
+
+// --- Fact Verifier ----------------------------------------------------------
+//
+// Parte 2 da validação: uma afirmação confere em 2+ fontes INDEPENDENTES?
+// Corrobora (mais de um domínio distinto), não-confirmada (só uma fonte) ou
+// conflitante. Núcleo heurístico por sobreposição de domínios; sem LLM/custo.
+
+export const afirmacaoSchema = z.object({
+  texto: z.string().min(1),
+  // Fontes (domínios/urls) que sustentam a afirmação.
+  fontes: z.array(z.string().min(1)).min(1),
+});
+
+export const verificarFatosSchema = z
+  .object({
+    // Afirmações a verificar (tipicamente extraídas do conteúdo coletado).
+    afirmacoes: z.array(afirmacaoSchema).min(1),
+    projeto_id: uuid.optional(),
+    frente_id: uuid.optional(),
+  });
+export type VerificarFatosInput = z.infer<typeof verificarFatosSchema>;
+
+export const statusVerificacao = z.enum(["corroborada", "nao_confirmada", "fonte_unica"]);
+export type StatusVerificacao = z.infer<typeof statusVerificacao>;
+
+export const afirmacaoVerificadaSchema = z.object({
+  texto: z.string(),
+  status: statusVerificacao,
+  // Nº de fontes independentes (domínios distintos) que sustentam.
+  fontes_independentes: z.number().int(),
+  fontes: z.array(z.string()),
+  observacao: z.string(),
+});
+
+export const verificacaoSaidaSchema = z.object({
+  total: z.number().int(),
+  resumo: z.object({
+    corroborada: z.number().int(),
+    nao_confirmada: z.number().int(),
+    fonte_unica: z.number().int(),
+  }),
+  verificacoes: z.array(afirmacaoVerificadaSchema),
+});
+export type VerificacaoSaida = z.infer<typeof verificacaoSaidaSchema>;

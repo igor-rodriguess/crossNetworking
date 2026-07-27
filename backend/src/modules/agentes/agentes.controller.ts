@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { envelopePaginado, parsePaginacao } from "../../shared/pagination";
 import * as service from "./agentes.service";
-import { avaliarCredibilidadeSchema, coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
+import {
+  avaliarCredibilidadeSchema,
+  coletarFontesSchema,
+  planejarPesquisaSchema,
+  verificarFatosSchema,
+} from "./agentes.schema";
 
 // POST /v1/agentes/search-planning — executa o Search Planning Agent.
 export async function planejarPesquisa(req: Request, res: Response): Promise<void> {
@@ -21,6 +26,13 @@ export async function coletarFontes(req: Request, res: Response): Promise<void> 
 export async function avaliarCredibilidade(req: Request, res: Response): Promise<void> {
   const input = avaliarCredibilidadeSchema.parse(req.body);
   const resultado = await service.executarCredibilidade(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/fact-verifier — verifica corroboração das afirmações.
+export async function verificarFatos(req: Request, res: Response): Promise<void> {
+  const input = verificarFatosSchema.parse(req.body);
+  const resultado = await service.executarVerificacao(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

@@ -3,7 +3,12 @@ import { asyncHandler } from "../../shared/http";
 import { autorizar } from "../../shared/middleware/authz";
 import { registrarRota } from "../../shared/openapi";
 import * as c from "./agentes.controller";
-import { avaliarCredibilidadeSchema, coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
+import {
+  avaliarCredibilidadeSchema,
+  coletarFontesSchema,
+  planejarPesquisaSchema,
+  verificarFatosSchema,
+} from "./agentes.schema";
 
 export const agentesRouter = Router();
 
@@ -20,6 +25,9 @@ agentesRouter.post("/agentes/source-collector", executar, asyncHandler(c.coletar
 
 // Source Credibility
 agentesRouter.post("/agentes/source-credibility", executar, asyncHandler(c.avaliarCredibilidade));
+
+// Fact Verifier
+agentesRouter.post("/agentes/fact-verifier", executar, asyncHandler(c.verificarFatos));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -49,6 +57,14 @@ registrarRota({
   summary: "Avaliar credibilidade das fontes coletadas (heurística: a origem é reputável?)",
   body: avaliarCredibilidadeSchema,
   responses: { "201": "Fontes avaliadas", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/fact-verifier",
+  tag: "Agentes de IA",
+  summary: "Verificar fatos — uma afirmação é corroborada por 2+ fontes independentes?",
+  body: verificarFatosSchema,
+  responses: { "201": "Afirmações verificadas", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

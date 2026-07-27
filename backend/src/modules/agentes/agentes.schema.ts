@@ -274,3 +274,52 @@ export const extracaoSaidaSchema = z.object({
   perfis: z.array(perfilExtraidoSchema),
 });
 export type ExtracaoSaida = z.infer<typeof extracaoSaidaSchema>;
+
+// --- Crossability Reasoning -------------------------------------------------
+//
+// O CORAÇÃO da metodologia: aplica a Crossability nas 6 dimensões do domínio
+// (compatibilidade_publicos, compatibilidade_territorios, complementaridade_
+// ativos, sinergias, fit_estrategico, momento_estrategico) — exatamente as que
+// a plataforma persiste. Produz um RASCUNHO (o agente propõe; o humano promove
+// no Human Gate). Usa LLM com stub mock sem chave.
+
+export const nivelCompat = z.enum(["alta", "media", "baixa"]);
+export type NivelCompat = z.infer<typeof nivelCompat>;
+
+export const recomendacaoCross = z.enum(["recomendada", "em_estudo", "nao_recomendada"]);
+export type RecomendacaoCross = z.infer<typeof recomendacaoCross>;
+
+// Uma dimensão avaliada: nível + a justificativa textual.
+const dimensaoAvaliada = z.object({
+  nivel: nivelCompat,
+  texto: z.string().min(1),
+});
+
+export const raciocinarCrossabilitySchema = z.object({
+  // O cliente que busca a parceria (quem tem a necessidade).
+  cliente: z.string().trim().min(1, "cliente é obrigatório").max(300),
+  // O parceiro candidato (a marca/parte avaliada).
+  parceiro: z.string().trim().min(1, "parceiro é obrigatório").max(300),
+  // Objetivo/contexto da parceria buscada.
+  objetivo: z.string().trim().max(2000).optional(),
+  // Perfil estruturado do parceiro (idealmente vindo do Extractor).
+  perfil_parceiro: perfilExtraidoSchema.partial().optional(),
+  candidatura_id: uuid.optional(),
+  projeto_id: uuid.optional(),
+  frente_id: uuid.optional(),
+});
+export type RaciocinarCrossabilityInput = z.infer<typeof raciocinarCrossabilitySchema>;
+
+export const analiseCrossabilitySchema = z.object({
+  compatibilidade_publicos: dimensaoAvaliada,
+  compatibilidade_territorios: dimensaoAvaliada,
+  complementaridade_ativos: dimensaoAvaliada,
+  sinergias: dimensaoAvaliada,
+  fit_estrategico: dimensaoAvaliada,
+  momento_estrategico: dimensaoAvaliada,
+  recomendacao: recomendacaoCross,
+  racional_recomendacao: z.string().min(1),
+  // Confiança da análise (0..100) — honestidade sobre a base de evidência.
+  confianca: z.number().int().min(0).max(100),
+});
+export type AnaliseCrossabilitySaida = z.infer<typeof analiseCrossabilitySchema>;

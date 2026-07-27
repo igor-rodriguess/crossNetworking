@@ -6,6 +6,7 @@ import {
   coletarFontesSchema,
   extrairInformacoesSchema,
   planejarPesquisaSchema,
+  raciocinarCrossabilitySchema,
   resolverEntidadesSchema,
   verificarFatosSchema,
 } from "./agentes.schema";
@@ -49,6 +50,13 @@ export async function resolverEntidades(req: Request, res: Response): Promise<vo
 export async function extrairInformacoes(req: Request, res: Response): Promise<void> {
   const input = extrairInformacoesSchema.parse(req.body);
   const resultado = await service.executarExtracao(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/crossability-reasoning — análise Crossability (6 dimensões).
+export async function raciocinarCrossability(req: Request, res: Response): Promise<void> {
+  const input = raciocinarCrossabilitySchema.parse(req.body);
+  const resultado = await service.executarReasoning(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

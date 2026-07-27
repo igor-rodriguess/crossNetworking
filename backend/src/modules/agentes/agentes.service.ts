@@ -7,7 +7,9 @@ import { avaliarCredibilidade } from "./source-credibility.agent";
 import { verificarFatos } from "./fact-verifier.agent";
 import { resolverEntidades } from "./entity-resolver.agent";
 import { extrairInformacoes } from "./information-extractor.agent";
+import { raciocinarCrossability } from "./crossability-reasoning.agent";
 import type {
+  AnaliseCrossabilitySaida,
   AvaliarCredibilidadeInput,
   ColetaFontesSaida,
   ColetarFontesInput,
@@ -17,6 +19,7 @@ import type {
   ExtrairInformacoesInput,
   PlanejarPesquisaInput,
   PlanoPesquisa,
+  RaciocinarCrossabilityInput,
   ResolverEntidadesInput,
   VerificacaoSaida,
   VerificarFatosInput,
@@ -335,6 +338,64 @@ export async function executarExtracao(
         status: "erro",
         origem: "mock",
         entrada: { num_conteudos: input.conteudos.length },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaReasoning {
+  execucao_id: string;
+  origem: "openai" | "mock";
+  analise: AnaliseCrossabilitySaida;
+}
+
+/** Executa o Crossability Reasoning e registra para auditoria. */
+export async function executarReasoning(
+  input: RaciocinarCrossabilityInput,
+  usuarioId: string | null
+): Promise<RespostaReasoning> {
+  const inicio = Date.now();
+  try {
+    const { saida, origem, tokens } = await raciocinarCrossability(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "crossability_reasoning",
+        status: "sucesso",
+        origem,
+        entrada: {
+          cliente: input.cliente,
+          parceiro: input.parceiro,
+          objetivo: input.objetivo ?? null,
+          candidatura_id: input.candidatura_id ?? null,
+        },
+        saida,
+        tokensEntrada: tokens?.entrada ?? 0,
+        tokensSaida: tokens?.saida ?? 0,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, origem, analise: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "crossability_reasoning",
+        status: "erro",
+        origem: "mock",
+        entrada: { cliente: input.cliente, parceiro: input.parceiro },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

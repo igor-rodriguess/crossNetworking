@@ -2,7 +2,13 @@ import { withTransaction } from "../../shared/db";
 import { Paginacao } from "../../shared/pagination";
 import * as repo from "./agentes.repository";
 import { planejarPesquisa } from "./search-planning.agent";
-import type { PlanejarPesquisaInput, PlanoPesquisa } from "./agentes.schema";
+import { coletarFontes } from "./source-collector.agent";
+import type {
+  ColetaFontesSaida,
+  ColetarFontesInput,
+  PlanejarPesquisaInput,
+  PlanoPesquisa,
+} from "./agentes.schema";
 
 export interface RespostaPlanejamento {
   execucao_id: string;
@@ -50,6 +56,66 @@ export async function executarPlanejamento(
         status: "erro",
         origem: "mock",
         entrada: input,
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaColeta {
+  execucao_id: string;
+  origem: "firecrawl" | "mock";
+  coleta: ColetaFontesSaida;
+}
+
+/**
+ * Executa o Source Collector e registra a execução para auditoria.
+ * Grava sucesso e erro — nenhuma rodada de coleta fica sem rastro.
+ */
+export async function executarColeta(
+  input: ColetarFontesInput,
+  usuarioId: string | null
+): Promise<RespostaColeta> {
+  const inicio = Date.now();
+  try {
+    const { saida, origem } = await coletarFontes(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "source_collector",
+        status: "sucesso",
+        origem,
+        // Não guardamos o plano inteiro na entrada — só o essencial (evita
+        // duplicar dados volumosos). A saída carrega o conteúdo coletado.
+        entrada: {
+          tem_plano: Boolean(input.plano),
+          num_consultas_soltas: input.consultas?.length ?? 0,
+          limite_por_consulta: input.limite_por_consulta,
+        },
+        saida,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, origem, coleta: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "source_collector",
+        status: "erro",
+        origem: "mock",
+        entrada: { tem_plano: Boolean(input.plano), num_consultas_soltas: input.consultas?.length ?? 0 },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

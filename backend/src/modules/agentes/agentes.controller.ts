@@ -1,12 +1,19 @@
 import { Request, Response } from "express";
 import { envelopePaginado, parsePaginacao } from "../../shared/pagination";
 import * as service from "./agentes.service";
-import { planejarPesquisaSchema } from "./agentes.schema";
+import { coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
 
 // POST /v1/agentes/search-planning — executa o Search Planning Agent.
 export async function planejarPesquisa(req: Request, res: Response): Promise<void> {
   const input = planejarPesquisaSchema.parse(req.body);
   const resultado = await service.executarPlanejamento(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/source-collector — executa o Source Collector.
+export async function coletarFontes(req: Request, res: Response): Promise<void> {
+  const input = coletarFontesSchema.parse(req.body);
+  const resultado = await service.executarColeta(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

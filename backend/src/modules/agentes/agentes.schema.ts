@@ -57,3 +57,49 @@ export const planoPesquisaSchema = z.object({
   observacoes: z.string().optional(),
 });
 export type PlanoPesquisa = z.infer<typeof planoPesquisaSchema>;
+
+// --- Entrada do Source Collector -------------------------------------------
+//
+// Coleta a partir do plano de pesquisa (a saída do Search Planning). Aceita o
+// plano completo, ou uma lista solta de consultas (uso avulso/testes).
+
+export const coletarFontesSchema = z
+  .object({
+    // Opção A: passar o plano inteiro (encadeamento com o Search Planning).
+    plano: planoPesquisaSchema.optional(),
+    // Opção B: consultas soltas (uso direto).
+    consultas: z.array(consultaBuscaSchema).min(1).optional(),
+    // Quantos resultados por consulta (custo/tempo). Padrão 3.
+    limite_por_consulta: z.number().int().min(1).max(10).default(3),
+    // Vínculos opcionais ao domínio (auditoria).
+    projeto_id: uuid.optional(),
+    frente_id: uuid.optional(),
+  })
+  .refine((o) => o.plano || o.consultas, {
+    message: "Informe 'plano' ou 'consultas'.",
+  });
+export type ColetarFontesInput = z.infer<typeof coletarFontesSchema>;
+
+// --- Saída do Source Collector ----------------------------------------------
+// Resultados agrupados por consulta. Conteúdo BRUTO — sem validação nem
+// interpretação (isso é dos próximos agentes).
+
+export const resultadoBuscaSchema = z.object({
+  titulo: z.string(),
+  url: z.string(),
+  trecho: z.string(),
+  fonte: z.string(),
+});
+
+export const coletaPorConsultaSchema = z.object({
+  termo: z.string(),
+  tipo_fonte: tipoFonte,
+  resultados: z.array(resultadoBuscaSchema),
+});
+
+export const coletaFontesSaidaSchema = z.object({
+  total_consultas: z.number().int(),
+  total_resultados: z.number().int(),
+  coletas: z.array(coletaPorConsultaSchema),
+});
+export type ColetaFontesSaida = z.infer<typeof coletaFontesSaidaSchema>;

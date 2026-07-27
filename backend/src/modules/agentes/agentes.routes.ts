@@ -3,7 +3,7 @@ import { asyncHandler } from "../../shared/http";
 import { autorizar } from "../../shared/middleware/authz";
 import { registrarRota } from "../../shared/openapi";
 import * as c from "./agentes.controller";
-import { planejarPesquisaSchema } from "./agentes.schema";
+import { coletarFontesSchema, planejarPesquisaSchema } from "./agentes.schema";
 
 export const agentesRouter = Router();
 
@@ -14,6 +14,9 @@ const leitura = autorizar();
 
 // Search Planning Agent
 agentesRouter.post("/agentes/search-planning", executar, asyncHandler(c.planejarPesquisa));
+
+// Source Collector
+agentesRouter.post("/agentes/source-collector", executar, asyncHandler(c.coletarFontes));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -27,6 +30,14 @@ registrarRota({
   summary: "Planejar pesquisa — decompõe um objetivo em perguntas, consultas e fontes (não executa buscas)",
   body: planejarPesquisaSchema,
   responses: { "201": "Plano de pesquisa gerado", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/source-collector",
+  tag: "Agentes de IA",
+  summary: "Coletar fontes — executa as buscas do plano de pesquisa (Firecrawl) e devolve resultados brutos",
+  body: coletarFontesSchema,
+  responses: { "201": "Fontes coletadas", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

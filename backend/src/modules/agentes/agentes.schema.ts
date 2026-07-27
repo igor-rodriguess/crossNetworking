@@ -323,3 +323,38 @@ export const analiseCrossabilitySchema = z.object({
   confianca: z.number().int().min(0).max(100),
 });
 export type AnaliseCrossabilitySaida = z.infer<typeof analiseCrossabilitySchema>;
+
+// --- Recommendation ---------------------------------------------------------
+//
+// Ranqueia candidatos a parceiro pela análise Crossability. Recebe várias
+// análises (uma por candidato) e devolve a lista ordenada por um score
+// derivado das 6 dimensões + a recomendação, com justificativa. Determinístico.
+
+export const candidatoAnaliseSchema = z.object({
+  parceiro: z.string().min(1),
+  analise: analiseCrossabilitySchema,
+});
+
+export const recomendarParceirosSchema = z.object({
+  candidatos: z.array(candidatoAnaliseSchema).min(1),
+  projeto_id: uuid.optional(),
+  frente_id: uuid.optional(),
+});
+export type RecomendarParceirosInput = z.infer<typeof recomendarParceirosSchema>;
+
+export const candidatoRankeadoSchema = z.object({
+  posicao: z.number().int().min(1),
+  parceiro: z.string(),
+  score: z.number().int().min(0).max(100),
+  recomendacao: recomendacaoCross,
+  // Dimensões fortes (nível alta) e fracas (nível baixa) — leitura rápida.
+  fortalezas: z.array(z.string()),
+  fraquezas: z.array(z.string()),
+  justificativa: z.string(),
+});
+
+export const recomendacaoSaidaSchema = z.object({
+  total: z.number().int(),
+  ranking: z.array(candidatoRankeadoSchema),
+});
+export type RecomendacaoSaida = z.infer<typeof recomendacaoSaidaSchema>;

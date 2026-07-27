@@ -9,6 +9,7 @@ import {
   extrairInformacoesSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
+  recomendarParceirosSchema,
   resolverEntidadesSchema,
   verificarFatosSchema,
 } from "./agentes.schema";
@@ -40,6 +41,9 @@ agentesRouter.post("/agentes/information-extractor", executar, asyncHandler(c.ex
 
 // Crossability Reasoning
 agentesRouter.post("/agentes/crossability-reasoning", executar, asyncHandler(c.raciocinarCrossability));
+
+// Recommendation
+agentesRouter.post("/agentes/recommendation", executar, asyncHandler(c.recomendarParceiros));
 
 // Auditoria de execuções
 agentesRouter.get("/agentes/execucoes", leitura, asyncHandler(c.listarExecucoes));
@@ -101,6 +105,14 @@ registrarRota({
   summary: "Raciocínio Crossability — avalia as 6 dimensões e propõe recomendação (rascunho)",
   body: raciocinarCrossabilitySchema,
   responses: { "201": "Análise gerada", "422": "Entrada inválida" },
+});
+registrarRota({
+  method: "POST",
+  path: "/v1/agentes/recommendation",
+  tag: "Agentes de IA",
+  summary: "Recomendação — ranqueia candidatos a parceiro pela análise Crossability",
+  body: recomendarParceirosSchema,
+  responses: { "201": "Ranking gerado", "422": "Entrada inválida" },
 });
 registrarRota({
   method: "GET",

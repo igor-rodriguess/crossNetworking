@@ -8,6 +8,7 @@ import { verificarFatos } from "./fact-verifier.agent";
 import { resolverEntidades } from "./entity-resolver.agent";
 import { extrairInformacoes } from "./information-extractor.agent";
 import { raciocinarCrossability } from "./crossability-reasoning.agent";
+import { recomendarParceiros } from "./recommendation.agent";
 import type {
   AnaliseCrossabilitySaida,
   AvaliarCredibilidadeInput,
@@ -20,6 +21,8 @@ import type {
   PlanejarPesquisaInput,
   PlanoPesquisa,
   RaciocinarCrossabilityInput,
+  RecomendacaoSaida,
+  RecomendarParceirosInput,
   ResolverEntidadesInput,
   VerificacaoSaida,
   VerificarFatosInput,
@@ -396,6 +399,56 @@ export async function executarReasoning(
         status: "erro",
         origem: "mock",
         entrada: { cliente: input.cliente, parceiro: input.parceiro },
+        erro: mensagem,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    ).catch(() => undefined);
+    throw erro;
+  }
+}
+
+export interface RespostaRecomendacao {
+  execucao_id: string;
+  recomendacao: RecomendacaoSaida;
+}
+
+/** Executa o Recommendation (heurística de ranking) e registra para auditoria. */
+export async function executarRecomendacao(
+  input: RecomendarParceirosInput,
+  usuarioId: string | null
+): Promise<RespostaRecomendacao> {
+  const inicio = Date.now();
+  try {
+    const { saida } = recomendarParceiros(input);
+    const duracaoMs = Date.now() - inicio;
+
+    const execucaoId = await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "recommendation",
+        status: "sucesso",
+        origem: "heuristica",
+        entrada: { num_candidatos: input.candidatos.length },
+        saida,
+        duracaoMs,
+        criadoPorId: usuarioId,
+        projetoId: input.projeto_id ?? null,
+        frenteId: input.frente_id ?? null,
+      })
+    );
+
+    return { execucao_id: execucaoId, recomendacao: saida };
+  } catch (erro) {
+    const duracaoMs = Date.now() - inicio;
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    await withTransaction((client) =>
+      repo.registrarExecucao(client, {
+        agente: "recommendation",
+        status: "erro",
+        origem: "heuristica",
+        entrada: { num_candidatos: input.candidatos.length },
         erro: mensagem,
         duracaoMs,
         criadoPorId: usuarioId,

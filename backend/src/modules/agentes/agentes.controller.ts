@@ -7,6 +7,7 @@ import {
   extrairInformacoesSchema,
   planejarPesquisaSchema,
   raciocinarCrossabilitySchema,
+  recomendarParceirosSchema,
   resolverEntidadesSchema,
   verificarFatosSchema,
 } from "./agentes.schema";
@@ -57,6 +58,13 @@ export async function extrairInformacoes(req: Request, res: Response): Promise<v
 export async function raciocinarCrossability(req: Request, res: Response): Promise<void> {
   const input = raciocinarCrossabilitySchema.parse(req.body);
   const resultado = await service.executarReasoning(input, req.usuarioId);
+  res.status(201).json(resultado);
+}
+
+// POST /v1/agentes/recommendation — ranqueia candidatos pela Crossability.
+export async function recomendarParceiros(req: Request, res: Response): Promise<void> {
+  const input = recomendarParceirosSchema.parse(req.body);
+  const resultado = await service.executarRecomendacao(input, req.usuarioId);
   res.status(201).json(resultado);
 }
 

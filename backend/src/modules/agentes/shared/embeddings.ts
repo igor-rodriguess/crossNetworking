@@ -17,9 +17,11 @@ import { logger } from "../../../shared/logger";
 const OPENAI_EMBED_URL = "https://api.openai.com/v1/embeddings";
 export const DIMENSAO_EMBEDDING = 1536;
 
-/** True quando os embeddings devem usar o stub (sem chave ou AI_MOCK). */
+/** True quando os embeddings devem usar o stub. Embeddings reais exigem chave
+ *  OpenAI — o DeepSeek não oferece embeddings —, então isto segue
+ *  `env.embeddingMock` (só é false com OPENAI_API_KEY), não `env.aiMock`. */
 export function embeddingEmModoMock(): boolean {
-  return env.aiMock;
+  return env.embeddingMock;
 }
 
 // --- Mock determinístico -----------------------------------------------------

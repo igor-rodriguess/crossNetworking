@@ -1,4 +1,4 @@
-import { chamarLLMJson, type MensagemLLM } from "./shared/llm";
+import { chamarLLMJson, type MensagemLLM, type OrigemLLM } from "./shared/llm";
 import {
   analiseCrossabilitySchema,
   type AnaliseCrossabilitySaida,
@@ -129,7 +129,7 @@ function analiseMock(input: RaciocinarCrossabilityInput): AnaliseCrossabilitySai
 
 export interface ResultadoReasoningAgente {
   saida: AnaliseCrossabilitySaida;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   tokens?: { entrada: number; saida: number };
 }
 

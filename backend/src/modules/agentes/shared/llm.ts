@@ -4,16 +4,22 @@ import { logger } from "../../../shared/logger";
 // -----------------------------------------------------------------------------
 // Cliente LLM plugável — fundação compartilhada de todos os agentes de IA.
 //
-// Provedor: OpenAI (Chat Completions via REST/fetch — sem SDK, para não somar
-// dependência). Quando NÃO há OPENAI_API_KEY (ou AI_MOCK=true), roda em MODO
-// MOCK: um stub determinístico fornecido por quem chama. Isso deixa todo o
-// pipeline de agentes desenvolvível e testável sem chave nem custo.
+// Provedores: OpenAI e DeepSeek (Chat Completions via REST/fetch — sem SDK, para
+// não somar dependência). A API do DeepSeek é compatível com o formato da OpenAI
+// (mesmo endpoint, mesmo response_format json_object), então só muda a URL base,
+// a chave e o modelo — decididos por env.aiProvider. Quando o provedor
+// selecionado não tem chave (ou AI_MOCK=true), roda em MODO MOCK: um stub
+// determinístico fornecido por quem chama, deixando o pipeline testável sem
+// chave nem custo.
 //
 // Contrato: sempre pedimos JSON (response_format json_object) e devolvemos o
 // objeto já parseado e validado por quem chama (com Zod, na camada do agente).
 // -----------------------------------------------------------------------------
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+const URLS_POR_PROVEDOR = {
+  openai: "https://api.openai.com/v1/chat/completions",
+  deepseek: "https://api.deepseek.com/chat/completions",
+} as const;
 
 export interface MensagemLLM {
   role: "system" | "user" | "assistant";
@@ -31,10 +37,13 @@ export interface OpcoesLLM<T> {
   modelo?: string;
 }
 
+/** De onde veio a saída de um agente LLM: um provedor real ou o stub. */
+export type OrigemLLM = "openai" | "deepseek" | "mock";
+
 export interface ResultadoLLM<T> {
   dados: T;
-  /** "openai" quando veio da API real; "mock" quando do stub. */
-  origem: "openai" | "mock";
+  /** Provedor que atendeu ("openai"/"deepseek") ou "mock" quando do stub. */
+  origem: OrigemLLM;
   /** Tokens consumidos (só no modo real). */
   tokens?: { entrada: number; saida: number };
 }
@@ -53,7 +62,10 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
     return { dados: opcoes.mock(opcoes.mensagens), origem: "mock" };
   }
 
-  const modelo = opcoes.modelo ?? env.openaiModel;
+  const provedor = env.aiProvider;
+  const url = URLS_POR_PROVEDOR[provedor];
+  const modeloPadrao = provedor === "deepseek" ? env.deepseekModel : env.openaiModel;
+  const modelo = opcoes.modelo ?? modeloPadrao;
   const corpo = {
     model: modelo,
     messages: opcoes.mensagens,
@@ -63,22 +75,22 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
 
   let resposta: Response;
   try {
-    resposta = await fetch(OPENAI_URL, {
+    resposta = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.openaiApiKey}`,
+        Authorization: `Bearer ${env.llmApiKey}`,
       },
       body: JSON.stringify(corpo),
     });
   } catch (causa) {
-    logger.error({ causa }, "Falha de rede ao chamar a OpenAI");
+    logger.error({ causa, provedor }, "Falha de rede ao chamar o provedor de IA");
     throw new Error("Não foi possível contatar o provedor de IA.");
   }
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
-    logger.error({ status: resposta.status, detalhe }, "OpenAI retornou erro");
+    logger.error({ status: resposta.status, detalhe, provedor }, "Provedor de IA retornou erro");
     throw new Error(`Provedor de IA retornou ${resposta.status}.`);
   }
 
@@ -98,7 +110,7 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
 
   return {
     dados,
-    origem: "openai",
+    origem: provedor,
     tokens: {
       entrada: json.usage?.prompt_tokens ?? 0,
       saida: json.usage?.completion_tokens ?? 0,

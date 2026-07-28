@@ -1,4 +1,4 @@
-import { chamarLLMJson, type MensagemLLM } from "./shared/llm";
+import { chamarLLMJson, type MensagemLLM, type OrigemLLM } from "./shared/llm";
 import { planoPesquisaSchema, type PlanejarPesquisaInput, type PlanoPesquisa } from "./agentes.schema";
 
 // -----------------------------------------------------------------------------
@@ -91,7 +91,7 @@ function planoMock(input: PlanejarPesquisaInput): PlanoPesquisa {
 
 export interface ResultadoPlanejamento {
   plano: PlanoPesquisa;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   tokens?: { entrada: number; saida: number };
 }
 

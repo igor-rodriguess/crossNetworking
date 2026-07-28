@@ -1,4 +1,4 @@
-import { chamarLLMJson, type MensagemLLM } from "./shared/llm";
+import { chamarLLMJson, type MensagemLLM, type OrigemLLM } from "./shared/llm";
 import {
   extracaoSaidaSchema,
   type ExtracaoSaida,
@@ -67,7 +67,7 @@ function extracaoMock(input: ExtrairInformacoesInput): ExtracaoSaida {
 
 export interface ResultadoExtracaoAgente {
   saida: ExtracaoSaida;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   tokens?: { entrada: number; saida: number };
 }
 

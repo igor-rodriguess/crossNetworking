@@ -9,6 +9,7 @@ import { resolverEntidades } from "./entity-resolver.agent";
 import { extrairInformacoes } from "./information-extractor.agent";
 import { raciocinarCrossability } from "./crossability-reasoning.agent";
 import { recomendarParceiros } from "./recommendation.agent";
+import type { OrigemLLM } from "./shared/llm";
 import { criarAnalise } from "../metodologias/metodologias.service";
 import { ValidationError, NotFoundError } from "../../shared/errors";
 import { analiseCrossabilitySchema } from "./agentes.schema";
@@ -35,7 +36,7 @@ import type {
 
 export interface RespostaPlanejamento {
   execucao_id: string;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   plano: PlanoPesquisa;
 }
 
@@ -306,7 +307,7 @@ export async function executarResolucaoEntidades(
 
 export interface RespostaExtracao {
   execucao_id: string;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   extracao: ExtracaoSaida;
 }
 
@@ -359,7 +360,7 @@ export async function executarExtracao(
 
 export interface RespostaReasoning {
   execucao_id: string;
-  origem: "openai" | "mock";
+  origem: OrigemLLM;
   analise: AnaliseCrossabilitySaida;
 }
 

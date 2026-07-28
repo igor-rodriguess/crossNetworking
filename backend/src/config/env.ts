@@ -1,6 +1,14 @@
 import "dotenv/config";
 import { z } from "zod";
 
+// Chave de API opcional: uma variável PRESENTE mas VAZIA (ex.: `DEEPSEEK_API_KEY=`
+// no .env, aguardando ser preenchida) deve contar como ausente, não como erro.
+// Sem isto, `z.string().min(1).optional()` rejeita a string vazia e derruba o boot.
+const chaveOpcional = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+  z.string().min(1).optional(),
+);
+
 const schema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL é obrigatória"),
   MIGRATION_DATABASE_URL: z.string().optional(),
@@ -30,12 +38,20 @@ const schema = z.object({
   // --- Agentes de IA (RF de IA — pipeline multiagente) ---------------------
   // Chaves opcionais: sem elas, os agentes rodam em MODO MOCK (stub
   // determinístico), o que permite desenvolver e testar sem custo/credencial.
-  OPENAI_API_KEY: z.string().min(1).optional(),
+  //
+  // Provedor do LLM de raciocínio. DeepSeek é compatível com o formato da OpenAI
+  // (mesmo /chat/completions, mesmo response_format json_object) e tem custo bem
+  // menor — só muda a URL base, a chave e o modelo.
+  AI_PROVIDER: z.enum(["openai", "deepseek"]).default("deepseek"),
+  OPENAI_API_KEY: chaveOpcional,
   OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  DEEPSEEK_API_KEY: chaveOpcional,
+  DEEPSEEK_MODEL: z.string().min(1).default("deepseek-chat"),
   // Modelo de embeddings do RAG. text-embedding-3-small = 1536 dimensões
-  // (deve casar com a dimensão da coluna vector no banco).
+  // (deve casar com a dimensão da coluna vector no banco). Só a OpenAI oferece
+  // embeddings; o DeepSeek não tem. Sem chave OpenAI, o RAG usa o stub.
   OPENAI_EMBED_MODEL: z.string().min(1).default("text-embedding-3-small"),
-  FIRECRAWL_API_KEY: z.string().min(1).optional(),
+  FIRECRAWL_API_KEY: chaveOpcional,
   // Força o modo mock mesmo com chave presente (útil para testes/CI).
   AI_MOCK: z.coerce.boolean().default(false),
 });
@@ -88,12 +104,19 @@ export const env = {
   refreshTokenTtlDays: data.REFRESH_TOKEN_TTL_DAYS,
   metricsToken: data.METRICS_TOKEN,
   // Agentes de IA
+  aiProvider: data.AI_PROVIDER,
   openaiApiKey: data.OPENAI_API_KEY,
   openaiModel: data.OPENAI_MODEL,
+  deepseekApiKey: data.DEEPSEEK_API_KEY,
+  deepseekModel: data.DEEPSEEK_MODEL,
   openaiEmbedModel: data.OPENAI_EMBED_MODEL,
   firecrawlApiKey: data.FIRECRAWL_API_KEY,
-  // Sem chave OpenAI (ou AI_MOCK ligado) → agentes usam o stub determinístico.
-  aiMock: data.AI_MOCK || !data.OPENAI_API_KEY,
+  // Chave do provedor de LLM selecionado (a que o wrapper usa de fato).
+  llmApiKey: data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY,
+  // Modo mock quando AI_MOCK está ligado OU o provedor selecionado não tem chave.
+  aiMock: data.AI_MOCK || !(data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY),
+  // Embeddings do RAG só são reais com chave OpenAI (DeepSeek não tem embeddings).
+  embeddingMock: data.AI_MOCK || !data.OPENAI_API_KEY,
   isTest,
   isProd,
 };

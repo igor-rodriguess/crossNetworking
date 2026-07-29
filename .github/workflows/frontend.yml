@@ -1,0 +1,41 @@
+name: Frontend (tipos + build)
+
+# O backend já é validado por db.yml, mas o frontend não tinha nenhuma barreira:
+# `vite build` não checa tipos, então erros de tipagem chegavam à branch sem
+# ninguém perceber. Este workflow roda em ~1 minuto e não precisa de banco.
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Validar tipos
+        run: npx tsc --noEmit
+
+      - name: Build de produção
+        run: npm run build

@@ -8,6 +8,7 @@ import { AppShell } from './components/AppShell';
 // As páginas exportam nomeado, então mapeamos para `default` no import dinâmico.
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })));
+const Oportunidades = lazy(() => import('./pages/Oportunidades').then((m) => ({ default: m.Oportunidades })));
 const Partes = lazy(() => import('./pages/Partes').then((m) => ({ default: m.Partes })));
 const ParteDetalhe = lazy(() => import('./pages/ParteDetalhe').then((m) => ({ default: m.ParteDetalhe })));
 const Artistas = lazy(() => import('./pages/Artistas').then((m) => ({ default: m.Artistas })));
@@ -23,6 +24,7 @@ const ParceriaDetalhe = lazy(() => import('./pages/ParceriaDetalhe').then((m) =>
 const Resumo = lazy(() => import('./pages/Resumo').then((m) => ({ default: m.Resumo })));
 const Usuarios = lazy(() => import('./pages/Usuarios').then((m) => ({ default: m.Usuarios })));
 const ImportarDados = lazy(() => import('./pages/ImportarDados').then((m) => ({ default: m.ImportarDados })));
+const Conhecimento = lazy(() => import('./pages/Conhecimento').then((m) => ({ default: m.Conhecimento })));
 
 function RotaProtegida({ children }: { children: React.ReactNode }) {
   const usuario = useStore((s) => s.usuario);
@@ -56,6 +58,7 @@ export function App() {
               }
             >
               <Route path="/" element={<Dashboard />} />
+              <Route path="/oportunidades" element={<Oportunidades />} />
               <Route path="/partes" element={<Partes />} />
               <Route path="/partes/:parteId" element={<ParteDetalhe />} />
               <Route path="/artistas" element={<Artistas />} />
@@ -71,6 +74,7 @@ export function App() {
               <Route path="/resumo" element={<Resumo />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/importar" element={<ImportarDados />} />
+              <Route path="/conhecimento" element={<Conhecimento />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

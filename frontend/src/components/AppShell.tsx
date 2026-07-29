@@ -2,6 +2,7 @@
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   BarChart3,
+  BookOpenCheck,
   Building2,
   CalendarRange,
   ChevronsUpDown,
@@ -18,6 +19,7 @@ import {
   RotateCcw,
   Search,
   SlidersHorizontal,
+  Sparkles,
   Trophy,
   Upload,
   Users,
@@ -41,6 +43,13 @@ const PERSONA_ROTULO: Record<string, string> = {
 
 const NAVEGACAO = [
   { grupo: 'Operar hoje', itens: [{ para: '/', rotulo: 'Central de operação', icone: LayoutDashboard }] },
+  {
+    grupo: 'Inteligência Cross',
+    itens: [
+      { para: '/oportunidades', rotulo: 'Oportunidades de IA', icone: Sparkles },
+      { para: '/conhecimento', rotulo: 'Relatórios & base RAG', icone: BookOpenCheck },
+    ],
+  },
   {
     grupo: 'Descobrir',
     itens: [
@@ -274,6 +283,8 @@ function SeletorCliente() {
 
 const TITULOS: Record<string, string> = {
   '/': 'Dashboard',
+  '/oportunidades': 'Oportunidades de parceria · IA',
+  '/conhecimento': 'Relatórios & base RAG',
   '/partes': 'Base de relacionamentos',
   '/artistas': 'Artistas & Big Moments',
   '/projetos': 'Projetos & briefings',

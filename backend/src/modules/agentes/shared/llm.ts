@@ -1,5 +1,6 @@
 import { env } from "../../../config/env";
 import { logger } from "../../../shared/logger";
+import { z } from "zod";
 
 // -----------------------------------------------------------------------------
 // Cliente LLM plugável — fundação compartilhada de todos os agentes de IA.
@@ -35,10 +36,16 @@ export interface OpcoesLLM<T> {
   temperatura?: number;
   /** Modelo específico; por padrão, env.openaiModel. */
   modelo?: string;
+  /** Schema Zod opcional para impor JSON estruturado no Ollama local. */
+  formatoJson?: z.ZodType;
+  /** Teto desta chamada. Omitido, usa env.llmTimeoutMs — nunca fica sem limite. */
+  timeoutMs?: number;
+  /** Força um provedor específico para um agente que não pode delegar a outro. */
+  provedor?: "ollama";
 }
 
 /** De onde veio a saída de um agente LLM: um provedor real ou o stub. */
-export type OrigemLLM = "openai" | "deepseek" | "mock";
+export type OrigemLLM = "openai" | "deepseek" | "ollama" | "mock" | "heuristica";
 
 export interface ResultadoLLM<T> {
   dados: T;
@@ -62,49 +69,96 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
     return { dados: opcoes.mock(opcoes.mensagens), origem: "mock" };
   }
 
-  const provedor = env.aiProvider;
-  const url = URLS_POR_PROVEDOR[provedor];
-  const modeloPadrao = provedor === "deepseek" ? env.deepseekModel : env.openaiModel;
-  const modelo = opcoes.modelo ?? modeloPadrao;
-  const corpo = {
-    model: modelo,
-    messages: opcoes.mensagens,
-    temperature: opcoes.temperatura ?? 0.2,
-    response_format: { type: "json_object" as const },
+  const provedor = opcoes.provedor ?? env.aiProvider;
+  const usarFallbackLocal = provedor === "ollama";
+  const fallbackLocal = (motivo: string, causa?: unknown): ResultadoLLM<T> => {
+    logger.warn({ causa, provedor, motivo }, "Ollama indisponível ou lento; agente seguirá com fallback local");
+    return { dados: opcoes.mock(opcoes.mensagens), origem: "mock" };
   };
+  const url = provedor === "ollama" ? `${env.ollamaBaseUrl}/api/chat` : URLS_POR_PROVEDOR[provedor];
+  const modeloPadrao = provedor === "ollama" ? env.ollamaModel : provedor === "deepseek" ? env.deepseekModel : env.openaiModel;
+  const modelo = opcoes.modelo ?? modeloPadrao;
+  const corpo = provedor === "ollama"
+    ? {
+        model: modelo,
+        messages: opcoes.mensagens,
+        stream: false,
+        think: false,
+          format: opcoes.formatoJson ? z.toJSONSchema(opcoes.formatoJson) : ("json" as const),
+        options: { temperature: opcoes.temperatura ?? 0.2 },
+      }
+    : {
+        model: modelo,
+        messages: opcoes.mensagens,
+        temperature: opcoes.temperatura ?? 0.2,
+        response_format: { type: "json_object" as const },
+      };
 
   let resposta: Response;
+  const controller = new AbortController();
+  // Sempre há um teto: sem ele, uma chamada travada pendura o pipeline inteiro
+  // sem erro nem rastro. Quem chama pode apertar o limite; nunca removê-lo.
+  const limiteMs = opcoes.timeoutMs ?? env.llmTimeoutMs;
+  const timeout = setTimeout(() => controller.abort(), limiteMs);
   try {
     resposta = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.llmApiKey}`,
+        ...(provedor === "ollama" || !env.llmApiKey ? {} : { Authorization: `Bearer ${env.llmApiKey}` }),
       },
       body: JSON.stringify(corpo),
+      signal: controller.signal,
     });
   } catch (causa) {
-    logger.error({ causa, provedor }, "Falha de rede ao chamar o provedor de IA");
-    throw new Error("Não foi possível contatar o provedor de IA.");
+    clearTimeout(timeout);
+    const expirou = controller.signal.aborted;
+    logger.error({ causa, provedor, limiteMs }, "Falha de rede ao chamar o provedor de IA");
+    if (usarFallbackLocal) return fallbackLocal(expirou ? "tempo limite" : "falha de rede", causa);
+    throw new Error(
+      expirou
+        ? `O provedor de IA (${provedor}/${modelo}) não respondeu em ${Math.round(limiteMs / 1000)}s.`
+        : "Não foi possível contatar o provedor de IA."
+    );
   }
 
-  if (!resposta.ok) {
-    const detalhe = await resposta.text().catch(() => "");
-    logger.error({ status: resposta.status, detalhe, provedor }, "Provedor de IA retornou erro");
-    throw new Error(`Provedor de IA retornou ${resposta.status}.`);
-  }
-
-  const json = (await resposta.json()) as {
+  // O timeout continua armado: o fetch resolve nos headers, e ler o corpo de um
+  // modelo lento pode demorar tanto quanto. Só desarmamos depois de ter o JSON.
+  type RespostaLLM = {
     choices?: { message?: { content?: string } }[];
+    message?: { content?: string };
     usage?: { prompt_tokens?: number; completion_tokens?: number };
+    prompt_eval_count?: number;
+    eval_count?: number;
   };
-  const conteudo = json.choices?.[0]?.message?.content;
-  if (!conteudo) throw new Error("Resposta da IA veio vazia.");
+  let json: RespostaLLM;
+  try {
+    if (!resposta.ok) {
+      const detalhe = await resposta.text().catch(() => "");
+      logger.error({ status: resposta.status, detalhe, provedor }, "Provedor de IA retornou erro");
+      if (usarFallbackLocal) return fallbackLocal(`HTTP ${resposta.status}`, detalhe);
+      throw new Error(`Provedor de IA retornou ${resposta.status}.`);
+    }
+    json = (await resposta.json()) as RespostaLLM;
+  } catch (causa) {
+    if (usarFallbackLocal) {
+      return fallbackLocal(controller.signal.aborted ? "tempo limite ao ler resposta" : "resposta inválida", causa);
+    }
+    throw causa;
+  } finally {
+    clearTimeout(timeout);
+  }
+  const conteudo = provedor === "ollama" ? json.message?.content : json.choices?.[0]?.message?.content;
+  if (!conteudo) {
+    if (usarFallbackLocal) return fallbackLocal("resposta vazia");
+    throw new Error("Resposta da IA veio vazia.");
+  }
 
   let dados: T;
   try {
     dados = JSON.parse(conteudo) as T;
   } catch {
+    if (usarFallbackLocal) return fallbackLocal("JSON inválido");
     throw new Error("Resposta da IA não é um JSON válido.");
   }
 
@@ -112,8 +166,8 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
     dados,
     origem: provedor,
     tokens: {
-      entrada: json.usage?.prompt_tokens ?? 0,
-      saida: json.usage?.completion_tokens ?? 0,
+      entrada: json.usage?.prompt_tokens ?? json.prompt_eval_count ?? 0,
+      saida: json.usage?.completion_tokens ?? json.eval_count ?? 0,
     },
   };
 }

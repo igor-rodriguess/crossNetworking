@@ -1,13 +1,28 @@
 import "dotenv/config";
 import { z } from "zod";
 
-// Chave de API opcional: uma variável PRESENTE mas VAZIA (ex.: `DEEPSEEK_API_KEY=`
-// no .env, aguardando ser preenchida) deve contar como ausente, não como erro.
-// Sem isto, `z.string().min(1).optional()` rejeita a string vazia e derruba o boot.
-const chaveOpcional = z.preprocess(
-  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-  z.string().min(1).optional(),
-);
+// Chave de API opcional. Duas robustezas contra erros comuns de `.env`:
+// (1) uma variável PRESENTE mas VAZIA (ex.: `DEEPSEEK_API_KEY=` aguardando ser
+//     preenchida) conta como ausente, não como erro — senão o boot cai no Zod;
+// (2) espaços em volta (ex.: `FIRECRAWL_API_KEY= fc-...`, um erro fácil ao
+//     colar) são removidos, para a chave não ir com espaço no header Bearer.
+const chaveOpcional = z.preprocess((v) => {
+  if (typeof v !== "string") return v;
+  const t = v.trim();
+  return t === "" ? undefined : t;
+}, z.string().min(1).optional());
+
+// `z.coerce.boolean()` usa Boolean(value), então a string "false" vira true.
+// O .env é textual; parseamos explicitamente os booleanos para preservar a
+// semântica esperada em desenvolvimento e produção.
+const booleanEnv = z.preprocess((v) => {
+  if (typeof v === "string") {
+    const t = v.trim().toLowerCase();
+    if (t === "true") return true;
+    if (t === "false") return false;
+  }
+  return v;
+}, z.boolean().default(false));
 
 const schema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL é obrigatória"),
@@ -15,14 +30,14 @@ const schema = z.object({
   // Verificação estrita do certificado TLS do banco. O pooler do Supabase usa
   // um certificado que pode não estar na cadeia padrão; deixe `false` (default)
   // com ele, ou forneça a CA e ligue `true` em produção própria.
-  DATABASE_SSL_STRICT: z.coerce.boolean().default(false),
+  DATABASE_SSL_STRICT: booleanEnv,
   PORT: z.coerce.number().int().positive().default(3000),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("info"),
   CORS_ORIGIN: z.string().default("*"),
-  TRUST_PROXY: z.coerce.boolean().default(false),
+  TRUST_PROXY: booleanEnv,
   REQUEST_BODY_LIMIT: z.string().regex(/^\d+(kb|mb)$/i, "use, por exemplo, 256kb ou 1mb").default("1mb"),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
@@ -42,18 +57,24 @@ const schema = z.object({
   // Provedor do LLM de raciocínio. DeepSeek é compatível com o formato da OpenAI
   // (mesmo /chat/completions, mesmo response_format json_object) e tem custo bem
   // menor — só muda a URL base, a chave e o modelo.
-  AI_PROVIDER: z.enum(["openai", "deepseek"]).default("deepseek"),
+  AI_PROVIDER: z.enum(["openai", "deepseek", "ollama"]).default("ollama"),
   OPENAI_API_KEY: chaveOpcional,
   OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
   DEEPSEEK_API_KEY: chaveOpcional,
   DEEPSEEK_MODEL: z.string().min(1).default("deepseek-chat"),
+  OLLAMA_BASE_URL: z.string().url().default("http://localhost:11434"),
+  OLLAMA_MODEL: z.string().min(1).default("qwen3:4b"),
   // Modelo de embeddings do RAG. text-embedding-3-small = 1536 dimensões
   // (deve casar com a dimensão da coluna vector no banco). Só a OpenAI oferece
   // embeddings; o DeepSeek não tem. Sem chave OpenAI, o RAG usa o stub.
   OPENAI_EMBED_MODEL: z.string().min(1).default("text-embedding-3-small"),
   FIRECRAWL_API_KEY: chaveOpcional,
+  // Teto de cada chamada de LLM. Sem ele, uma chamada travada pendura o
+  // pipeline inteiro sem erro. A plataforma prioriza uma sugestão curável em
+  // fallback a deixar a interface aguardando minutos pelo modelo local.
+  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(45_000),
   // Força o modo mock mesmo com chave presente (útil para testes/CI).
-  AI_MOCK: z.coerce.boolean().default(false),
+  AI_MOCK: booleanEnv,
 });
 
 const parsed = schema.safeParse(process.env);
@@ -109,12 +130,29 @@ export const env = {
   openaiModel: data.OPENAI_MODEL,
   deepseekApiKey: data.DEEPSEEK_API_KEY,
   deepseekModel: data.DEEPSEEK_MODEL,
+  ollamaBaseUrl: data.OLLAMA_BASE_URL.replace(/\/$/, ""),
+  ollamaModel: data.OLLAMA_MODEL,
   openaiEmbedModel: data.OPENAI_EMBED_MODEL,
   firecrawlApiKey: data.FIRECRAWL_API_KEY,
+  llmTimeoutMs: data.LLM_TIMEOUT_MS,
+  // AI_MOCK cru — força o stub em qualquer camada (busca/extração), útil em CI.
+  forcarMock: data.AI_MOCK,
   // Chave do provedor de LLM selecionado (a que o wrapper usa de fato).
-  llmApiKey: data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY,
-  // Modo mock quando AI_MOCK está ligado OU o provedor selecionado não tem chave.
-  aiMock: data.AI_MOCK || !(data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY),
+  llmApiKey:
+    data.AI_PROVIDER === "deepseek"
+      ? data.DEEPSEEK_API_KEY
+      : data.AI_PROVIDER === "openai"
+        ? data.OPENAI_API_KEY
+        : undefined,
+  // Modo mock do LLM: AI_MOCK ou provedor selecionado sem chave. (Não usamos mais
+  // LLM próprio — extração é via Firecrawl —, mas os agentes de reasoning que ainda
+  // referenciam isto seguem em stub por padrão, sem quebrar.)
+  aiMock:
+    data.AI_MOCK ||
+    (data.AI_PROVIDER !== "ollama" &&
+      !(data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY)),
+  // Extração via Firecrawl: real quando há chave Firecrawl e AI_MOCK está off.
+  extracaoMock: data.AI_MOCK || !data.FIRECRAWL_API_KEY,
   // Embeddings do RAG só são reais com chave OpenAI (DeepSeek não tem embeddings).
   embeddingMock: data.AI_MOCK || !data.OPENAI_API_KEY,
   isTest,

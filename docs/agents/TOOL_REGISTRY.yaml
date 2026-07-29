@@ -1,0 +1,410 @@
+version: "1.0"
+
+metadata:
+  source_of_truth: "Registro operacional baseado no código, schemas, migrations e configurações confirmados no repositório."
+  repository: "Plataforma Cross"
+  last_reviewed: "2026-07-28"
+  status_values:
+    implemented: "Confirmado por código, configuração ou migration."
+    planned: "Previsto, mas sem implementação confirmada."
+    unverified: "Há sinais parciais, mas a integração completa não foi confirmada."
+
+default_policy:
+  internal_sources_first: true
+  cache_before_external_call: true
+  external_content_is_untrusted: true
+  evidence_required_for_factual_claims: true
+  secrets_allowed_in_prompt: false
+  fallback_order:
+    - relational_database
+    - collection_cache
+    - decision_memory
+    - knowledge_rag
+    - searxng
+    - duckduckgo_html
+    - http_extractor
+    - trafilatura
+    - crawl4ai
+    - firecrawl
+    - llm_reasoning
+
+tools:
+  relational_database:
+    category: source_of_truth
+    status: implemented
+    priority: 1
+    purpose: "Fonte operacional validada para entidades, projetos, candidaturas, metodologia, decisões e auditoria."
+    package_or_service: "PostgreSQL via pg"
+    implementation_evidence: "backend/database/migrations; backend/src/shared/db.ts"
+    configuration:
+      connection_file: "backend/src/config/database.ts"
+      application_role: "cross_app"
+    environment_variables: [DATABASE_URL, MIGRATION_DATABASE_URL, DATABASE_SSL_STRICT]
+    allowed_agents: [entity_resolver, human_gate, knowledge_rag, all_authenticated_readers]
+    limits: { connection_timeout_seconds: 10, max_rows: null }
+    fallback: "Nenhum fallback de escrita; falha de leitura deve ser controlada."
+    restrictions: ["Não tratar rascunho como verdade.", "Escrita de domínio gerada por IA depende do Human Gate.", "Não expor credenciais ou dados pessoais desnecessários."]
+    data_produced: ["dados de domínio validados", "decisões e vínculos"]
+    data_persisted: ["schemas relacionais migrados", "auditoria"]
+    risks: ["Contaminação do conhecimento global por dado não validado."]
+
+  vector_database:
+    category: vector_store
+    status: implemented
+    priority: 2
+    purpose: "Armazenar e recuperar embeddings do Knowledge RAG."
+    package_or_service: "pgvector no PostgreSQL"
+    implementation_evidence: "backend/database/migrations/035_rag_embeddings.sql; 036_rag_index_hnsw.sql"
+    configuration: { table: "cross_ai.documento_rag", dimension: 1536, similarity: "cosine via <=>" }
+    environment_variables: []
+    allowed_agents: [knowledge_rag, information_extractor, crossability_reasoning, recommendation]
+    limits: { max_chunks_per_ingestion: 100, max_results_per_query: 20 }
+    fallback: "Embedding mock determinístico."
+    restrictions: ["Não retornar o corpus completo.", "Respeitar versão da metodologia."]
+    data_produced: ["trechos relevantes", "similaridade"]
+    data_persisted: ["conteúdo, embedding, origem, referência e metadados"]
+    risks: ["A base pode estar vazia até a ingestão dos documentos aprovados."]
+
+  knowledge_rag:
+    category: internal_knowledge
+    status: implemented
+    priority: 5
+    purpose: "Ingerir trechos e recuperar conhecimento semântico interno."
+    package_or_service: "backend/src/modules/agentes/rag.service.ts"
+    implementation_evidence: "backend/src/modules/agentes/rag.service.ts; rag.repository.ts; agentes.routes.ts"
+    configuration:
+      endpoints: { ingest: "/v1/agentes/rag/ingerir", search: "/v1/agentes/rag/buscar" }
+      origins: [paper, perfil_parte, decisao, coleta_web, manual]
+    environment_variables: [OPENAI_API_KEY, OPENAI_EMBED_MODEL, AI_MOCK]
+    allowed_agents: [partner_discovery, market_intelligence, information_extractor, crossability_reasoning, recommendation, human_gate]
+    limits: { max_chunks_per_ingestion: 100, max_results_per_query: 20 }
+    fallback: "Embedding mock determinístico de 1536 dimensões."
+    restrictions: ["Recuperar apenas contexto necessário.", "Conhecimento validado é global; estado de execução não é."]
+    data_produced: ["trechos relevantes", "origem do embedding", "similaridade"]
+    data_persisted: ["cross_ai.documento_rag"]
+    risks: ["Memória de decisões específica não foi confirmada.", "Tabela estava vazia na verificação anterior."]
+
+  collection_cache:
+    category: cache
+    status: planned
+    priority: 3
+    purpose: "Evitar coletas externas repetidas e reduzir latência/custo."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [source_collector, information_extractor]
+    limits: { ttl_seconds: null, max_entries: null }
+    fallback: "Chamada externa com timeout e retry limitado."
+    restrictions: ["Não reutilizar conteúdo expirado como evidência atual sem sinalização."]
+    data_produced: ["resultado cacheado de busca ou página"]
+    data_persisted: []
+    risks: ["Reexecuções podem repetir chamadas e consumir créditos."]
+
+  searxng:
+    category: search
+    status: planned
+    priority: 10
+    purpose: "Metabusca self-hosted principal para descoberta de URLs."
+    package_or_service: "SearXNG"
+    implementation_evidence: null
+    configuration: { base_url_env: null, availability_check: null }
+    environment_variables: []
+    allowed_agents: [search_planning, source_collector]
+    limits: { timeout_seconds: 10, max_retries: 2, max_results_per_query: 8 }
+    fallback: "duckduckgo_html"
+    restrictions: ["Snippets não são evidência final.", "Aplicar cache, rate limit e circuit breaker."]
+    data_produced: ["URLs, títulos e descrições"]
+    data_persisted: []
+    risks: ["Nenhum endpoint ou configuração foi confirmado."]
+
+  ddgs:
+    category: search
+    status: unverified
+    priority: 20
+    purpose: "Busca complementar ou fallback gratuito."
+    package_or_service: "Pacote Python ddgs não encontrado; há cliente DuckDuckGo próprio."
+    implementation_evidence: "backend/src/modules/agentes/shared/web-search.ts"
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [source_collector]
+    limits: { timeout_seconds: 10, max_retries: 2 }
+    fallback: "duckduckgo_html"
+    restrictions: ["Não depender exclusivamente do provedor.", "Tratar bloqueios e rate limits."]
+    data_produced: []
+    data_persisted: []
+    risks: ["DDGS não corresponde a uma dependência confirmada no package.json."]
+
+  duckduckgo_html:
+    category: search
+    status: implemented
+    priority: 20
+    purpose: "Descoberta gratuita de URLs no Source Collector."
+    package_or_service: "fetch nativo do Node + parser HTML próprio"
+    implementation_evidence: "backend/src/modules/agentes/shared/web-search.ts"
+    configuration: { base_url: "https://html.duckduckgo.com/html/", method: POST }
+    environment_variables: [AI_MOCK]
+    allowed_agents: [source_collector, source_credibility, fact_verifier]
+    limits: { default_results_per_query: 3, schema_max_results_per_query: 10, timeout_seconds: null, max_retries: null }
+    fallback: "Mock determinístico quando o modo mock está ativo."
+    restrictions: ["Snippets não são evidência final.", "HTML do provedor não é API estável garantida."]
+    data_produced: ["título", "URL", "trecho", "domínio/origem"]
+    data_persisted: ["saída em cross_ai.execucao_agente"]
+    risks: ["Bloqueio, rate limit, HTML alterado e ausência de timeout confirmado."]
+
+  http_extractor:
+    category: extraction
+    status: unverified
+    priority: 10
+    purpose: "Baixar páginas simples antes de extratores especializados."
+    package_or_service: "fetch nativo usado em integrações; extrator genérico não confirmado"
+    implementation_evidence: "backend/src/modules/agentes/shared/*.ts"
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [information_extractor]
+    limits: { timeout_seconds: null, max_response_bytes: null, max_redirects: null }
+    fallback: "firecrawl"
+    restrictions: ["Validar URL, esquema, status, tipo, tamanho e redirects."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Não há componente local completo confirmado para SSRF e limites de download."]
+
+  trafilatura:
+    category: extraction
+    status: planned
+    priority: 20
+    purpose: "Extrair conteúdo principal de HTML estático e remover ruído."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [information_extractor]
+    limits: { timeout_seconds: 15, max_retries: 2 }
+    fallback: "firecrawl"
+    restrictions: ["Não enviar HTML bruto ao LLM."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhuma dependência ou módulo foi encontrado."]
+
+  beautifulsoup:
+    category: extraction
+    status: planned
+    priority: 30
+    purpose: "Parsing determinístico e seleção de elementos HTML."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [information_extractor]
+    limits: {}
+    fallback: "trafilatura"
+    restrictions: ["Não usar como extrator principal de texto quando houver solução especializada."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhuma dependência ou módulo foi encontrado."]
+
+  crawl4ai:
+    category: browser_extraction
+    status: planned
+    priority: 40
+    purpose: "Extração controlada de páginas dinâmicas com JavaScript."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [source_collector, information_extractor]
+    limits: { timeout_seconds: 30, max_pages_per_execution: 5 }
+    fallback: "firecrawl"
+    restrictions: ["Acionar apenas quando HTTP e extratores locais não forem suficientes."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhum navegador ou pacote Crawl4AI foi encontrado."]
+
+  firecrawl:
+    category: external_extraction
+    status: implemented
+    priority: 50
+    purpose: "Scraping e extração Markdown/JSON de páginas conhecidas."
+    package_or_service: "API Firecrawl via fetch"
+    implementation_evidence: "backend/src/modules/agentes/shared/firecrawl.ts"
+    configuration: { base_url_in_code: "https://api.firecrawl.dev/v1/scrape", formats_in_code: [markdown, json] }
+    environment_variables: [FIRECRAWL_API_KEY, AI_MOCK]
+    allowed_agents: [information_extractor]
+    limits: { max_urls_from_extractor: 20, default_selected_urls: 10, timeout_seconds: null, max_retries: null, max_depth: null }
+    fallback: "Mock determinístico sem chave ou em modo mock."
+    restrictions: ["Usar como fallback.", "Não enviar segredos.", "Registrar URL, duração e status sem registrar a chave.", "Validar compatibilidade do endpoint antes de produção."]
+    data_produced: ["Markdown", "perfil estruturado"]
+    data_persisted: ["saída na auditoria de execução quando chamado pelo serviço"]
+    risks: ["Custo, créditos, latência, dependência externa e modo mock escondendo falhas reais."]
+
+  llm_reasoning:
+    category: llm
+    status: implemented
+    priority: 60
+    purpose: "Planejamento, extração estruturada e raciocínio Crossability em JSON."
+    package_or_service: "REST via fetch; Ollama local (/api/chat), OpenAI Chat Completions ou DeepSeek Chat Completions"
+    implementation_evidence: "backend/src/modules/agentes/shared/llm.ts"
+    configuration:
+      provider_urls: { ollama: "http://localhost:11434/api/chat", openai: "https://api.openai.com/v1/chat/completions", deepseek: "https://api.deepseek.com/chat/completions" }
+      response_format: json_object
+    environment_variables: [AI_PROVIDER, OLLAMA_BASE_URL, OLLAMA_MODEL, OPENAI_API_KEY, OPENAI_MODEL, DEEPSEEK_API_KEY, DEEPSEEK_MODEL, AI_MOCK]
+    allowed_agents: [search_planning, information_extractor, crossability_reasoning]
+    limits: { max_iterations_per_agent: 4, timeout_seconds: null, max_tokens: null }
+    fallback: "Stub determinístico e validação Zod."
+    restrictions: ["Enviar contexto mínimo e limpo.", "Validar sempre com schema.", "Não enviar segredos."]
+    data_produced: ["plano", "perfis", "análise Crossability"]
+    data_persisted: ["entrada, saída, origem, tokens e duração em cross_ai.execucao_agente"]
+    risks: ["Custo, latência e JSON vazio, truncado ou inválido."]
+
+  langgraph_orchestrator:
+    category: orchestration
+    status: implemented
+    priority: 10
+    purpose: "Coordenar o estado e a ordem dos agentes de tarefa com limites e parada por evidência insuficiente."
+    package_or_service: "Python LangGraph worker"
+    implementation_evidence: "orchestrator/graph.py; orchestrator/main.py"
+    configuration: { backend_url: "BACKEND_URL", access_token: "CROSS_BACKEND_TOKEN" }
+    environment_variables: [BACKEND_URL, CROSS_BACKEND_TOKEN]
+    allowed_agents: [partner_discovery, market_intelligence, all_agents]
+    limits: { max_candidates: 10, max_queries: 10, timeout_seconds: 180 }
+    fallback: "Backend mantém as rotas e o pipeline TypeScript existentes."
+    restrictions: ["Nunca executar Human Gate automaticamente.", "Manter saída como rascunho.", "Não persistir segredo no estado do grafo."]
+    data_produced: ["estado do projeto", "etapas", "warnings", "resultado do pipeline"]
+    data_persisted: ["auditoria das etapas pelo backend"]
+    risks: ["Latência de inferência local e indisponibilidade do backend ou Ollama."]
+
+  embeddings:
+    category: embeddings
+    status: implemented
+    priority: 55
+    purpose: "Gerar vetores para ingestão e busca RAG."
+    package_or_service: "OpenAI Embeddings via fetch; mock local"
+    implementation_evidence: "backend/src/modules/agentes/shared/embeddings.ts"
+    configuration: { endpoint_in_code: "https://api.openai.com/v1/embeddings", dimension: 1536 }
+    environment_variables: [OPENAI_API_KEY, OPENAI_EMBED_MODEL, AI_MOCK]
+    allowed_agents: [knowledge_rag]
+    limits: { max_chunks_per_ingestion: 100, timeout_seconds: null }
+    fallback: "Hashing determinístico de palavras."
+    restrictions: ["Dimensão deve coincidir com vector(1536)."]
+    data_produced: ["vetores de embedding"]
+    data_persisted: ["embedding e origem em cross_ai.documento_rag"]
+    risks: ["Busca mock não representa qualidade semântica de produção."]
+
+  reranker:
+    category: ranking
+    status: planned
+    priority: 35
+    purpose: "Reordenar candidatos e evidências antes do contexto do LLM."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [source_collector, crossability_reasoning, recommendation]
+    limits: { max_candidates: null }
+    fallback: "Ordenação determinística do Recommendation e similaridade pgvector."
+    restrictions: ["Não substituir validação humana."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Ranking pode carregar ruído sem reranker dedicado."]
+
+  observability:
+    category: observability
+    status: implemented
+    priority: 5
+    purpose: "Auditar execuções, erros, tokens, duração, métricas HTTP e saúde do banco."
+    package_or_service: "Pino, pino-http e scripts db-health"
+    implementation_evidence: "backend/src/shared/logger.ts; metrics.ts; scripts/db-health.ts"
+    configuration: { metrics_route: "/metrics", audit_table: "cross_ai.execucao_agente" }
+    environment_variables: [LOG_LEVEL, METRICS_TOKEN]
+    allowed_agents: [all_agents]
+    limits: { timeout_seconds: null }
+    fallback: "Logs de erro da aplicação."
+    restrictions: ["Não registrar tokens, chaves, URLs sensíveis ou dados pessoais."]
+    data_produced: ["métricas Prometheus agregadas", "eventos de auditoria"]
+    data_persisted: ["auditoria no PostgreSQL"]
+    risks: ["Envelope padrão completo ainda não é imposto por schema único."]
+
+  api_security:
+    category: platform
+    status: implemented
+    priority: 5
+    purpose: "Autenticação, autorização, rate limit, CORS, Helmet e limite de corpo."
+    package_or_service: "Express, helmet, cors, express-rate-limit"
+    implementation_evidence: "backend/src/app.ts; backend/src/modules/agentes/agentes.routes.ts"
+    configuration: { route_prefix: "/v1/agentes", execution_roles: [estrategista, coordenador, administrador], human_gate_roles: [coordenador, administrador] }
+    environment_variables: [JWT_SECRET, ACCESS_TOKEN_TTL_MIN, REFRESH_TOKEN_TTL_DAYS, CORS_ORIGIN, TRUST_PROXY, REQUEST_BODY_LIMIT, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS]
+    allowed_agents: [all_authenticated_agents]
+    limits: { default_body_limit: "1mb", default_rate_limit_max: 300, default_rate_limit_window_ms: 60000 }
+    fallback: "Rejeição HTTP e middleware de erro."
+    restrictions: ["Executar agentes exige papel autorizado.", "Human Gate exige coordenador ou administrador."]
+    data_produced: ["respostas HTTP autenticadas"]
+    data_persisted: []
+    risks: ["Revisar parsing de strings booleanas antes de confiar em valores false."]
+
+  rss:
+    category: structured_sources
+    status: planned
+    priority: 15
+    purpose: "Ingestão recorrente de notícias, eventos e publicações estruturadas."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [source_collector, market_intelligence]
+    limits: { max_feeds: null, timeout_seconds: 15 }
+    fallback: "Busca externa configurada."
+    restrictions: ["Preferir fontes licenciadas e APIs documentadas."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhum leitor RSS foi confirmado."]
+
+  queues:
+    category: orchestration
+    status: planned
+    priority: 70
+    purpose: "Executar pipelines longos, retries e paralelismo fora do request HTTP."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [partner_discovery, market_intelligence]
+    limits: {}
+    fallback: "Execução síncrona pelas rotas Express existentes."
+    restrictions: ["Exigir idempotência e auditoria antes de criar jobs."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhuma fila ou worker foi encontrado."]
+
+  storage:
+    category: object_storage
+    status: planned
+    priority: 65
+    purpose: "Armazenar documentos grandes, snapshots e artefatos fora do contexto do LLM."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [information_extractor, human_gate]
+    limits: {}
+    fallback: "Banco relacional para os dados atualmente suportados."
+    restrictions: ["Não armazenar segredos ou dados pessoais sem necessidade."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Nenhum storage dedicado foi confirmado."]
+
+  decision_memory:
+    category: decision_memory
+    status: planned
+    priority: 6
+    purpose: "Registrar recomendações aceitas, recusadas e seus motivos."
+    package_or_service: null
+    implementation_evidence: null
+    configuration: {}
+    environment_variables: []
+    allowed_agents: [recommendation, crossability_reasoning, feedback_learning_loop]
+    limits: {}
+    fallback: "Auditoria de execução, que não substitui memória de decisão."
+    restrictions: ["Somente decisões humanas ou estados validados alimentam conhecimento global."]
+    data_produced: []
+    data_persisted: []
+    risks: ["Feedback & Learning Loop e memória específica não foram implementados."]

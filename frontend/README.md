@@ -43,6 +43,7 @@ Login: qualquer nome/e-mail/senha em formato válido (autenticação mockada).
 |---|---|---|
 | `/login` | Autenticação (mock) | Split-screen com a marca; RF001 simulado |
 | `/` | Dashboard | Visão global: saudação, KPIs (projetos em andamento, em negociação, parcerias ativas, valor potencial do pipeline), **funil de projetos por fase do ciclo**, projetos e atividades recentes |
+| `/oportunidades` | **Oportunidades de parceria · IA** | Radar de sugestões com fit Crossability, confiança, fontes consideradas, racional e briefing inicial; toda saída permanece sujeita ao Human Gate |
 | `/partes` | **Base de relacionamentos** | Todas as Partes do ecossistema (organizações e pessoas — RF004/RF005), com visões separadas: **clientes (quem busca a Cross)** × **marcas & organizações (parceiros)** × pessoas & talentos |
 | `/partes/:id` | Detalhe da Parte | Perfil estratégico, praças, ativos, canais de mídia, contatos (RF006–RF013) e **histórico transversal**: candidaturas e parcerias em todos os clientes |
 | `/projetos` | **Base global de projetos** | Todos os projetos de todos os clientes (a memória da operação): tabela com cliente, **fase atual do ciclo**, status, valor potencial, responsáveis e abas de filtro |

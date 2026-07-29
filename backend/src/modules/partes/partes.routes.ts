@@ -15,7 +15,10 @@ import {
 
 export const partesRouter = Router();
 
-const escrita = autorizar("estrategista", "administrador");
+// A base de relacionamentos é operacional: qualquer persona interna pode
+// corrigir cadastros, inclusive removê-los da base ativa. A trilha de auditoria
+// e o arquivamento lógico preservam a segurança do histórico.
+const escrita = autorizar("estrategista", "gestor_contas", "coordenador", "administrador");
 const leitura = autorizar();
 
 // Partes — RF004/RF005/RF008

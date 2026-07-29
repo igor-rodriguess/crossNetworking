@@ -24,7 +24,9 @@ import {
 } from "./inteligencia.schema";
 
 export const inteligenciaRouter = Router();
-const escrita = autorizar("estrategista", "coordenador", "administrador");
+// Gestores de conta também alimentam e corrigem os dados estratégicos das
+// marcas que acompanham. Mantemos as demais regras de escopo na autenticação.
+const escrita = autorizar("estrategista", "gestor_contas", "coordenador", "administrador");
 const leitura = autorizar();
 
 // RF010 · Perfil estratégico versionado

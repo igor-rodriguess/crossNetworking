@@ -13,10 +13,11 @@ healthRouter.get("/health", (_req, res) => {
 
 healthRouter.get("/health/db", async (_req, res) => {
   try {
-    const { rows } = await pool.query(
-      "SELECT COUNT(*)::int AS migrations FROM public.schema_migrations"
-    );
-    res.json({ status: "ok", migrationsAplicadas: rows[0].migrations });
+    // A conta da aplicação tem privilégio mínimo e não lê o histórico de
+    // migrations. A sonda deve verificar conectividade real, não depender de
+    // uma tabela administrativa que só o executor de migrations pode acessar.
+    await pool.query("SELECT 1");
+    res.json({ status: "ok" });
   } catch (err) {
     res.status(503).json({
       status: "erro",

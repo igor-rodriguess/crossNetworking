@@ -22,7 +22,7 @@ Descobrir ──> Estruturar ──> Avaliar ──> Decidir ──> Executar �
 | Estruturar | Transformar demanda em projeto, briefing e frentes | RF016–RF026 | Projetos, detalhes e funil existem | central de cliente/contrato e criação guiada |
 | Avaliar & decidir | Comparar candidatos, justificar score, validar Paper e aprovar | RF027–RF033 | Crossability, Score Card, ranking e funil existem | decisão guiada e visibilidade de bloqueios RN022–RN025 |
 | Executar & medir | Formalizar, entregar, acompanhar, medir e encerrar | RF034–RF047 | Cronograma e detalhe de parceria existem | visão de parceria única: contrato, plano, pendências, indicadores e ROI |
-| Governar | Evidências, auditoria, importação e IA assistida | RF001–RF003, RF048–RF051 | ainda não possui telas dedicadas | administração, trilha e central de importações |
+| Governar | Evidências, auditoria, importação e IA assistida | RF001–RF003, RF048–RF051 | Oportunidades de IA cobre a leitura inicial; auditoria completa ainda é backend | administração, trilha e central de importações |
 
 ## Navegação proposta
 
@@ -32,6 +32,12 @@ Descobrir ──> Estruturar ──> Avaliar ──> Decidir ──> Executar �
 4. **Avaliar & decidir** — critérios, ranking, Crossability e Score Card.
 5. **Executar & medir** — cronograma, parceria, resultados e resumo.
 6. **Governar** — pessoas usuárias, auditoria, evidências, importações e IA.
+
+O espaço **Oportunidades de IA** (`/oportunidades`) é a vitrine de rascunhos do
+Partner Discovery: apresenta o par sugerido, a explicação das seis dimensões da
+Crossability, as fontes consideradas e um briefing inicial. Ele não promove a
+saída para a base nem para o funil; essa decisão continua protegida pelo Human
+Gate e pela curadoria da equipe.
 
 ## Princípios de interface
 

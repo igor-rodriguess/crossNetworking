@@ -244,12 +244,22 @@ export type EntidadesSaida = z.infer<typeof entidadesSaidaSchema>;
 export const extrairInformacoesSchema = z
   .object({
     // Texto(s) brutos a estruturar. Pode vir dos trechos coletados.
-    conteudos: z.array(z.string().trim().min(1)).min(1),
+    conteudos: z.array(z.string().trim().min(1)).min(1).optional(),
+    // URLs para buscar o conteúdo completo (via Firecrawl) antes de extrair.
+    urls: z.array(z.string().trim().url()).min(1).optional(),
+    // Encadeamento direto com a saída do Source Collector (extrai as URLs dela).
+    coleta: coletaFontesSaidaSchema.optional(),
+    // Quantas URLs (de 'urls' + 'coleta') buscar conteúdo, no máximo.
+    limite_urls: z.number().int().min(1).max(20).default(10),
     // Foco opcional: o que se quer extrair (ex.: "potencial de patrocínio").
     foco: z.string().trim().max(500).optional(),
     projeto_id: uuid.optional(),
     frente_id: uuid.optional(),
-  });
+  })
+  .refine(
+    (o) => (o.conteudos?.length ?? 0) + (o.urls?.length ?? 0) + (o.coleta?.coletas.length ?? 0) > 0,
+    { message: "Informe 'conteudos', 'urls' ou 'coleta'." }
+  );
 export type ExtrairInformacoesInput = z.infer<typeof extrairInformacoesSchema>;
 
 export const perfilExtraidoSchema = z.object({
@@ -267,6 +277,13 @@ export const perfilExtraidoSchema = z.object({
   sinais_parceria: z.array(z.string()),
   // Confiança da extração (0..100) — o quanto o conteúdo sustentou os campos.
   confianca: z.number().int().min(0).max(100),
+  // Fontes externas e a evidência textual específica que sustentam este perfil.
+  // Assim, uma matéria não vira uma candidata sem ser possível rastrear de onde
+  // veio o nome e por que ela foi associada à oportunidade.
+  fontes: z.array(z.object({
+    url: z.string().url(),
+    evidencia: z.string().min(1).max(700),
+  })).max(5).optional(),
 });
 
 export const extracaoSaidaSchema = z.object({
@@ -304,6 +321,8 @@ export const raciocinarCrossabilitySchema = z.object({
   objetivo: z.string().trim().max(2000).optional(),
   // Perfil estruturado do parceiro (idealmente vindo do Extractor).
   perfil_parceiro: perfilExtraidoSchema.partial().optional(),
+  // Trechos recuperados do RAG. São contexto de apoio, nunca fatos novos por si só.
+  contexto_rag: z.array(z.string().trim().min(1)).max(5).optional(),
   candidatura_id: uuid.optional(),
   projeto_id: uuid.optional(),
   frente_id: uuid.optional(),
@@ -359,6 +378,195 @@ export const recomendacaoSaidaSchema = z.object({
 });
 export type RecomendacaoSaida = z.infer<typeof recomendacaoSaidaSchema>;
 
+// --- Pipelines de tarefa ----------------------------------------------------
+//
+// Entradas dos dois agentes de tarefa que consolidam os componentes
+// compartilhados. Os limites ficam na entrada para impedir que uma execução
+// cresça sem controle de consultas, páginas, candidatos ou evidências.
+
+const pipelineBaseSchema = z.object({
+  cliente: z.string().trim().min(1, "cliente é obrigatório").max(300),
+  objetivo: z.string().trim().min(1, "objetivo é obrigatório").max(2000),
+  contexto: z.string().trim().max(4000).optional(),
+  limite_consultas: z.number().int().min(1).max(10).default(5),
+  limite_resultados_por_consulta: z.number().int().min(1).max(10).default(2),
+  limite_urls: z.number().int().min(1).max(10).default(5),
+  limite_candidatos: z.number().int().min(1).max(10).default(5),
+  // Afirmações manuais podem ser verificadas quando o chamador já possui
+  // claims; o pipeline não transforma snippets em fatos automaticamente.
+  afirmacoes: z.array(afirmacaoSchema).max(20).optional(),
+  projeto_id: uuid.optional(),
+  frente_id: uuid.optional(),
+});
+
+export const executarPartnerDiscoverySchema = pipelineBaseSchema;
+export type ExecutarPartnerDiscoveryInput = z.infer<typeof executarPartnerDiscoverySchema>;
+
+// A tela de Oportunidades usa a mesma entrada do Partner Discovery. A diferença
+// é que, além da auditoria do pipeline, a saída é materializada como rascunhos
+// de oportunidades para leitura e curadoria humana.
+export const gerarOportunidadesSchema = pipelineBaseSchema;
+export type GerarOportunidadesInput = z.infer<typeof gerarOportunidadesSchema>;
+
+export const executarMarketIntelligenceSchema = pipelineBaseSchema.extend({
+  entidade_foco: z.string().trim().max(300).optional(),
+});
+export type ExecutarMarketIntelligenceInput = z.infer<typeof executarMarketIntelligenceSchema>;
+
+export const pipelineEtapaSchema = z.object({
+  nome: z.string(),
+  status: z.enum(["sucesso", "parcial", "ignorada"]),
+  execucao_id: z.string().optional(),
+  origem: z.string().optional(),
+  observacao: z.string().optional(),
+});
+
+export const pipelineAnaliseSchema = z.object({
+  parceiro: z.string(),
+  execucao_id: z.string().optional(),
+  origem: z.string(),
+  analise: analiseCrossabilitySchema,
+});
+
+const pipelineRagSaidaSchema = z.object({
+  total: z.number().int(),
+  embedding_origem: z.enum(["openai", "mock"]),
+  trechos: z.array(
+    z.object({
+      id: z.string(),
+      origem: z.string(),
+      conteudo: z.string(),
+      similaridade: z.number(),
+      metadados: z.unknown(),
+    })
+  ),
+});
+
+export const pipelineSaidaSchema = z.object({
+  pipeline: z.enum(["partner_discovery", "market_intelligence"]),
+  status: z.enum(["sucesso", "parcial", "insufficient_evidence"]),
+  execucao_id: z.string(),
+  etapas: z.array(pipelineEtapaSchema),
+  plano: planoPesquisaSchema,
+  coleta: coletaFontesSaidaSchema,
+  credibilidade: credibilidadeSaidaSchema,
+  verificacao: verificacaoSaidaSchema.nullable(),
+  rag: pipelineRagSaidaSchema.nullable(),
+  entidades: entidadesSaidaSchema.nullable(),
+  extracao: extracaoSaidaSchema,
+  analises: z.array(pipelineAnaliseSchema),
+  recomendacao: recomendacaoSaidaSchema.nullable(),
+  observacoes: z.array(z.string()),
+});
+export type PipelineSaida = z.infer<typeof pipelineSaidaSchema>;
+
+// Contrato interno entre o worker LangGraph e a API para persistir a projeção
+// de oportunidades. Não é um Human Gate: apenas guarda o rascunho com suas
+// evidências para a tela consultar depois.
+export const persistirOportunidadesSchema = z.object({
+  pipeline: z.enum(["partner_discovery", "market_intelligence"]),
+  execucao_pipeline_id: uuid.optional(),
+  cliente: z.string().trim().min(1).max(300),
+  objetivo: z.string().trim().min(1).max(2000),
+  projeto_id: uuid.optional(),
+  frente_id: uuid.optional(),
+  analises: z.array(pipelineAnaliseSchema),
+  coleta: coletaFontesSaidaSchema.nullable().optional(),
+  credibilidade: credibilidadeSaidaSchema.nullable().optional(),
+  rag: pipelineRagSaidaSchema.nullable().optional(),
+  extracao: extracaoSaidaSchema.optional(),
+});
+export type PersistirOportunidadesInput = z.infer<typeof persistirOportunidadesSchema>;
+
+// --- Importação assistida de CSV --------------------------------------------
+// A IA só sugere o mapeamento; a confirmação explícita do usuário é obrigatória
+// antes de qualquer escrita. As entidades abaixo são as três cargas iniciais
+// que têm contratos completos e persistidos na plataforma.
+export const entidadeImportacaoCsvSchema = z.enum([
+  "partes", "clientes", "projetos", "frentes", "candidaturas", "ativos", "canais", "perfis_estrategicos",
+]);
+export type EntidadeImportacaoCsv = z.infer<typeof entidadeImportacaoCsvSchema>;
+
+export const camposImportacaoCsvPorEntidade = {
+  partes: [
+    "nome", "tipo", "categoria", "papel", "razao_social", "cnpj", "site",
+    "nome_artistico", "cpf", "nacionalidade", "contato_nome", "contato_cargo",
+    "contato_email", "contato_telefone",
+  ],
+  clientes: ["nome", "segmento", "site", "inicio_relacionamento", "observacoes"],
+  projetos: [
+    "cliente", "nome", "objetivo", "descricao", "produto", "data_inicio",
+    "data_previsao_fim", "prioridade", "status",
+  ],
+  frentes: [
+    "cliente", "projeto", "nome", "objetivo", "descricao", "categoria", "data_abertura", "data_encerramento", "status",
+  ],
+  candidaturas: [
+    "cliente", "projeto", "frente", "parte", "interesse_cliente", "interesse_parceiro", "prioridade", "disponibilidade_confirmada", "observacoes", "status",
+  ],
+  ativos: ["parte", "nome", "categoria", "descricao", "valor_referencia", "moeda"],
+  canais: ["parte", "plataforma", "identificador", "url"],
+  perfis_estrategicos: ["parte", "resumo", "posicionamento", "objetivos", "desafios"],
+} as const;
+
+const campoImportacaoCsvSchema = z.enum([
+  "nome", "tipo", "categoria", "papel", "razao_social", "cnpj", "site",
+  "nome_artistico", "cpf", "nacionalidade", "contato_nome", "contato_cargo",
+  "contato_email", "contato_telefone", "segmento", "inicio_relacionamento",
+  "observacoes", "cliente", "objetivo", "descricao", "produto", "data_inicio",
+  "data_previsao_fim", "prioridade", "status", "projeto", "frente", "parte",
+  "data_abertura", "data_encerramento", "interesse_cliente", "interesse_parceiro",
+  "disponibilidade_confirmada", "valor_referencia", "moeda", "plataforma",
+  "identificador", "url", "resumo", "posicionamento", "objetivos", "desafios",
+]);
+
+const linhaCsvSchema = z.record(z.string().min(1), z.string().max(20_000));
+
+export const analisarImportacaoCsvSchema = z.object({
+  entidade: entidadeImportacaoCsvSchema,
+  cabecalhos: z.array(z.string().trim().min(1).max(160)).min(1).max(80),
+  amostra: z.array(linhaCsvSchema).min(1).max(20),
+});
+export type AnalisarImportacaoCsvInput = z.infer<typeof analisarImportacaoCsvSchema>;
+
+export const mapeamentoImportacaoCsvSaidaSchema = z.object({
+  campos: z.array(z.object({
+    campo_destino: campoImportacaoCsvSchema,
+    coluna_origem: z.string().min(1),
+    confianca: z.enum(["alta", "media", "baixa"]),
+  })).max(30),
+  observacoes: z.array(z.string()).max(20),
+});
+export type MapeamentoImportacaoCsvSaida = z.infer<typeof mapeamentoImportacaoCsvSaidaSchema>;
+
+export const confirmarImportacaoCsvSchema = z.object({
+  entidade: entidadeImportacaoCsvSchema,
+  cabecalhos: z.array(z.string().trim().min(1).max(160)).min(1).max(80),
+  linhas: z.array(linhaCsvSchema).min(1).max(1_000),
+  mapeamento: mapeamentoImportacaoCsvSaidaSchema,
+});
+export type ConfirmarImportacaoCsvInput = z.infer<typeof confirmarImportacaoCsvSchema>;
+
+// Planilhas de acompanhamento de parcerias normalmente são hierárquicas: elas
+// trazem títulos de projeto, seções e cabeçalhos repetidos. Este contrato recebe
+// o CSV bruto para preservar essa hierarquia antes de criar o funil completo.
+const conteudoCsvHistoricoSchema = z.string().trim().min(20, "envie o conteúdo CSV da planilha").max(2_000_000);
+
+export const analisarFunilHistoricoSchema = z.object({
+  conteudo: conteudoCsvHistoricoSchema,
+});
+export type AnalisarFunilHistoricoInput = z.infer<typeof analisarFunilHistoricoSchema>;
+
+export const confirmarFunilHistoricoSchema = z.object({
+  conteudo: conteudoCsvHistoricoSchema,
+});
+export type ConfirmarFunilHistoricoInput = z.infer<typeof confirmarFunilHistoricoSchema>;
+
+export const enriquecerParteSchema = z.object({
+  limite_fontes: z.number().int().min(1).max(5).default(3),
+});
+export type EnriquecerParteInput = z.infer<typeof enriquecerParteSchema>;
+
 // --- Human Gate -------------------------------------------------------------
 //
 // O portão de curadoria: promove (ou rejeita) uma saída de agente para a base
@@ -392,7 +600,7 @@ export type HumanGateSaida = z.infer<typeof humanGateSaidaSchema>;
 // A base de conhecimento vetorial. Ingerir = guardar trechos + embedding;
 // buscar = recuperar os mais relevantes para uma consulta (o "R" do RAG).
 
-export const origemDocumento = z.enum(["paper", "perfil_parte", "decisao", "coleta_web", "manual"]);
+export const origemDocumento = z.enum(["paper", "perfil_parte", "decisao", "coleta_web", "manual", "relatorio"]);
 export type OrigemDocumento = z.infer<typeof origemDocumento>;
 
 export const ingerirRagSchema = z.object({

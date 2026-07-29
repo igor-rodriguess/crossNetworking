@@ -98,14 +98,22 @@ export function paraCriarProjeto(dados: {
   clienteId: string;
   nome: string;
   objetivo: string;
+  descricao?: string;
   produto?: string;
+  dataInicio?: string;
+  dataPrevisaoFim?: string;
+  prioridade?: string;
   status?: StatusProjeto;
 }): Record<string, unknown> {
   return {
     cliente_cross_id: dados.clienteId,
     nome: dados.nome,
     objetivo: dados.objetivo,
+    descricao: dados.descricao || undefined,
     produto: dados.produto || undefined,
+    data_inicio: dados.dataInicio || undefined,
+    data_previsao_fim: dados.dataPrevisaoFim || undefined,
+    prioridade_codigo: dados.prioridade || undefined,
     status_projeto_codigo: dados.status ? statusProjetoParaBackend(dados.status) : 'planejamento',
   };
 }

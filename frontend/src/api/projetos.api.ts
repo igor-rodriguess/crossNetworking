@@ -57,7 +57,11 @@ export async function criarProjeto(dados: {
   clienteId: string;
   nome: string;
   objetivo: string;
+  descricao?: string;
   produto?: string;
+  dataInicio?: string;
+  dataPrevisaoFim?: string;
+  prioridade?: string;
   status?: StatusProjeto;
 }): Promise<Projeto> {
   const criado = await requisitar<ProjetoBackend>('/projetos', {

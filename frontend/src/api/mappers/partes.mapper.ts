@@ -5,7 +5,7 @@
 // separados; a UI usa `nome`, `categoria` achatada e listas embutidas.
 // Aqui mora essa ponte — nenhuma outra parte do front conhece o formato cru.
 
-import type { AtivoParte, CanalMidia, ContatoParte, PapelParte, Parte } from '../../types';
+import type { AtivoParte, CanalMidia, ContatoParte, PapelParte, Parte, PerfilEstrategicoParte } from '../../types';
 
 // --- Formato cru do backend -------------------------------------------------
 
@@ -62,6 +62,40 @@ export interface ContatoBackend {
   versao: string;
 }
 
+export interface AtivoBackend {
+  id: string;
+  nome: string;
+  categoria: string | null;
+  descricao: string | null;
+  valor_referencia: number | null;
+  moeda: string | null;
+  criado_em: string;
+}
+
+export interface CanalBackend {
+  id: string;
+  plataforma: string;
+  identificador: string | null;
+  url: string | null;
+  criado_em: string;
+}
+
+export interface PerfilEstrategicoBackend {
+  id: string;
+  numero_versao: number;
+  resumo: string | null;
+  posicionamento: string | null;
+  objetivos: string | null;
+  desafios: string | null;
+  status_versao: string;
+}
+
+export interface AssociacoesBackend {
+  publicos: Array<{ id: string; publico_id: string; nome: string }>;
+  pracas: Array<{ id: string; praca_id: string; nome: string; uf: string | null }>;
+  territorios: Array<{ id: string; territorio_id: string; nome: string }>;
+}
+
 // --- Backend → Frontend -----------------------------------------------------
 
 function ehOrg(e: ParteBackend['especializacao']): e is EspecializacaoOrg {
@@ -83,21 +117,31 @@ export function parteDeBackend(
   p: ParteBackend,
   papeis: PapelBackend[] = [],
   contatos: ContatoBackend[] = [],
+  inteligencia: {
+    ativos?: AtivoBackend[];
+    canais?: CanalBackend[];
+    perfis?: PerfilEstrategicoBackend[];
+    associacoes?: AssociacoesBackend;
+  } = {},
 ): Parte {
+  const associacoes = inteligencia.associacoes;
+  const perfilBackend = inteligencia.perfis?.find((perfil) => perfil.status_versao === 'vigente')
+    ?? inteligencia.perfis?.[0];
+  const perfilEstrategico = perfilBackend ? perfilEstrategicoDeBackend(perfilBackend) : undefined;
+
   return {
     id: p.id,
     tipo: p.tipo,
     nome: p.nome_exibicao,
     categoria: categoriaDe(p),
-    // Campos que o core de Partes não guarda ainda (vivem em cross_intelligence
-    // ou serão integrados em blocos futuros). Vazios por ora — não inventamos.
-    territorio: '',
-    publico: '',
-    descricao: '',
+    territorio: associacoes?.territorios.map((territorio) => territorio.nome).join(' · ') ?? '',
+    publico: associacoes?.publicos.map((publico) => publico.nome).join(' · ') ?? '',
+    descricao: perfilEstrategico?.resumo ?? '',
     papeis: papeis.map(papelDeBackend),
-    pracas: [],
-    ativos: [],
-    canais: [],
+    pracas: associacoes?.pracas.map((praca) => praca.uf ? `${praca.nome} · ${praca.uf}` : praca.nome) ?? [],
+    ativos: (inteligencia.ativos ?? []).map(ativoDeBackend),
+    canais: (inteligencia.canais ?? []).map(canalDeBackend),
+    perfilEstrategico,
     contatos: contatos.map(contatoDeBackend),
     cadastradaEm: p.criado_em?.slice(0, 10) ?? '',
   };
@@ -146,6 +190,36 @@ export function contatoDeBackend(c: ContatoBackend): ContatoParte {
     cargo: c.cargo ?? '',
     email: c.email ?? '',
     principal: c.principal,
+  };
+}
+
+export function ativoDeBackend(ativo: AtivoBackend): AtivoParte {
+  return {
+    id: ativo.id,
+    nome: ativo.nome,
+    tipo: ativo.categoria ?? 'Ativo',
+    descricao: ativo.descricao ?? undefined,
+    valorReferencia: ativo.valor_referencia ?? undefined,
+    moeda: ativo.moeda ?? undefined,
+  };
+}
+
+export function canalDeBackend(canal: CanalBackend): CanalMidia {
+  return {
+    id: canal.id,
+    canal: canal.plataforma,
+    alcance: canal.identificador ?? canal.url ?? 'Sem identificador',
+    url: canal.url ?? undefined,
+  };
+}
+
+function perfilEstrategicoDeBackend(perfil: PerfilEstrategicoBackend): PerfilEstrategicoParte {
+  return {
+    numeroVersao: perfil.numero_versao,
+    resumo: perfil.resumo ?? undefined,
+    posicionamento: perfil.posicionamento ?? undefined,
+    objetivos: perfil.objetivos ?? undefined,
+    desafios: perfil.desafios ?? undefined,
   };
 }
 

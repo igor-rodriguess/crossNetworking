@@ -83,13 +83,27 @@ export type PapelParte =
   | 'veiculo_midia';
 
 export interface AtivoParte {
+  id?: string;
   nome: string;
   tipo: string;
+  descricao?: string;
+  valorReferencia?: number;
+  moeda?: string;
 }
 
 export interface CanalMidia {
+  id?: string;
   canal: string;
   alcance: string;
+  url?: string;
+}
+
+export interface PerfilEstrategicoParte {
+  numeroVersao: number;
+  resumo?: string;
+  posicionamento?: string;
+  objetivos?: string;
+  desafios?: string;
 }
 
 export interface ContatoParte {
@@ -111,6 +125,7 @@ export interface Parte {
   pracas: string[];
   ativos: AtivoParte[];
   canais: CanalMidia[];
+  perfilEstrategico?: PerfilEstrategicoParte;
   contatos: ContatoParte[];
   cadastradaEm: string; // ISO date
 }

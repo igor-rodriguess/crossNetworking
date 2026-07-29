@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Botao } from './ui';
 
@@ -20,11 +20,12 @@ export function ConfirmDialog({
   descricao: ReactNode;
   rotuloConfirmar?: string;
   perigo?: boolean;
-  aoConfirmar: () => void;
+  aoConfirmar: () => void | Promise<void>;
   aoFechar: () => void;
 }) {
   const botaoRef = useRef<HTMLButtonElement>(null);
   const gatilhoRef = useRef<HTMLElement | null>(null);
+  const [confirmando, setConfirmando] = useState(false);
 
   useEffect(() => {
     if (!aberto) return;
@@ -43,13 +44,31 @@ export function ConfirmDialog({
     };
   }, [aberto, aoFechar]);
 
+  useEffect(() => {
+    if (!aberto) setConfirmando(false);
+  }, [aberto]);
+
+  async function confirmar() {
+    if (confirmando) return;
+    setConfirmando(true);
+    try {
+      await aoConfirmar();
+      aoFechar();
+    } catch {
+      // A tela chamadora apresenta a mensagem contextual de erro e o diálogo
+      // permanece aberto para a pessoa decidir se tenta novamente.
+    } finally {
+      setConfirmando(false);
+    }
+  }
+
   if (!aberto) return null;
 
   return (
     <div
       className="anim-overlay fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 backdrop-blur-sm print:hidden"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) aoFechar();
+        if (!confirmando && e.target === e.currentTarget) aoFechar();
       }}
     >
       <div
@@ -77,21 +96,19 @@ export function ConfirmDialog({
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-2.5">
-          <Botao variante="ghost" pequeno onClick={aoFechar}>
+          <Botao variante="ghost" pequeno onClick={aoFechar} disabled={confirmando}>
             Cancelar
           </Botao>
           <button
             ref={botaoRef}
             type="button"
-            onClick={() => {
-              aoConfirmar();
-              aoFechar();
-            }}
+            onClick={() => void confirmar()}
+            disabled={confirmando}
             className={`inline-flex items-center justify-center rounded-full px-6 py-1.5 text-sm font-semibold text-paper transition-colors ${
               perigo ? 'bg-status-neg hover:brightness-110' : 'bg-accent hover:bg-accent-deep'
             }`}
           >
-            {rotuloConfirmar}
+            {confirmando ? 'Processando…' : rotuloConfirmar}
           </button>
         </div>
       </div>

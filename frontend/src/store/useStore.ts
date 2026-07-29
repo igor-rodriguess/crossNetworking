@@ -125,14 +125,12 @@ interface EstadoPlataforma {
   editarParte: (id: string, tipo: Parte['tipo'], mudancas: { nome?: string; categoria?: string }) => Promise<void>;
   arquivarParte: (id: string) => Promise<void>;
   adicionarContato: (parteId: string, nome: string, cargo: string, email: string) => Promise<void>;
-  // Ativos/canais ainda não têm endpoint no backend de Partes — locais por ora.
-  adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => void;
-  removerAtivoParte: (parteId: string, nomeAtivo: string) => void;
+  adicionarAtivoParte: (parteId: string, ativo: AtivoParte) => Promise<void>;
 
   // Projetos & Frentes (RF019/RF024) — integrados à API
   carregarProjetos: () => Promise<void>;
   carregarFrentesDosProjetos: () => Promise<void>;
-  criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; produto?: string }) => Promise<void>;
+  criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; descricao?: string; produto?: string; dataInicio?: string; dataPrevisaoFim?: string; prioridade?: string; status?: StatusProjeto }) => Promise<void>;
   criarFrente: (projetoId: string, dados: { nome: string; objetivo: string; categoria?: string }) => Promise<void>;
   atualizarProjeto: (id: string, mudancas: { nome?: string; objetivo?: string; produto?: string; status?: StatusProjeto }) => Promise<void>;
   arquivarProjeto: (id: string) => Promise<void>;
@@ -575,17 +573,14 @@ export const useStore = create<EstadoPlataforma>()(
         }));
       },
 
-      adicionarAtivoParte: (parteId, ativo) =>
-        set((s) => ({
-          partes: s.partes.map((p) => (p.id === parteId ? { ...p, ativos: [...p.ativos, ativo] } : p)),
-        })),
-
-      removerAtivoParte: (parteId, nomeAtivo) =>
+      adicionarAtivoParte: async (parteId, ativo) => {
+        const criado = await partesApi.adicionarAtivo(parteId, { nome: ativo.nome, categoria: ativo.tipo });
         set((s) => ({
           partes: s.partes.map((p) =>
-            p.id === parteId ? { ...p, ativos: p.ativos.filter((a) => a.nome !== nomeAtivo) } : p,
+            p.id === parteId ? { ...p, ativos: [...p.ativos, criado] } : p,
           ),
-        })),
+        }));
+      },
 
       // --- Projetos & Frentes (integrados à API) ---------------------------
       carregarProjetos: async () => {

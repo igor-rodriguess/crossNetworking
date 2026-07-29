@@ -125,6 +125,7 @@ export function ProjetoDetalhe() {
       navigate('/projetos');
     } catch (err) {
       toast(err instanceof ErroApi ? err.message : 'Não foi possível arquivar o projeto.');
+      throw err;
     }
   }
 

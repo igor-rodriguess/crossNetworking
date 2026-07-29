@@ -5,7 +5,7 @@ import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
 import { FASES_PROJETO, formatarDataCurta } from '../lib/format';
-import { Botao, CabecalhoPagina, CampoTexto, Chip, EstadoVazio, RotuloMono, type TomChip } from '../components/ui';
+import { Botao, CabecalhoPagina, CampoSelecao, CampoTexto, Chip, EstadoVazio, RotuloMono, type TomChip } from '../components/ui';
 import { iniciais, normalizar } from '../lib/texto';
 import type { StatusProjeto } from '../types';
 
@@ -35,7 +35,11 @@ function FormNovoProjeto({ clienteId, nomeCliente, aoFechar }: { clienteId: stri
   const { toast } = useToast();
   const [nome, setNome] = useState('');
   const [objetivo, setObjetivo] = useState('');
+  const [descricao, setDescricao] = useState('');
   const [produto, setProduto] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataPrevisaoFim, setDataPrevisaoFim] = useState('');
+  const [prioridade, setPrioridade] = useState('');
   const [salvando, setSalvando] = useState(false);
 
   async function salvar(e: React.FormEvent) {
@@ -43,7 +47,11 @@ function FormNovoProjeto({ clienteId, nomeCliente, aoFechar }: { clienteId: stri
     if (!nome.trim() || !objetivo.trim() || salvando) return;
     setSalvando(true);
     try {
-      await criarProjeto({ clienteId, nome: nome.trim(), objetivo: objetivo.trim(), produto: produto.trim() || undefined });
+      await criarProjeto({
+        clienteId, nome: nome.trim(), objetivo: objetivo.trim(), descricao: descricao.trim() || undefined,
+        produto: produto.trim() || undefined, dataInicio: dataInicio || undefined,
+        dataPrevisaoFim: dataPrevisaoFim || undefined, prioridade: prioridade || undefined,
+      });
       toast(`Projeto “${nome.trim()}” criado para ${nomeCliente}.`);
       aoFechar();
     } catch (err) {
@@ -59,6 +67,12 @@ function FormNovoProjeto({ clienteId, nomeCliente, aoFechar }: { clienteId: stri
         <CampoTexto rotulo="Nome do projeto" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Plataforma de Verão 2026" autoFocus />
         <CampoTexto rotulo="Objetivo" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} placeholder="O que o projeto busca alcançar" />
         <CampoTexto rotulo="Produto / marca (opcional)" value={produto} onChange={(e) => setProduto(e.target.value)} placeholder="Ex.: Aurora Zero" />
+        <CampoTexto rotulo="Descrição estratégica" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Contexto, desafio e escopo" />
+        <CampoTexto rotulo="Data de início" type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
+        <CampoTexto rotulo="Previsão de fim" type="date" value={dataPrevisaoFim} onChange={(e) => setDataPrevisaoFim(e.target.value)} />
+        <CampoSelecao rotulo="Prioridade" value={prioridade} onChange={(e) => setPrioridade(e.target.value)}>
+          <option value="">A definir</option><option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>
+        </CampoSelecao>
       </div>
       <div className="mt-5 flex gap-2">
         <Botao type="submit" pequeno disabled={salvando}>

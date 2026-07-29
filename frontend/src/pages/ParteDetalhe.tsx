@@ -1,8 +1,10 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, MapPin, Music2, Pencil, Plus, Radio, Trash2, UserRound } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, MapPin, Music2, Pencil, Plus, Radio, Sparkles, Trash2, UserRound } from 'lucide-react';
 import { CLIENTES, useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
+import * as partesApi from '../api/partes.api';
+import type { Parte } from '../types';
 import { PARCERIAS } from '../data/mock';
 
 // Ids reais do backend são UUID; ids de seed mock (ex.: "parte-...") não casam.
@@ -13,6 +15,132 @@ import { Botao, CampoTexto, Chip, RotuloMono } from '../components/ui';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 import { PAPEL_PARTE } from './Partes';
+
+function paraLista(texto: string): string[] {
+  return Array.from(new Set(texto.split(/[\n,;]+/).map((item) => item.trim()).filter(Boolean)));
+}
+
+function CardPerfilEstrategico({ parte, aoAtualizar }: { parte: Parte; aoAtualizar: () => Promise<void> }) {
+  const { toast } = useToast();
+  const [editando, setEditando] = useState(false);
+  const [pesquisando, setPesquisando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [sugestao, setSugestao] = useState<partesApi.SugestaoEnriquecimentoParte | null>(null);
+  const [resumo, setResumo] = useState('');
+  const [posicionamento, setPosicionamento] = useState('');
+  const [objetivos, setObjetivos] = useState('');
+  const [desafios, setDesafios] = useState('');
+  const [territorios, setTerritorios] = useState('');
+  const [publicos, setPublicos] = useState('');
+  const [pracas, setPracas] = useState('');
+
+  function preencherComParte() {
+    setResumo(parte.perfilEstrategico?.resumo ?? parte.descricao);
+    setPosicionamento(parte.perfilEstrategico?.posicionamento ?? '');
+    setObjetivos(parte.perfilEstrategico?.objetivos ?? '');
+    setDesafios(parte.perfilEstrategico?.desafios ?? '');
+    setTerritorios(parte.territorio.split(' · ').filter(Boolean).join(', '));
+    setPublicos(parte.publico.split(' · ').filter(Boolean).join(', '));
+    setPracas(parte.pracas.join(', '));
+  }
+
+  function abrirEdicao() {
+    preencherComParte();
+    setEditando(true);
+  }
+
+  function usarSugestao() {
+    if (!sugestao) return;
+    setResumo(sugestao.sugestao.resumo);
+    setPosicionamento(sugestao.sugestao.posicionamento);
+    setObjetivos(sugestao.sugestao.objetivos);
+    setDesafios(sugestao.sugestao.desafios);
+    setTerritorios(sugestao.sugestao.territorios.join(', '));
+    setPublicos(sugestao.sugestao.publicos.join(', '));
+    setPracas(sugestao.sugestao.pracas.join(', '));
+    setEditando(true);
+    toast('Sugestão copiada para o formulário. Revise antes de salvar.', 'info');
+  }
+
+  async function pesquisar() {
+    if (pesquisando) return;
+    setPesquisando(true);
+    try {
+      const resultado = await partesApi.enriquecerParte(parte.id);
+      setSugestao(resultado);
+      toast('Pesquisa concluída. Revise as fontes antes de usar a sugestão.');
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível pesquisar esta Parte agora.');
+    } finally {
+      setPesquisando(false);
+    }
+  }
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault();
+    if (salvando || ![resumo, posicionamento, objetivos, desafios].some((valor) => valor.trim())) {
+      toast('Preencha ao menos um campo do perfil estratégico.', 'info');
+      return;
+    }
+    setSalvando(true);
+    try {
+      await partesApi.salvarInteligenciaParte(parte.id, {
+        resumo, posicionamento, objetivos, desafios,
+        territorios: paraLista(territorios), publicos: paraLista(publicos), pracas: paraLista(pracas),
+      });
+      await aoAtualizar();
+      setEditando(false);
+      toast('Perfil estratégico e associações atualizados.');
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível salvar o perfil estratégico.');
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <div className="card p-6">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <RotuloMono>Perfil estratégico</RotuloMono>
+        <div className="flex gap-2">
+          <Botao pequeno variante="ghost" onClick={pesquisar} disabled={pesquisando}><Sparkles size={13} strokeWidth={1.5} /> {pesquisando ? 'Pesquisando…' : 'Pesquisar com IA'}</Botao>
+          {!editando && <Botao pequeno variante="ghost" onClick={abrirEdicao}><Pencil size={13} strokeWidth={1.5} /> Editar perfil</Botao>}
+        </div>
+      </div>
+
+      {sugestao && (
+        <div className="mb-4 rounded-lg border border-accent/20 bg-accent-soft/35 p-3 text-xs leading-relaxed text-graphite">
+          <div className="flex flex-wrap items-center justify-between gap-2"><span>Pesquisa: {sugestao.origem_busca} + {sugestao.origem_extracao} + {sugestao.origem_analise} · confiança {sugestao.sugestao.confianca}%</span><Botao pequeno onClick={usarSugestao}>Usar sugestão</Botao></div>
+          <p className="mt-2"><strong>Categoria sugerida:</strong> {sugestao.sugestao.categoria}</p>
+          {sugestao.sugestao.ativos.length > 0 && <p className="mt-1"><strong>Ativos sugeridos:</strong> {sugestao.sugestao.ativos.join(' · ')}</p>}
+          {sugestao.fontes.length > 0 && <ul className="mt-2 space-y-1">{sugestao.fontes.map((fonte) => <li key={fonte.url}><a href={fonte.url} target="_blank" rel="noreferrer" className="text-accent-deep hover:underline">{fonte.fonte}</a> — {fonte.titulo}</li>)}</ul>}
+        </div>
+      )}
+
+      {editando ? (
+        <form onSubmit={salvar} className="space-y-3">
+          <label className="block text-xs font-semibold text-stone">Resumo<textarea value={resumo} onChange={(e) => setResumo(e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-accent" /></label>
+          <label className="block text-xs font-semibold text-stone">Posicionamento<textarea value={posicionamento} onChange={(e) => setPosicionamento(e.target.value)} rows={2} className="mt-1 w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-accent" /></label>
+          <label className="block text-xs font-semibold text-stone">Objetivos<textarea value={objetivos} onChange={(e) => setObjetivos(e.target.value)} rows={2} className="mt-1 w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-accent" /></label>
+          <label className="block text-xs font-semibold text-stone">Desafios<textarea value={desafios} onChange={(e) => setDesafios(e.target.value)} rows={2} className="mt-1 w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink focus:border-accent" /></label>
+          <CampoTexto rotulo="Territórios (separe por vírgulas)" value={territorios} onChange={(e) => setTerritorios(e.target.value)} placeholder="Ex.: Esporte, Lifestyle" />
+          <CampoTexto rotulo="Públicos (separe por vírgulas)" value={publicos} onChange={(e) => setPublicos(e.target.value)} placeholder="Ex.: Jovens adultos, Fãs de esporte" />
+          <CampoTexto rotulo="Praças (separe por vírgulas)" value={pracas} onChange={(e) => setPracas(e.target.value)} placeholder="Ex.: São Paulo · SP, Rio de Janeiro · RJ" />
+          <div className="flex gap-2"><Botao type="submit" pequeno disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar perfil'}</Botao><Botao type="button" pequeno variante="ghost" onClick={() => setEditando(false)}>Cancelar</Botao></div>
+        </form>
+      ) : (
+        <dl className="space-y-3 text-sm">
+          {parte.perfilEstrategico?.posicionamento && <div><dt className="text-xs text-stone">Posicionamento</dt><dd className="font-semibold text-ink">{parte.perfilEstrategico.posicionamento}</dd></div>}
+          {parte.perfilEstrategico?.objetivos && <div><dt className="text-xs text-stone">Objetivos</dt><dd className="font-semibold text-ink">{parte.perfilEstrategico.objetivos}</dd></div>}
+          {parte.perfilEstrategico?.desafios && <div><dt className="text-xs text-stone">Desafios</dt><dd className="font-semibold text-ink">{parte.perfilEstrategico.desafios}</dd></div>}
+          <div><dt className="text-xs text-stone">Território</dt><dd className="font-semibold text-ink">{parte.territorio || 'Não informado'}</dd></div>
+          <div><dt className="text-xs text-stone">Público</dt><dd className="font-semibold text-ink">{parte.publico || 'Não informado'}</dd></div>
+          <div><dt className="flex items-center gap-1.5 text-xs text-stone"><MapPin size={11} strokeWidth={1.5} /> Praças de atuação</dt><dd className="mt-1 flex flex-wrap gap-1.5">{parte.pracas.map((praca) => <span key={praca} className="rounded-full bg-cloud px-2.5 py-0.5 text-xs text-graphite">{praca}</span>)}{parte.pracas.length === 0 && <span className="text-sm text-stone">Não informado</span>}</dd></div>
+        </dl>
+      )}
+    </div>
+  );
+}
 
 // ─── Card de contatos com cadastro inline (RF007 / RN004) ───────────────────
 function CardContatos({ parteId, contatos }: { parteId: string; contatos: { nome: string; cargo: string; email: string; principal: boolean }[] }) {
@@ -90,20 +218,27 @@ function CardContatos({ parteId, contatos }: { parteId: string; contatos: { nome
 // ─── Card de ativos com cadastro inline (RF012 — propriedades, cotas, espaços) ─
 function CardAtivos({ parteId, ativos }: { parteId: string; ativos: { nome: string; tipo: string }[] }) {
   const adicionarAtivo = useStore((s) => s.adicionarAtivoParte);
-  const removerAtivo = useStore((s) => s.removerAtivoParte);
   const { toast } = useToast();
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
-  function salvar(e: React.FormEvent) {
+  async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (!nome.trim()) return;
-    adicionarAtivo(parteId, { nome: nome.trim(), tipo: tipo.trim() || 'Ativo' });
-    toast(`Ativo “${nome.trim()}” adicionado.`);
-    setNome('');
-    setTipo('');
-    setAberto(false);
+    if (!nome.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await adicionarAtivo(parteId, { nome: nome.trim(), tipo: tipo.trim() || 'Ativo' });
+      toast(`Ativo “${nome.trim()}” adicionado.`);
+      setNome('');
+      setTipo('');
+      setAberto(false);
+    } catch (err) {
+      toast(err instanceof ErroApi ? err.message : 'Não foi possível adicionar o ativo.');
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -121,20 +256,11 @@ function CardAtivos({ parteId, ativos }: { parteId: string; ativos: { nome: stri
       {ativos.length > 0 ? (
         <ul className="space-y-3">
           {ativos.map((ativo) => (
-            <li key={ativo.nome} className="group flex items-start justify-between gap-2 text-sm">
+            <li key={ativo.nome} className="flex items-start gap-2 text-sm">
               <div className="min-w-0">
                 <div className="font-semibold text-ink">{ativo.nome}</div>
                 <div className="font-mono text-[11px] uppercase tracking-[0.1em] text-stone">{ativo.tipo}</div>
               </div>
-              <button
-                type="button"
-                onClick={() => removerAtivo(parteId, ativo.nome)}
-                className="shrink-0 rounded-full p-1 text-mist opacity-0 transition-all hover:bg-status-negsoft hover:text-status-neg group-hover:opacity-100"
-                title="Remover ativo"
-                aria-label={`Remover ${ativo.nome}`}
-              >
-                <Trash2 size={12} strokeWidth={1.5} />
-              </button>
             </li>
           ))}
         </ul>
@@ -146,7 +272,7 @@ function CardAtivos({ parteId, ativos }: { parteId: string; ativos: { nome: stri
           <CampoTexto rotulo="Ativo" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Festival Maré (propriedade)" autoFocus />
           <CampoTexto rotulo="Tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} placeholder="Ex.: Propriedade, Cota, Espaço, Mídia" />
           <div className="flex gap-2 pt-1">
-            <Botao type="submit" pequeno>Adicionar</Botao>
+            <Botao type="submit" pequeno disabled={salvando}>{salvando ? 'Adicionando…' : 'Adicionar'}</Botao>
             <Botao type="button" variante="ghost" pequeno onClick={() => setAberto(false)}>Cancelar</Botao>
           </div>
         </form>
@@ -387,10 +513,11 @@ export function ParteDetalhe() {
   async function confirmarArquivamento() {
     try {
       await arquivarParte(parte!.id);
-      toast(`${parte!.nome} foi arquivada.`, 'info');
+      toast(`${parte!.nome} foi removida da base ativa.`, 'info');
       navigate('/partes');
     } catch (err) {
       toast(err instanceof ErroApi ? err.message : 'Não foi possível arquivar.');
+      throw err;
     }
   }
 
@@ -405,9 +532,9 @@ export function ParteDetalhe() {
 
       <ConfirmDialog
         aberto={confirmarArquivar}
-        titulo="Arquivar esta Parte?"
-        descricao={`${parte.nome} sai da base ativa. O histórico é preservado (exclusão lógica), mas ela deixa de aparecer nas listas e buscas.`}
-        rotuloConfirmar="Arquivar"
+        titulo="Excluir esta Parte da base?"
+        descricao={`${parte.nome} deixará de aparecer nas listas e buscas. O histórico é preservado para manter a rastreabilidade da operação.`}
+        rotuloConfirmar="Excluir da base"
         perigo
         aoConfirmar={confirmarArquivamento}
         aoFechar={() => setConfirmarArquivar(false)}
@@ -465,9 +592,9 @@ export function ParteDetalhe() {
                     type="button"
                     onClick={() => setConfirmarArquivar(true)}
                     className="flex items-center gap-1 rounded-full border border-mist px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] text-stone transition-colors hover:border-status-neg hover:text-status-neg"
-                    title="Arquivar esta Parte"
+                    title="Excluir da base ativa"
                   >
-                    <Trash2 size={11} strokeWidth={1.5} /> Arquivar
+                    <Trash2 size={11} strokeWidth={1.5} /> Excluir
                   </button>
                 </div>
                 {parte.descricao && <p className="mt-2 max-w-2xl text-sm text-stone">{parte.descricao}</p>}
@@ -487,31 +614,7 @@ export function ParteDetalhe() {
       <div className="grid gap-6 xl:grid-cols-3">
         {/* Inteligência estratégica */}
         <div className="space-y-4">
-          <div className="card p-6">
-            <RotuloMono className="mb-4">Perfil estratégico</RotuloMono>
-            <dl className="space-y-3 text-sm">
-              <div>
-                <dt className="text-xs text-stone">Território</dt>
-                <dd className="font-semibold text-ink">{parte.territorio}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-stone">Público</dt>
-                <dd className="font-semibold text-ink">{parte.publico}</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-stone">
-                  <MapPin size={11} strokeWidth={1.5} /> Praças de atuação
-                </dt>
-                <dd className="mt-1 flex flex-wrap gap-1.5">
-                  {parte.pracas.map((praca) => (
-                    <span key={praca} className="rounded-full bg-cloud px-2.5 py-0.5 text-xs text-graphite">
-                      {praca}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            </dl>
-          </div>
+          <CardPerfilEstrategico parte={parte} aoAtualizar={() => carregarParte(parte.id)} />
 
           <CardAtivos parteId={parte.id} ativos={parte.ativos} />
 
@@ -524,7 +627,13 @@ export function ParteDetalhe() {
                     <span className="flex items-center gap-2 text-graphite">
                       <Radio size={13} strokeWidth={1.5} className="text-stone" /> {canal.canal}
                     </span>
-                    <span className="font-mono text-xs font-bold text-ink">{canal.alcance}</span>
+                    {canal.url ? (
+                      <a href={canal.url} target="_blank" rel="noreferrer" className="font-mono text-xs font-bold text-accent-deep hover:underline">
+                        {canal.alcance}
+                      </a>
+                    ) : (
+                      <span className="font-mono text-xs font-bold text-ink">{canal.alcance}</span>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -2,115 +2,345 @@ import { env } from "../../../config/env";
 import { logger } from "../../../shared/logger";
 
 // -----------------------------------------------------------------------------
-// Cliente de busca web plugável — a fonte de coleta dos agentes.
+// Extração estruturada via Firecrawl — o "olho" do Information Extractor.
 //
-// Provedor: Firecrawl (endpoint /v1/search — busca + scrape em uma chamada,
-// via REST/fetch, sem SDK). Quando NÃO há FIRECRAWL_API_KEY (ou AI_MOCK), roda
-// em MODO MOCK: gera resultados determinísticos plausíveis a partir do termo,
-// para exercitar o pipeline de coleta sem chave nem custo.
+// O Firecrawl faz scrape de uma URL e, com o recurso de extração (formats:
+// ["json"] + um schema JSON), usa o LLM DELE para devolver dados estruturados —
+// sem precisarmos de OpenAI/DeepSeek próprios. Endpoint /v1/scrape.
 //
-// Devolve resultados BRUTOS (título, url, trecho). Não interpreta nem valida —
-// isso é responsabilidade dos agentes seguintes (Credibility/Fact/Extractor).
+// Também expõe scrapeMarkdown() para quando quisermos só o texto da página
+// (fallback / conteúdo bruto).
+//
+// Sem FIRECRAWL_API_KEY (ou AI_MOCK), roda em MODO MOCK determinístico.
 // -----------------------------------------------------------------------------
 
-const FIRECRAWL_SEARCH_URL = "https://api.firecrawl.dev/v1/search";
+// A API v2 recebe os formatos estruturados diretamente no array `formats`.
+const FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape";
 
-export interface ResultadoBusca {
-  titulo: string;
-  url: string;
-  // Trecho/resumo do conteúdo encontrado.
-  trecho: string;
-  // De onde veio (domínio ou origem).
-  fonte: string;
+/** True quando a extração deve usar o stub (sem chave Firecrawl ou AI_MOCK). */
+export function extracaoEmModoMock(): boolean {
+  return env.extracaoMock;
 }
 
-/** True quando a coleta deve usar o stub (sem chave Firecrawl ou AI_MOCK). */
-export function coletaEmModoMock(): boolean {
-  return env.aiMock || !env.firecrawlApiKey;
+// Schema do perfil que pedimos ao Firecrawl extrair de uma página. Alinhado ao
+// perfil que o Information Extractor produz (setor/públicos/territórios/ativos/
+// sinais de parceria).
+const SCHEMA_PERFIL = {
+  type: "object",
+  properties: {
+    nome: { type: "string", description: "Nome da organização/marca principal da página" },
+    setor: { type: "string", description: "Setor ou indústria de atuação" },
+    publicos: {
+      type: "array",
+      items: { type: "string" },
+      description: "Públicos-alvo / audiências atendidas",
+    },
+    territorios: {
+      type: "array",
+      items: { type: "string" },
+      description: "Regiões, praças ou territórios de atuação",
+    },
+    ativos: {
+      type: "array",
+      items: { type: "string" },
+      description: "Ativos de marca: eventos, canais, produtos, propriedades, patrocínios",
+    },
+    sinais_parceria: {
+      type: "array",
+      items: { type: "string" },
+      description: "Sinais de abertura a parcerias, colaborações, co-marketing ou patrocínio",
+    },
+  },
+  required: ["setor"],
+} as const;
+
+// Diferente de uma página institucional, uma matéria jornalística pode citar
+// diversas marcas. Este contrato impede que o título da matéria ou o veículo
+// sejam confundidos com uma candidata a parceria.
+const SCHEMA_CANDIDATAS_ARTIGO = {
+  type: "object",
+  properties: {
+    candidatas: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          nome: { type: "string", description: "Marca ou empresa explicitamente citada no artigo" },
+          setor: { type: "string", description: "Setor da marca, apenas quando sustentado pelo artigo" },
+          publicos: { type: "array", items: { type: "string" } },
+          territorios: { type: "array", items: { type: "string" } },
+          ativos: { type: "array", items: { type: "string" } },
+          sinais_parceria: { type: "array", items: { type: "string" } },
+          evidencia: { type: "string", description: "Trecho curto do artigo que cita a marca e o contexto" },
+          confianca: { type: "number", description: "Confiança de 0 a 100 baseada apenas no artigo" },
+        },
+        required: ["nome", "evidencia", "confianca"],
+      },
+    },
+  },
+  required: ["candidatas"],
+} as const;
+
+export interface PerfilExtraidoWeb {
+  nome?: string;
+  setor?: string;
+  publicos?: string[];
+  territorios?: string[];
+  ativos?: string[];
+  sinais_parceria?: string[];
+}
+
+export interface ResultadoExtracao {
+  perfil: PerfilExtraidoWeb;
+  origem: "firecrawl" | "mock";
+}
+
+export interface CandidataExtraidaDeArtigo extends PerfilExtraidoWeb {
+  nome: string;
+  setor: string;
+  publicos: string[];
+  territorios: string[];
+  ativos: string[];
+  sinais_parceria: string[];
+  evidencia: string;
+  confianca: number;
+  fonte_url: string;
+}
+
+export interface ResultadoCandidatasArtigo {
+  candidatas: CandidataExtraidaDeArtigo[];
+  origem: "firecrawl" | "mock";
 }
 
 // --- Stub determinístico (modo mock) -----------------------------------------
-// Gera resultados coerentes a partir do termo, para o pipeline rodar sem chave.
-function buscaMock(termo: string, limite: number): ResultadoBusca[] {
-  const base = termo.trim().slice(0, 60);
-  const slug = encodeURIComponent(base.toLowerCase().replace(/\s+/g, "-"));
-  const modelos = [
-    {
-      titulo: `${base} — panorama e principais players`,
-      url: `https://exemplo-setorial.com/${slug}`,
-      trecho: `Visão geral sobre "${base}", com os atores mais relevantes do setor e movimentos recentes de mercado. (resultado MOCK — sem chave Firecrawl)`,
-      fonte: "exemplo-setorial.com",
-    },
-    {
-      titulo: `Notícia: novidades sobre ${base}`,
-      url: `https://noticias-exemplo.com/2026/${slug}`,
-      trecho: `Cobertura recente relacionada a "${base}", incluindo lançamentos e parcerias anunciadas. (resultado MOCK)`,
-      fonte: "noticias-exemplo.com",
-    },
-    {
-      titulo: `Análise de mercado — ${base}`,
-      url: `https://relatorios-exemplo.com/${slug}`,
-      trecho: `Dados e tendências de "${base}": tamanho de mercado, público e oportunidades. (resultado MOCK)`,
-      fonte: "relatorios-exemplo.com",
-    },
-  ];
-  return modelos.slice(0, Math.max(1, Math.min(limite, modelos.length)));
+function extracaoMock(url: string): PerfilExtraidoWeb {
+  let host = url;
+  try {
+    host = new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    /* url inválida — mantém como está */
+  }
+  const nomeBase = host.split(".")[0] ?? host;
+  return {
+    nome: nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1),
+    setor: "(setor não determinado — extração MOCK, sem chave Firecrawl)",
+    publicos: [],
+    territorios: [],
+    ativos: [],
+    sinais_parceria: [],
+  };
 }
 
-// --- Busca real (Firecrawl) --------------------------------------------------
-interface FirecrawlSearchResposta {
-  data?: { title?: string; url?: string; description?: string; markdown?: string }[];
+// --- Extração real (Firecrawl /scrape com formats: json) ---------------------
+interface FirecrawlScrapeResposta {
+  success?: boolean;
+  data?: { json?: PerfilExtraidoWeb; markdown?: string };
 }
 
-async function buscaFirecrawl(termo: string, limite: number): Promise<ResultadoBusca[]> {
+async function extrairFirecrawl(url: string): Promise<PerfilExtraidoWeb> {
   let resposta: Response;
   try {
-    resposta = await fetch(FIRECRAWL_SEARCH_URL, {
+    resposta = await fetch(FIRECRAWL_SCRAPE_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${env.firecrawlApiKey}`,
       },
-      body: JSON.stringify({ query: termo, limit: limite }),
+      body: JSON.stringify({
+        url,
+        formats: [
+          {
+            type: "json",
+            prompt:
+              "Extraia o perfil da organização/marca desta página para avaliação de parceria estratégica: setor, públicos-alvo, territórios de atuação, ativos de marca (eventos, canais, patrocínios) e sinais de abertura a parcerias.",
+            schema: SCHEMA_PERFIL,
+          },
+        ],
+        onlyMainContent: true,
+      }),
     });
   } catch (causa) {
-    logger.error({ causa }, "Falha de rede ao chamar o Firecrawl");
-    throw new Error("Não foi possível contatar o provedor de busca.");
+    logger.error({ causa }, "Falha de rede ao extrair via Firecrawl");
+    throw new Error("Não foi possível contatar o provedor de extração.");
   }
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
-    logger.error({ status: resposta.status, detalhe }, "Firecrawl retornou erro");
-    throw new Error(`Provedor de busca retornou ${resposta.status}.`);
+    logger.error({ status: resposta.status, detalhe: detalhe.slice(0, 300) }, "Firecrawl retornou erro");
+    throw new Error(`Provedor de extração retornou ${resposta.status}.`);
   }
 
-  const json = (await resposta.json()) as FirecrawlSearchResposta;
-  const itens = json.data ?? [];
-  return itens.map((it) => {
-    let fonte = it.url ?? "";
-    try {
-      fonte = it.url ? new URL(it.url).hostname : "";
-    } catch {
-      /* url inválida — mantém como está */
-    }
-    return {
-      titulo: it.title ?? "(sem título)",
-      url: it.url ?? "",
-      trecho: (it.description ?? it.markdown ?? "").slice(0, 500),
-      fonte,
-    };
-  });
+  const json = (await resposta.json()) as FirecrawlScrapeResposta;
+  return json.data?.json ?? {};
 }
 
-export interface ResultadoColeta {
-  resultados: ResultadoBusca[];
+/** Extrai um perfil estruturado de uma URL. Em modo mock, não toca em rede. */
+export async function extrairPerfil(url: string): Promise<ResultadoExtracao> {
+  if (extracaoEmModoMock()) {
+    return { perfil: extracaoMock(url), origem: "mock" };
+  }
+  return { perfil: await extrairFirecrawl(url), origem: "firecrawl" };
+}
+
+interface FirecrawlCandidatasResposta {
+  success?: boolean;
+  data?: {
+    json?: {
+      candidatas?: Array<{
+        nome?: string;
+        setor?: string;
+        publicos?: string[];
+        territorios?: string[];
+        ativos?: string[];
+        sinais_parceria?: string[];
+        evidencia?: string;
+        confianca?: number;
+      }>;
+    };
+  };
+}
+
+function textos(valor: unknown): string[] {
+  return Array.isArray(valor)
+    ? valor.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean).slice(0, 10)
+    : [];
+}
+
+async function extrairCandidatasFirecrawl(url: string): Promise<CandidataExtraidaDeArtigo[]> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(FIRECRAWL_SCRAPE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.firecrawlApiKey}`,
+      },
+      body: JSON.stringify({
+        url,
+        formats: [
+          {
+            type: "json",
+            prompt: [
+              "Esta página é uma matéria externa usada para descobrir novas oportunidades de parceria.",
+              "Extraia no máximo três MARCAS ou EMPRESAS explicitamente citadas no texto.",
+              "Nunca retorne o título da matéria, o nome do veículo, categorias genéricas, eventos ou pessoas que não sejam uma marca/empresa.",
+              "Para cada candidata, a evidência deve citar literalmente a própria marca e explicar seu contexto no artigo.",
+              "Se não houver uma marca/empresa específica e comprovável, retorne candidatas vazia.",
+              "Não invente atributos: use listas vazias e setor não identificado quando o artigo não sustentar o dado.",
+            ].join(" "),
+            schema: SCHEMA_CANDIDATAS_ARTIGO,
+          },
+        ],
+        onlyMainContent: true,
+      }),
+      signal: AbortSignal.timeout(25_000),
+    });
+  } catch (causa) {
+    logger.warn({ causa }, "Falha ao identificar candidatas em matéria via Firecrawl");
+    return [];
+  }
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => "");
+    logger.warn({ status: resposta.status, detalhe: detalhe.slice(0, 300) }, "Firecrawl não extraiu candidatas da matéria");
+    return [];
+  }
+
+  const json = (await resposta.json()) as FirecrawlCandidatasResposta;
+  return (json.data?.json?.candidatas ?? [])
+    .flatMap((candidata): CandidataExtraidaDeArtigo[] => {
+      const nome = candidata.nome?.trim();
+      const evidencia = candidata.evidencia?.trim();
+      if (!nome || nome.length < 3 || !evidencia || evidencia.length < 15) return [];
+      return [{
+        nome,
+        setor: candidata.setor?.trim() || "não identificado",
+        publicos: textos(candidata.publicos),
+        territorios: textos(candidata.territorios),
+        ativos: textos(candidata.ativos),
+        sinais_parceria: textos(candidata.sinais_parceria),
+        evidencia: evidencia.slice(0, 700),
+        confianca: Math.max(0, Math.min(100, Math.round(candidata.confianca ?? 0))),
+        fonte_url: url,
+      }];
+    })
+    .slice(0, 3);
+}
+
+/**
+ * Identifica candidatas reais citadas em uma matéria. Em modo mock, retorna
+ * vazio de propósito: um stub não é evidência para criar oportunidade.
+ */
+export async function extrairCandidatasDeArtigo(url: string): Promise<ResultadoCandidatasArtigo> {
+  if (extracaoEmModoMock()) return { candidatas: [], origem: "mock" };
+  return { candidatas: await extrairCandidatasFirecrawl(url), origem: "firecrawl" };
+}
+
+// --- Busca de conteúdo bruto (markdown) ---------------------------------------
+// Diferente de extrairPerfil() (que pede ao Firecrawl um JSON já estruturado),
+// buscarConteudo() só traz o texto da página em markdown — para alimentar um
+// extrator próprio (ex.: Information Extractor, que usa LLM sobre texto bruto).
+// Útil quando o resultado de busca (DuckDuckGo) só traz um trecho curto e
+// queremos a página inteira.
+
+export interface ResultadoConteudo {
+  markdown: string;
   origem: "firecrawl" | "mock";
 }
 
-/** Busca resultados para um termo. Em modo mock, não toca em rede. */
-export async function buscar(termo: string, limite = 3): Promise<ResultadoColeta> {
-  if (coletaEmModoMock()) {
-    return { resultados: buscaMock(termo, limite), origem: "mock" };
+// --- Stub determinístico (modo mock) -----------------------------------------
+function conteudoMock(url: string): string {
+  let host = url;
+  try {
+    host = new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    /* url inválida — mantém como está */
   }
-  return { resultados: await buscaFirecrawl(termo, limite), origem: "firecrawl" };
+  const nome = host.split(".")[0] ?? host;
+  return (
+    `# ${nome}\n\n` +
+    `Página institucional de ${nome} (${host}). Setor de tecnologia e serviços, ` +
+    `com atuação nacional e público jovem entre seus principais consumidores. ` +
+    `A marca mantém patrocínios e ativações em festivais e eventos como parte de sua ` +
+    `estratégia de ativação de marca, e sinaliza abertura a parcerias e colaborações ` +
+    `com outras empresas do setor. (conteúdo MOCK — sem chave Firecrawl)`
+  );
+}
+
+async function scrapeMarkdown(url: string): Promise<string> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(FIRECRAWL_SCRAPE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.firecrawlApiKey}`,
+      },
+      body: JSON.stringify({
+        url,
+        formats: ["markdown"],
+        onlyMainContent: true,
+      }),
+    });
+  } catch (causa) {
+    logger.error({ causa }, "Falha de rede ao buscar conteúdo via Firecrawl");
+    throw new Error("Não foi possível contatar o provedor de extração.");
+  }
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => "");
+    logger.error({ status: resposta.status, detalhe: detalhe.slice(0, 300) }, "Firecrawl retornou erro");
+    throw new Error(`Provedor de extração retornou ${resposta.status}.`);
+  }
+
+  const json = (await resposta.json()) as FirecrawlScrapeResposta;
+  return json.data?.markdown ?? "";
+}
+
+/** Busca o conteúdo (markdown) de uma URL. Em modo mock, não toca em rede. */
+export async function buscarConteudo(url: string): Promise<ResultadoConteudo> {
+  if (extracaoEmModoMock()) {
+    return { markdown: conteudoMock(url), origem: "mock" };
+  }
+  return { markdown: await scrapeMarkdown(url), origem: "firecrawl" };
 }

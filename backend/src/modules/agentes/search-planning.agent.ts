@@ -1,5 +1,6 @@
 import { chamarLLMJson, type MensagemLLM, type OrigemLLM } from "./shared/llm";
 import { planoPesquisaSchema, type PlanejarPesquisaInput, type PlanoPesquisa } from "./agentes.schema";
+import { env } from "../../config/env";
 
 // -----------------------------------------------------------------------------
 // Search Planning Agent — o PRIMEIRO nó da espinha de descoberta.
@@ -97,10 +98,19 @@ export interface ResultadoPlanejamento {
 
 /** Executa o planejamento de pesquisa e devolve o plano validado. */
 export async function planejarPesquisa(input: PlanejarPesquisaInput): Promise<ResultadoPlanejamento> {
+  // Planejamento é uma transformação previsível de texto em consultas. No
+  // Ollama local, gastar uma inferência inteira nisso atrasava a descoberta sem
+  // acrescentar evidência. Reservamos o modelo para extrair e sintetizar dados
+  // que já passaram pelos gates de fonte e entidade.
+  if (env.aiProvider === "ollama") {
+    return { plano: planoMock(input), origem: "mock" };
+  }
   const resultado = await chamarLLMJson<unknown>({
     mensagens: montarMensagens(input),
     mock: () => planoMock(input),
     temperatura: 0.2,
+    timeoutMs: 25_000,
+    formatoJson: planoPesquisaSchema,
   });
 
   // A saída do LLM (real ou mock) é validada pelo mesmo schema — o modelo pode

@@ -4,7 +4,7 @@ import {
   type CredibilidadeSaida,
   type NivelCredibilidade,
 } from "./agentes.schema";
-import type { ResultadoBusca } from "./shared/firecrawl";
+import type { ResultadoBusca } from "./shared/web-search";
 
 // -----------------------------------------------------------------------------
 // Source Credibility — parte 1 da validação (a origem é reputável?).

@@ -1,4 +1,4 @@
-import { buscar, type ResultadoColeta } from "./shared/firecrawl";
+import { buscar, type ResultadoColeta } from "./shared/web-search";
 import { coletaFontesSaidaSchema, type ColetarFontesInput, type ColetaFontesSaida } from "./agentes.schema";
 import type { TipoFonte } from "./agentes.schema";
 
@@ -12,7 +12,7 @@ import type { TipoFonte } from "./agentes.schema";
 //
 // Paraleliza a coleta: cada consulta é independente, então todas rodam juntas
 // (a arquitetura pede isso — derruba a coleta de minutos para segundos). Usa o
-// cliente Firecrawl plugável, que roda em modo mock sem chave.
+// cliente de busca DuckDuckGo (gratuito, sem chave), com stub em AI_MOCK.
 // -----------------------------------------------------------------------------
 
 interface ConsultaAlvo {
@@ -35,7 +35,7 @@ function consultasDaEntrada(input: ColetarFontesInput): ConsultaAlvo[] {
 
 export interface ResultadoColetaAgente {
   saida: ColetaFontesSaida;
-  origem: "firecrawl" | "mock";
+  origem: "duckduckgo" | "firecrawl" | "mock";
 }
 
 /** Executa a coleta de fontes e devolve os resultados agrupados por consulta. */
@@ -57,8 +57,12 @@ export async function coletarFontes(input: ColetarFontesInput): Promise<Resultad
     resultados: r.resultados,
   }));
 
-  // A origem é "mock" se qualquer coleta veio do stub; senão "firecrawl".
-  const origem: "firecrawl" | "mock" = buscas.some((b) => b.r.origem === "mock") ? "mock" : "firecrawl";
+  // A origem é "mock" se qualquer coleta veio do stub; senão "duckduckgo".
+  const origem: "duckduckgo" | "firecrawl" | "mock" = buscas.some((b) => b.r.origem === "mock")
+    ? "mock"
+    : buscas.some((b) => b.r.origem === "firecrawl")
+      ? "firecrawl"
+      : "duckduckgo";
 
   const totalResultados = coletas.reduce((soma, c) => soma + c.resultados.length, 0);
   const saida = coletaFontesSaidaSchema.parse({

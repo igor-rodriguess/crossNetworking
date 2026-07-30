@@ -300,7 +300,7 @@ const TITULOS: Record<string, string> = {
 
 function tituloDaRota(pathname: string): string {
   if (TITULOS[pathname]) return TITULOS[pathname];
-  if (pathname.startsWith('/marcas/')) return 'Candidatura · Crossability & Score Card';
+  if (pathname.startsWith('/marcas/')) return 'Candidatura · Cross Score Card';
   if (pathname.startsWith('/partes/')) return 'Parte · Base de relacionamentos';
   if (pathname.startsWith('/projetos/')) return 'Projeto';
   if (pathname.startsWith('/parcerias/')) return 'Parceria · Execução';

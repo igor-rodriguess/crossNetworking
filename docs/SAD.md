@@ -291,7 +291,7 @@ Registradas explicitamente para que decisões futuras sejam informadas:
 
 ## 10. Referências
 
-- `docs/DEPLOY.md` — hospedagem, ambientes e operação
+- `docs/ARQUITETURA_INFRAESTRUTURA.md` — hospedagem, ambientes, deploy e operação
 - `docs/agents/AGENT_RUNTIME_CONTEXT.md` — contexto de runtime dos agentes
 - `backend/docs/ESPECIFICACAO_ROTAS.md` — catálogo de rotas por requisito
 - `backend/.env.example` — todas as variáveis, com explicação

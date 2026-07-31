@@ -30,14 +30,14 @@ function normalizar(texto: string): string {
 }
 
 const SINONIMOS: Record<string, string[]> = {
-  nome: ["nome", "razao_social", "empresa", "marca", "marca_talento", "marca_ou_talento", "cliente", "nome_da_empresa", "nome_fantasia", "iniciativa", "campanha", "titulo", "titulo_projeto", "propriedade", "nome_ativo"],
+  nome: ["nome", "razao_social", "empresa", "empresa_parceira", "marca", "marca_parceira", "marca_talento", "marca_ou_talento", "cliente", "nome_da_empresa", "nome_fantasia", "iniciativa", "campanha", "titulo", "titulo_projeto", "propriedade", "nome_ativo"],
   tipo: ["tipo", "tipo_parte", "pessoa_ou_organizacao", "natureza"],
-  categoria: ["categoria", "segmento", "setor", "industria", "nicho", "tipo_ativo", "tipo_de_ativo", "classe_ativo"],
-  segmento: ["segmento", "setor", "industria", "nicho", "categoria", "area_atuacao"],
-  papel: ["papel", "perfil", "role", "tipo_relacionamento", "relacionamento", "papel_na_cross"],
+  categoria: ["categoria", "segmento", "setor", "industria", "nicho", "area_de_atuacao", "area_atuacao", "vertical", "mercado", "tipo_ativo", "tipo_de_ativo", "classe_ativo"],
+  segmento: ["segmento", "setor", "industria", "nicho", "categoria", "area_de_atuacao", "area_atuacao", "vertical", "mercado"],
+  papel: ["papel", "role", "tipo_relacionamento", "relacionamento", "papel_na_cross"],
   razao_social: ["razao_social", "razao", "nome_legal"],
   cnpj: ["cnpj"],
-  site: ["site", "website", "url", "link"],
+  site: ["site", "site_oficial", "website", "website_oficial", "url", "link", "pagina_oficial"],
   nome_artistico: ["nome_artistico", "artista", "nome_publico"],
   cpf: ["cpf"],
   nacionalidade: ["nacionalidade", "pais"],
@@ -46,7 +46,7 @@ const SINONIMOS: Record<string, string[]> = {
   contato_email: ["email", "e_mail", "email_contato"],
   contato_telefone: ["telefone", "fone", "celular", "whatsapp"],
   inicio_relacionamento: ["inicio_relacionamento", "inicio", "data_inicio"],
-  observacoes: ["observacoes", "observacao", "notas", "comentarios"],
+  observacoes: ["observacoes", "observacao", "anotacoes", "anotacoes_comerciais", "observacoes_comerciais", "notas", "comentarios", "historico"],
   cliente: ["cliente", "cliente_nome", "empresa_cliente", "marca_cliente", "conta", "account", "conta_cliente"],
   projeto: ["projeto", "nome_projeto", "projeto_nome", "iniciativa", "campanha"],
   frente: ["frente", "nome_frente", "frente_oportunidade", "oportunidade", "linha_de_oportunidade"],
@@ -83,7 +83,15 @@ function mapeamentoHeuristico(input: AnalisarImportacaoCsvInput): MapeamentoImpo
       const origem = [...disponiveis].find((cabecalho) => {
         if (usados.has(cabecalho)) return false;
         const normalizado = normalizar(cabecalho);
-        return sinonimos.some((s) => normalizado === normalizar(s));
+        return sinonimos.some((s) => {
+          const sinonimo = normalizar(s);
+          // AlÃ©m da igualdade, aceita o sinÃ´nimo como parte inequÃ­voca de um
+          // cabeÃ§alho mais descritivo, como "Empresa parceira" ou "Site
+          // oficial". Isso mantÃ©m a importaÃ§Ã£o utilizÃ¡vel se o Ollama local
+          // estiver aquecendo, sem tentar adivinhar campos por similaridade vaga.
+          return normalizado === sinonimo
+            || (sinonimo.length >= 4 && normalizado.includes(sinonimo));
+        });
       });
       if (!origem) return null;
       usados.add(origem);
@@ -134,9 +142,10 @@ export async function mapearCsvComIA(input: AnalisarImportacaoCsvInput): Promise
       temperatura: 0,
       formatoJson: mapeamentoImportacaoCsvSaidaSchema,
       // A tela é interativa. Cabeçalhos já têm cobertura determinística; o
-      // Ollama entra para interpretar variações menos óbvias, sem bloquear o
-      // usuário quando a máquina local estiver ocupada ou sem GPU.
-      timeoutMs: 20_000,
+      // Ollama entra para interpretar variações menos óbvias. Em CPU, a
+      // primeira inferência real costuma passar de 20 s; 40 s preserva o uso
+      // da IA sem exceder o timeout da API e mantém o fallback determinístico.
+      timeoutMs: 40_000,
     });
   } catch {
     const heuristico = mapeamentoHeuristico(input);

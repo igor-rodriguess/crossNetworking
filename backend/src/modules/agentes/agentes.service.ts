@@ -1302,7 +1302,11 @@ function scoreFitDaAnalise(analise: AnaliseCrossabilitySaida): number {
     analise.momento_estrategico.nivel,
   ];
   const pontos = niveis.reduce((total, nivel) => total + (nivel === "alta" ? 3 : nivel === "media" ? 2 : 1), 0);
-  return Math.round((pontos / 18) * 100);
+  const aderenciaDasDimensoes = (pontos / 18) * 100;
+  // O cartão de oportunidade precisa refletir também a solidez da evidência.
+  // Sem isso, duas candidatas com os mesmos níveis declarados, porém uma com
+  // fonte única e outra corroborada, apareciam empatadas para a curadoria.
+  return Math.round(aderenciaDasDimensoes * 0.7 + analise.confianca * 0.3);
 }
 
 function normalizarNomeParaComparacao(nome: string): string {
@@ -1370,7 +1374,12 @@ function fontesExternasDaOportunidade(
   );
   const fontesConfiaveis = new Set(
     (input.credibilidade?.avaliacoes ?? [])
-      .filter((avaliacao) => avaliacao.score >= 70)
+      // A validação da candidata usa 50 como corte de fonte aceitável. Manter
+      // o mesmo gate aqui evita uma contradição silenciosa: a análise aprova
+      // uma fonte, mas a tela termina sem sugestão por exigir 70 apenas na
+      // persistência. A recomendação segue limitada a "em estudo" quando há
+      // uma única fonte.
+      .filter((avaliacao) => avaliacao.score >= 50)
       .map((avaliacao) => avaliacao.url),
   );
   const urls = new Set<string>();
@@ -1580,6 +1589,8 @@ export async function persistirOportunidades(
     const validacao = validarCandidataExterna({
       cliente: input.cliente,
       parceiro,
+      objetivo: input.objetivo,
+      contexto: input.contexto,
       extracao: input.extracao,
       coleta: input.coleta,
       credibilidade: input.credibilidade,
@@ -1679,6 +1690,7 @@ export async function gerarOportunidades(
     execucao_pipeline_id: pipeline.execucao_id,
     cliente: input.cliente,
     objetivo: input.objetivo,
+    contexto: input.contexto,
     projeto_id: input.projeto_id,
     frente_id: input.frente_id,
     analises: analisesNovas,
@@ -1823,6 +1835,7 @@ async function executarPipeline(
   const entradaAuditoria = {
     cliente: input.cliente,
     objetivo: input.objetivo,
+    contexto: input.contexto ?? null,
     limites: {
       consultas: input.limite_consultas,
       resultados_por_consulta: input.limite_resultados_por_consulta,
@@ -1868,6 +1881,7 @@ async function executarPipeline(
           plano: planejarDescobertaDeMercado({
             cliente: input.cliente,
             objetivo: input.objetivo,
+            contexto: input.contexto,
             frentes: await repo.listarFrentesParaDescoberta(
               client,
               input.cliente,
@@ -2054,6 +2068,8 @@ async function executarPipeline(
       .filter((perfil) => validarCandidataExterna({
         cliente: input.cliente,
         parceiro: perfil.nome,
+        objetivo: pipeline === "partner_discovery" ? planejamento.plano.objetivo_interpretado : input.objetivo,
+        contexto: input.contexto,
         extracao: extracao.saida,
         coleta: coleta.saida,
         credibilidade: credibilidade.saida,
@@ -2260,6 +2276,11 @@ async function executarTarefaEmSegundoPlano(
 
 export function consultarTarefa(id: string): Promise<repo.TarefaPipelineRow | null> {
   return withTransaction((client) => repo.buscarTarefaPipeline(client, id));
+}
+
+/** Recupera tarefas que ficaram presas após uma queda/reinício do processo. */
+export function recuperarTarefasInterrompidas(): Promise<number> {
+  return withTransaction((client) => repo.encerrarTarefasInterrompidas(client));
 }
 
 export function listarTarefas(filtros: { status?: string; pagina: number; porPagina: number }) {

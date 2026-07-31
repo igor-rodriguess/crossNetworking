@@ -68,6 +68,20 @@ export async function criarCliente(dados: {
   });
 }
 
+/**
+ * Promove uma Parte já existente a cliente Cross sem recriá-la. Os dados de
+ * parceira, ativos e histórico da Parte são preservados; o backend adiciona
+ * também o papel "cliente" na mesma transação.
+ */
+export async function promoverParteACliente(parteId: string): Promise<Cliente> {
+  const criado = await requisitar<ClienteBackend>('/clientes', {
+    metodo: 'POST',
+    corpo: { parte_id: parteId, status_cliente_codigo: 'ativo' },
+  });
+  if (criado.versao) versaoPorId.set(criado.id, criado.versao);
+  return clienteDeBackend(criado);
+}
+
 /** Arquiva (exclusão lógica) um Cliente. */
 export async function arquivarCliente(id: string): Promise<void> {
   await requisitarVazio(`/clientes/${id}`, { metodo: 'DELETE' });

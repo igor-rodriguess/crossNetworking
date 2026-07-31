@@ -41,6 +41,17 @@ export interface ListaPartes {
   totalPaginas: number;
 }
 
+export interface MarcaDoGrupo {
+  id: string;
+  nome: string;
+  categoria: string | null;
+}
+
+/** Lista as marcas/unidades pertencentes a uma empresa-grupo. */
+export function listarMarcasDoGrupo(parteId: string): Promise<MarcaDoGrupo[]> {
+  return requisitar<{ itens: MarcaDoGrupo[] }>(`/partes/${parteId}/marcas-grupo`).then((r) => r.itens);
+}
+
 /** Lista/busca Partes paginadas (RF004/RF008). */
 export async function listarPartes(opcoes: {
   busca?: string;
@@ -120,6 +131,8 @@ export interface DadosInteligenciaParte {
   posicionamento?: string;
   objetivos?: string;
   desafios?: string;
+  frentesPrioritarias?: string;
+  responsavelMarca?: string;
   territorios: string[];
   publicos: string[];
   pracas: string[];
@@ -171,6 +184,8 @@ export async function salvarInteligenciaParte(id: string, dados: DadosInteligenc
       posicionamento: dados.posicionamento?.trim() || undefined,
       objetivos: dados.objetivos?.trim() || undefined,
       desafios: dados.desafios?.trim() || undefined,
+      frentes_prioritarias: dados.frentesPrioritarias?.trim() || undefined,
+      responsavel_marca: dados.responsavelMarca?.trim() || undefined,
     },
   });
   await requisitar(`/perfis-estrategicos/${perfil.id}/vigencia`, { metodo: 'POST' });

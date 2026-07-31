@@ -26,6 +26,46 @@ healthRouter.get("/health/db", async (_req, res) => {
   }
 });
 
+/**
+ * Sonda operacional dos agentes. Para Ollama, confirma que o serviço responde
+ * e que o modelo configurado está instalado; assim um deploy em rede não fica
+ * "verde" apenas porque a API e o banco estão disponíveis.
+ */
+healthRouter.get("/health/ai", async (_req, res) => {
+  if (env.aiProvider !== "ollama") {
+    res.json({
+      status: env.aiMock ? "degraded" : "configured",
+      provider: env.aiProvider,
+      mode: env.aiMock ? "mock" : "remote",
+    });
+    return;
+  }
+
+  if (env.aiMock) {
+    res.json({ status: "degraded", provider: "ollama", model: env.ollamaModel, mode: "mock" });
+    return;
+  }
+
+  try {
+    const resposta = await fetch(`${env.ollamaBaseUrl}/api/tags`, { signal: AbortSignal.timeout(3_000) });
+    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+    const corpo = await resposta.json() as { models?: Array<{ name?: string }> };
+    const instalado = (corpo.models ?? []).some((modelo) => modelo.name === env.ollamaModel);
+    if (!instalado) {
+      res.status(503).json({ status: "unavailable", provider: "ollama", model: env.ollamaModel, detalhe: "Modelo não instalado." });
+      return;
+    }
+    res.json({ status: "ok", provider: "ollama", model: env.ollamaModel, mode: "local" });
+  } catch (erro) {
+    res.status(503).json({
+      status: "unavailable",
+      provider: "ollama",
+      model: env.ollamaModel,
+      detalhe: env.isProd ? undefined : erro instanceof Error ? erro.message : String(erro),
+    });
+  }
+});
+
 /** Readiness para balanceadores: só fica 200 quando banco e migrations respondem. */
 healthRouter.get("/readyz", async (_req, res) => {
   if (estaDrenando()) {

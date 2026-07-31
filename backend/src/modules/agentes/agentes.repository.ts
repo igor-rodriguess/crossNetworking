@@ -530,6 +530,30 @@ export async function finalizarTarefa(
   );
 }
 
+/**
+ * Um worker de tarefas vive no processo da API. Se esse processo reiniciar, não
+ * existe outro worker que possa retomar uma tarefa marcada como executando.
+ * Encerramos apenas tarefas antigas para que a interface não fique em polling
+ * infinito e a auditoria deixe explícito que a execução foi interrompida.
+ */
+export async function encerrarTarefasInterrompidas(
+  client: PoolClient,
+  idadeMinimaMinutos = 10,
+): Promise<number> {
+  const { rowCount } = await client.query(
+    `UPDATE cross_ai.tarefa_pipeline
+        SET status = 'erro',
+            etapa_atual = NULL,
+            erro = COALESCE(NULLIF(erro, '') || E'\n', '') || 'Execução interrompida por reinicialização da API. Execute novamente para retomar a pesquisa.',
+            atualizado_em = NOW(),
+            concluido_em = NOW()
+      WHERE status IN ('pendente', 'executando')
+        AND atualizado_em < NOW() - ($1::int * INTERVAL '1 minute')`,
+    [idadeMinimaMinutos],
+  );
+  return rowCount ?? 0;
+}
+
 export async function buscarTarefaPipeline(client: PoolClient, id: string): Promise<TarefaPipelineRow | null> {
   const { rows } = await client.query<TarefaPipelineRow>(
     `SELECT ${COLUNAS_TAREFA} FROM cross_ai.tarefa_pipeline WHERE id = $1`,

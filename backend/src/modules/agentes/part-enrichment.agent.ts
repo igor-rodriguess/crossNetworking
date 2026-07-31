@@ -63,10 +63,11 @@ function setorMaisFrequente(setores: string[]): string {
 
 function sugestaoConservadora(nome: string, fontes: FonteEnriquecimentoParte[], categoria: string): PerfilConsolidado {
   const haFontes = fontes.length > 0;
+  const resumoPublico = fontes.find((fonte) => fonte.trecho.trim())?.trecho.trim().slice(0, 1200);
   return {
     categoria: categoria === "Não identificado" ? undefined : categoria,
     resumo: haFontes
-      ? `Pesquisa preliminar sobre ${nome} a partir de ${fontes.length} fonte(s) pública(s). Revise os links antes de registrar informações estratégicas.`
+      ? (resumoPublico || `Perfil público de ${nome} identificado em ${fontes.length} fonte(s).`)
       : `Nenhuma fonte pública foi localizada para ${nome}; complete o perfil manualmente ou tente uma nova busca.`,
     posicionamento: haFontes ? "Posicionamento a validar nos trechos e fontes indicados." : "Posicionamento ainda não identificado.",
     objetivos: "Validar objetivos de negócio e prioridades de parceria com fonte oficial ou contato da marca.",
@@ -124,7 +125,7 @@ async function consolidarComOllama(
  * decide se a sugestão vira perfil, territórios, públicos ou ativos da Parte.
  */
 export async function enriquecerParteComPesquisa(nome: string, limiteFontes = 3): Promise<ResultadoEnriquecimentoParte> {
-  const busca = await buscar(`${nome} atuação público patrocínios parceria`, limiteFontes);
+  const busca = await buscar(`${nome} site oficial marca público produtos parcerias`, limiteFontes);
   const fontes: FonteEnriquecimentoParte[] = busca.resultados.map((resultado: ResultadoBusca) => ({
     titulo: resultado.titulo,
     url: resultado.url,
@@ -152,12 +153,11 @@ export async function enriquecerParteComPesquisa(nome: string, limiteFontes = 3)
   const sinais = distintos(extracoes.flatMap((item) => item.perfil.sinais_parceria ?? []));
   const categoriaExtraida = setorMaisFrequente(setores);
   const houveFirecrawl = extracoes.some((item) => item.origem === "firecrawl");
-  // Quando o Firecrawl respondeu, seus campos estruturados já são a melhor
-  // evidência para esta etapa. O Ollama local entra como consolidador gratuito
-  // apenas quando a extração externa não estiver disponível.
+  // Quando o Firecrawl respondeu, os dados vêm diretamente da fonte e não
+  // dependem de um modelo local para produzir texto genérico.
   const consolidacao = houveFirecrawl
     ? { perfil: sugestaoConservadora(nome, fontes, categoriaExtraida), origem: "mock" as const }
-    : await consolidarComOllama(nome, fontes, extracoes.map((item) => item.perfil), categoriaExtraida);
+    : await consolidarComOllama(nome, fontes, [], categoriaExtraida);
   const categoria = consolidacao.perfil.categoria || categoriaExtraida;
   const confiancaExtracao = houveFirecrawl && fontes.length ? Math.min(85, 45 + fontes.length * 12) : fontes.length ? 30 : 0;
   const confianca = Math.max(confiancaExtracao, consolidacao.perfil.confianca);

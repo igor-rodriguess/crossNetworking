@@ -66,8 +66,18 @@ const STATUS_FRENTE_BACK_PARA_FRONT: Record<string, StatusFrente> = {
   encerrada: 'encerrada',
 };
 
+const STATUS_FRENTE_FRONT_PARA_BACK: Record<StatusFrente, string> = {
+  aberta: 'aberta',
+  em_andamento: 'em_andamento',
+  encerrada: 'encerrada',
+};
+
 export function statusProjetoParaBackend(s: StatusProjeto): string {
   return STATUS_PROJETO_FRONT_PARA_BACK[s] ?? 'planejamento';
+}
+
+export function statusFrenteParaBackend(s: StatusFrente): string {
+  return STATUS_FRENTE_FRONT_PARA_BACK[s] ?? 'aberta';
 }
 
 export function projetoDeBackend(p: ProjetoBackend): Projeto {

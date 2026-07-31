@@ -42,6 +42,8 @@ export interface UsuarioInterno {
 
 export interface Cliente {
   id: string;
+  /** ID da Parte que representa este cliente na base de relacionamentos. */
+  parteId?: string;
   nome: string;
   sigla: string;
   segmento: string;
@@ -104,6 +106,8 @@ export interface PerfilEstrategicoParte {
   posicionamento?: string;
   objetivos?: string;
   desafios?: string;
+  frentesPrioritarias?: string;
+  responsavelMarca?: string;
 }
 
 export interface ContatoParte {

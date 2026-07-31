@@ -40,7 +40,19 @@ A aplicação e as migrations usam **papéis diferentes** (segurança — WAD 7.
 | `npm run db:test` | Roda os 14 cenários de integridade (nada é persistido). |
 | `npm run db:health` | Painel de saúde: tamanho, conexões, queries lentas, locks, maiores tabelas, índices sem uso, cache hit ratio. |
 | `npm run db:backup` | Backup lógico dos dados (COPY + gzip) em `backups/<timestamp>/`. O schema está versionado nas migrations. |
-| `npm run dev` | Sobe a API (`GET /health`, `GET /health/db`). |
+| `npm test` | Executa a suíte automatizada (API, regras de negócio e agentes) com rollback dos dados de teste. |
+| `npm run typecheck` | Verifica o contrato TypeScript sem gerar arquivos. |
+| `npm run dev` | Sobe a API. |
+
+### Sondas operacionais
+
+| Rota | Finalidade |
+|---|---|
+| `GET /health` | Liveness da API. |
+| `GET /health/db` | Conectividade real com o PostgreSQL. |
+| `GET /health/ai` | Disponibilidade do Ollama e presença do modelo configurado. Retorna `503` quando o serviço ou modelo não estiverem prontos. |
+| `GET /readyz` | Readiness para deploy: só retorna sucesso quando a API não está drenando e o banco responde. |
+| `GET /metrics` | Métricas Prometheus, protegidas por `Authorization: Bearer <METRICS_TOKEN>`. |
 
 ### Restauração de backup (banco já migrado)
 

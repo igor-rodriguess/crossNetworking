@@ -175,6 +175,96 @@ const NOMES_GENERICOS = new Set([
   "portal multimarcas", "login", "sign in", "home", "inicio",
 ]);
 
+function contextoDaCandidata(perfil: ExtracaoSaida["perfis"][number] | undefined): string {
+  if (!perfil) return "";
+  return normalizar([
+    ...(perfil.fontes ?? []).map((fonte) => fonte.evidencia),
+    ...(perfil.ativos ?? []),
+    ...(perfil.sinais_parceria ?? []),
+    perfil.setor ?? "",
+  ].join(" "));
+}
+
+/**
+ * Vocabulário de territórios de parceria recorrentes na Cross. Os termos mais
+ * específicos têm prioridade sobre categorias amplas: uma busca para
+ * "esportes · corrida" precisa provar corrida, não apenas qualquer esporte.
+ * Os sinônimos evitam rejeitar uma evidência válida que use, por exemplo,
+ * "running" em vez de "corrida" ou "tênis" em vez de "calçados".
+ */
+const TEMAS_DO_BRIEFING: Array<{
+  rotulo: string;
+  sinais: string[];
+  prioridade: number;
+}> = [
+  { rotulo: "Rio Open", sinais: ["rio open"], prioridade: 5 },
+  { rotulo: "Dia dos Pais", sinais: ["dia dos pais", "paternidade", "pais e filhos"], prioridade: 5 },
+  { rotulo: "lifestyle masculino", sinais: ["lifestyle masculino", "moda masculina", "publico masculino", "masculino"], prioridade: 4 },
+  { rotulo: "corrida", sinais: ["corrida", "running", "runner", "maratona"], prioridade: 4 },
+  { rotulo: "automobilismo", sinais: ["automobilismo", "automotivo", "formula 1", "formula um", "f1", "carros"], prioridade: 4 },
+  { rotulo: "calçados", sinais: ["calcados", "tenis", "sneaker", "sapatos"], prioridade: 4 },
+  { rotulo: "cosméticos", sinais: ["cosmeticos", "skincare", "maquiagem", "barbear"], prioridade: 4 },
+  { rotulo: "acessórios", sinais: ["acessorios", "relogios", "oculos", "bolsas", "malas"], prioridade: 4 },
+  { rotulo: "nostalgia", sinais: ["nostalgia", "retro", "colecionavel", "memoria afetiva"], prioridade: 4 },
+  { rotulo: "gastronomia", sinais: ["gastronomia", "restaurante", "culinaria", "food", "comida"], prioridade: 3 },
+  { rotulo: "bebidas", sinais: ["bebida", "cerveja", "vinho", "whisky", "gin", "drink"], prioridade: 3 },
+  { rotulo: "fitness e bem-estar", sinais: ["fitness", "academia", "wellness", "bem estar", "treino"], prioridade: 3 },
+  { rotulo: "eventos", sinais: ["eventos", "evento", "festival", "show", "feira"], prioridade: 2 },
+  { rotulo: "esportes", sinais: ["esportes", "esporte", "esportivo"], prioridade: 1 },
+  { rotulo: "moda", sinais: ["moda", "fashion", "vestuario", "roupas"], prioridade: 1 },
+];
+
+function contemAlgum(texto: string, sinais: string[]): boolean {
+  return sinais.some((sinal) => texto.includes(sinal));
+}
+
+function temasPrioritariosDoBriefing(briefing: string) {
+  const temas = TEMAS_DO_BRIEFING.filter((tema) => contemAlgum(briefing, tema.sinais));
+  const maiorPrioridade = Math.max(0, ...temas.map((tema) => tema.prioridade));
+  return temas.filter((tema) => tema.prioridade === maiorPrioridade);
+}
+
+/**
+ * Regra compartilhada entre o gate de persistência e o raciocínio de
+ * Crossability. Mantém uma chamada direta ao agente tão criteriosa quanto o
+ * pipeline completo, sem transformar categorias amplas em falso positivo.
+ */
+export function avaliarTemaDoBriefing(objetivo: string | undefined, evidencia: string): {
+  temas: string[];
+  atende: boolean;
+  referencia: string | null;
+} {
+  if (!objetivo) return { temas: [], atende: true, referencia: null };
+  const temas = temasPrioritariosDoBriefing(normalizar(objetivo));
+  const temaEncontrado = temas.find((tema) => contemAlgum(normalizar(evidencia), tema.sinais));
+  return {
+    temas: temas.map((tema) => tema.rotulo),
+    atende: temas.length === 0 || Boolean(temaEncontrado),
+    referencia: temaEncontrado?.rotulo ?? null,
+  };
+}
+
+/**
+ * O briefing ativo vira um gate temático obrigatório quando traz um território
+ * específico. Isso evita que uma matéria sobre uma parceria qualquer vire uma
+ * sugestão para corrida, calçados ou Rio Open apenas por conter a palavra
+ * "ativação". Quando há vários temas, o mais específico prevalece.
+ */
+function validarAderenciaAoBriefing(objetivo: string | undefined, contexto: string, motivos: string[]) {
+  if (!objetivo) return;
+  const briefing = normalizar(objetivo);
+  const aderenciaTematica = avaliarTemaDoBriefing(briefing, contexto);
+  if (aderenciaTematica.temas.length && !aderenciaTematica.atende) {
+    motivos.push(`A evidência externa não relaciona a candidata ao tema prioritário do briefing: ${aderenciaTematica.temas.join(", ")}.`);
+  }
+
+  const pedeMovimentoDeParceria = /collab|colabor|parceria|ativacao|patrocin|experiencia|conteudo|produto/.test(briefing);
+  const temMovimentoDeParceria = /collab|colabor|parceria|ativacao|patrocin|co[- ]?brand|co[- ]?marketing|apoio|lancamento/.test(contexto);
+  if (pedeMovimentoDeParceria && !temMovimentoDeParceria) {
+    motivos.push("A evidência não descreve colaboração, ativação, patrocínio ou outro movimento compatível com a parceria desejada.");
+  }
+}
+
 /**
  * Sem uma entidade válida e uma fonte que mencione a própria entidade, uma busca
  * externa fica apenas como pesquisa, nunca como sugestão persistida.
@@ -182,6 +272,8 @@ const NOMES_GENERICOS = new Set([
 export function validarCandidataExterna(input: {
   cliente: string;
   parceiro: string;
+  objetivo?: string;
+  contexto?: string;
   extracao: ExtracaoSaida | undefined;
   coleta: ColetaFontesSaida | null | undefined;
   credibilidade: CredibilidadeSaida | null | undefined;
@@ -214,6 +306,14 @@ export function validarCandidataExterna(input: {
         (texto.includes(parceiro) || urlsComEvidenciaDaMarca.has(resultado.url));
     });
   if (!haMencao) motivos.push("Nenhuma fonte com credibilidade mínima menciona claramente a entidade candidata.");
+  // O objetivo pode ser amplo (ex.: "experiência de marca"). O contexto da
+  // tela carrega a frente e os direcionadores escolhidos pela equipe, portanto
+  // entra no mesmo gate sem substituir a evidência externa da candidata.
+  validarAderenciaAoBriefing(
+    [input.objetivo, input.contexto].filter(Boolean).join("\n"),
+    contextoDaCandidata(perfil),
+    motivos,
+  );
 
   return { aprovada: motivos.length === 0, motivos };
 }

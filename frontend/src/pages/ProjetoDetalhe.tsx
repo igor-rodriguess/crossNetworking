@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Plus, Trash2, Undo2, Users } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Pencil, Plus, Save, Trash2, Undo2, Users, X } from 'lucide-react';
 import { MARCAS, useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
@@ -16,6 +16,7 @@ import { calcularScore } from '../lib/score';
 import { Botao, CampoTexto, Chip, RotuloMono, type TomChip } from '../components/ui';
 import { ORIGEM_DEMANDA, STATUS_PROJETO } from './Projetos';
 import type { StatusFrente, StatusVersaoPaper, ValidacaoPaper } from '../types';
+import * as projetosApi from '../api/projetos.api';
 
 const STATUS_FRENTE: Record<StatusFrente, { rotulo: string; tom: TomChip }> = {
   aberta: { rotulo: 'Aberta', tom: 'neutro' },
@@ -74,10 +75,71 @@ function FormNovaFrente({ projetoId, aoFechar }: { projetoId: string; aoFechar: 
   );
 }
 
+function FormEditarFrente({ frente, aoFechar }: { frente: { id: string; nome: string; objetivo: string; territorio: string; status: StatusFrente }; aoFechar: () => void }) {
+  const atualizarFrente = useStore((s) => s.atualizarFrente);
+  const { toast } = useToast();
+  const [nome, setNome] = useState(frente.nome);
+  const [objetivo, setObjetivo] = useState(frente.objetivo);
+  const [categoria, setCategoria] = useState(frente.territorio);
+  const [status, setStatus] = useState<StatusFrente>(frente.status);
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nome.trim() || !objetivo.trim() || salvando) return;
+    setSalvando(true);
+    try {
+      await atualizarFrente(frente.id, { nome: nome.trim(), objetivo: objetivo.trim(), categoria: categoria.trim(), status });
+      toast('Frente atualizada. O novo briefing passa a orientar as próximas pesquisas de IA.');
+      aoFechar();
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível atualizar a frente.');
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={salvar} className="rounded-xl border border-accent/25 bg-accent-soft/35 p-5">
+      <div className="mb-4 flex items-center justify-between gap-3"><div><RotuloMono>Editar interesse da Aramis</RotuloMono><p className="mt-1 text-xs text-stone">Esse briefing será usado pelo Radar de Oportunidades.</p></div><button type="button" onClick={aoFechar} className="rounded-full p-1.5 text-stone hover:bg-paper hover:text-ink" aria-label="Fechar edição"><X size={15} strokeWidth={1.5} /></button></div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <CampoTexto rotulo="Nome da frente" value={nome} onChange={(e) => setNome(e.target.value)} />
+        <CampoTexto rotulo="Território / categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ex.: Lifestyle · Eventos" />
+        <label className="block md:col-span-2"><span className="label-mono mb-1.5 block">Objetivo que deve orientar a busca</span><textarea value={objetivo} onChange={(e) => setObjetivo(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label>
+        <label className="block"><span className="label-mono mb-1.5 block">Status</span><select value={status} onChange={(e) => setStatus(e.target.value as StatusFrente)} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent"><option value="aberta">Aberta</option><option value="em_andamento">Em andamento</option><option value="encerrada">Encerrada</option></select></label>
+      </div>
+      <div className="mt-4 flex gap-2"><Botao type="submit" pequeno disabled={salvando}><Save size={13} strokeWidth={1.5} /> {salvando ? 'Salvando…' : 'Salvar frente'}</Botao><Botao type="button" pequeno variante="ghost" onClick={aoFechar}>Cancelar</Botao></div>
+    </form>
+  );
+}
+
 export function ProjetoDetalhe() {
   const { projetoId } = useParams();
   const [formFrenteAberto, setFormFrenteAberto] = useState(false);
+  const [frenteEditandoId, setFrenteEditandoId] = useState<string | null>(null);
   const [confirmarArquivar, setConfirmarArquivar] = useState(false);
+  const [editandoProjeto, setEditandoProjeto] = useState(false);
+  const [salvandoProjeto, setSalvandoProjeto] = useState(false);
+  const [nomeProjeto, setNomeProjeto] = useState('');
+  const [objetivoProjeto, setObjetivoProjeto] = useState('');
+  const [produtoProjeto, setProdutoProjeto] = useState('');
+  const [diagnosticoProjeto, setDiagnosticoProjeto] = useState('');
+  const [inicioProjeto, setInicioProjeto] = useState('');
+  const [prazoProjeto, setPrazoProjeto] = useState('');
+  const [briefingsApi, setBriefingsApi] = useState<projetosApi.BriefingProjetoApi[]>([]);
+  const [planejamentosApi, setPlanejamentosApi] = useState<projetosApi.PlanejamentoProjetoApi[]>([]);
+  const [formBriefingAberto, setFormBriefingAberto] = useState(false);
+  const [briefingConteudo, setBriefingConteudo] = useState('');
+  const [briefingObjetivos, setBriefingObjetivos] = useState('');
+  const [salvandoBriefing, setSalvandoBriefing] = useState(false);
+  const [formPlanejamentoAberto, setFormPlanejamentoAberto] = useState(false);
+  const [diagnosticos, setDiagnosticos] = useState('');
+  const [objetivosNegocio, setObjetivosNegocio] = useState('');
+  const [desafios, setDesafios] = useState('');
+  const [territoriosPlanejamento, setTerritoriosPlanejamento] = useState('');
+  const [oportunidadesPlanejamento, setOportunidadesPlanejamento] = useState('');
+  const [salvandoPlanejamento, setSalvandoPlanejamento] = useState(false);
+  const [carregandoProjeto, setCarregandoProjeto] = useState(true);
   const navigate = useNavigate();
   const todosCriterios = useStore((s) => s.criterios);
   const candidaturas = useStore((s) => s.candidaturas);
@@ -104,19 +166,126 @@ export function ProjetoDetalhe() {
         await carregarFrentesDosProjetos();
       } catch (e) {
         toast(e instanceof ErroApi ? e.message : 'Não foi possível carregar o projeto.');
+      } finally {
+        setCarregandoProjeto(false);
       }
     })();
   }, [carregarProjetos, carregarClientes, carregarFrentesDosProjetos, toast]);
 
+  async function carregarMateriaisDoProjeto(id: string) {
+    try {
+      const [briefings, planejamentos] = await Promise.all([
+        projetosApi.listarBriefings(id),
+        projetosApi.listarPlanejamentos(id),
+      ]);
+      setBriefingsApi(briefings);
+      setPlanejamentosApi(planejamentos);
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível carregar os materiais do projeto.');
+    }
+  }
+
+  useEffect(() => {
+    if (projetoId) void carregarMateriaisDoProjeto(projetoId);
+  // A troca de rota deve recarregar os materiais uma vez; a função só usa a API.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projetoId]);
+
   const projeto = projetos.find((p) => p.id === projetoId);
-  if (!projeto) return <Navigate to="/projetos" replace />;
+  if (!projeto) {
+    if (carregandoProjeto) {
+      return (
+        <div className="flex min-h-[55vh] items-center justify-center gap-3 text-sm text-stone" role="status">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-cloud border-t-accent" />
+          Carregando projeto…
+        </div>
+      );
+    }
+    return <Navigate to="/projetos" replace />;
+  }
+  const projetoAtual = projeto;
 
   // Critérios do cliente dono do projeto (não do cliente ativo no topo)
   const criterios = todosCriterios.filter((c) => c.clienteId === projeto.clienteId && c.ativo);
 
   const frentes = frentesStore.filter((f) => f.projetoId === projeto.id);
   const st = STATUS_PROJETO[projeto.status];
-  const briefingsOrdenados = [...projeto.briefings].sort((a, b) => b.versao - a.versao);
+  const planejamentoVigente = planejamentosApi.find((item) => item.status === 'vigente') ?? planejamentosApi[0];
+
+  function abrirEdicaoProjeto() {
+    setNomeProjeto(projetoAtual.nome);
+    setObjetivoProjeto(projetoAtual.objetivo);
+    setProdutoProjeto(projetoAtual.produto);
+    setDiagnosticoProjeto(projetoAtual.planejamento.diagnostico);
+    setInicioProjeto(projetoAtual.dataInicio);
+    setPrazoProjeto(projetoAtual.prazoEstimado === 'A definir' ? '' : projetoAtual.prazoEstimado);
+    setEditandoProjeto(true);
+  }
+
+  async function salvarProjeto(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nomeProjeto.trim() || !objetivoProjeto.trim() || salvandoProjeto) return;
+    setSalvandoProjeto(true);
+    try {
+      await atualizarProjeto(projetoAtual.id, {
+        nome: nomeProjeto.trim(), objetivo: objetivoProjeto.trim(), produto: produtoProjeto.trim(),
+        descricao: diagnosticoProjeto.trim(), dataInicio: inicioProjeto, dataPrevisaoFim: prazoProjeto,
+      });
+      toast('Dados do projeto atualizados.');
+      setEditandoProjeto(false);
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível salvar o projeto.');
+    } finally {
+      setSalvandoProjeto(false);
+    }
+  }
+
+  async function salvarBriefing(e: React.FormEvent) {
+    e.preventDefault();
+    if (!briefingConteudo.trim() || salvandoBriefing) return;
+    setSalvandoBriefing(true);
+    try {
+      const briefing = await projetosApi.criarBriefing(projetoAtual.id, { conteudo: briefingConteudo.trim(), objetivos: briefingObjetivos.trim() || undefined });
+      await projetosApi.publicarBriefing(briefing.id);
+      await carregarMateriaisDoProjeto(projetoAtual.id);
+      setBriefingConteudo(''); setBriefingObjetivos(''); setFormBriefingAberto(false);
+      toast('Nova versão do briefing publicada como vigente.');
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível salvar o briefing.');
+    } finally {
+      setSalvandoBriefing(false);
+    }
+  }
+
+  function abrirPlanejamento() {
+    setDiagnosticos(planejamentoVigente?.diagnosticos ?? projetoAtual.planejamento.diagnostico);
+    setObjetivosNegocio(planejamentoVigente?.objetivosNegocio ?? projetoAtual.objetivo);
+    setDesafios(planejamentoVigente?.desafios ?? '');
+    setTerritoriosPlanejamento(planejamentoVigente?.territorios ?? projetoAtual.planejamento.territorios.join(', '));
+    setOportunidadesPlanejamento(planejamentoVigente?.oportunidades ?? projetoAtual.planejamento.oportunidades);
+    setFormPlanejamentoAberto(true);
+  }
+
+  async function salvarPlanejamento(e: React.FormEvent) {
+    e.preventDefault();
+    if (!diagnosticos.trim() && !objetivosNegocio.trim() && !oportunidadesPlanejamento.trim()) return;
+    setSalvandoPlanejamento(true);
+    try {
+      const planejamento = await projetosApi.criarPlanejamento(projetoAtual.id, {
+        diagnosticos: diagnosticos.trim() || undefined, objetivos_negocio: objetivosNegocio.trim() || undefined,
+        desafios: desafios.trim() || undefined, territorios: territoriosPlanejamento.trim() || undefined,
+        oportunidades: oportunidadesPlanejamento.trim() || undefined,
+      });
+      await projetosApi.publicarPlanejamento(planejamento.id);
+      await carregarMateriaisDoProjeto(projetoAtual.id);
+      setFormPlanejamentoAberto(false);
+      toast('Nova versão do planejamento publicada como vigente.');
+    } catch (erro) {
+      toast(erro instanceof ErroApi ? erro.message : 'Não foi possível salvar o planejamento.');
+    } finally {
+      setSalvandoPlanejamento(false);
+    }
+  }
 
   async function confirmarArquivamento() {
     try {
@@ -164,7 +333,7 @@ export function ProjetoDetalhe() {
           <RotuloMono className="mb-2">
             {ORIGEM_DEMANDA[projeto.origem]} · início em {formatarData(projeto.dataInicio)}
           </RotuloMono>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">{projeto.nome}</h1>
+          <div className="flex flex-wrap items-center gap-3"><h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">{projeto.nome}</h1><button type="button" onClick={abrirEdicaoProjeto} className="inline-flex items-center gap-1.5 rounded-full border border-mist px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-stone transition hover:border-accent hover:text-accent-deep"><Pencil size={12} strokeWidth={1.5} /> Editar projeto</button></div>
           <p className="mt-2 max-w-2xl text-sm text-stone">{projeto.objetivo}</p>
           <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-stone">
             <span>
@@ -200,6 +369,8 @@ export function ProjetoDetalhe() {
           </select>
         </label>
       </div>
+
+      {editandoProjeto && <form onSubmit={salvarProjeto} className="card anim-abre mb-8 overflow-hidden border-accent/30"><div className="flex items-center justify-between border-b border-cloud bg-accent-soft/35 px-6 py-4"><div><RotuloMono>Dados operacionais do projeto</RotuloMono><p className="mt-1 text-xs text-stone">Atualize o contexto que orienta as frentes e as pesquisas.</p></div><button type="button" onClick={() => setEditandoProjeto(false)} className="rounded-full p-1.5 text-stone hover:bg-paper hover:text-ink" aria-label="Fechar edição"><X size={16} strokeWidth={1.5} /></button></div><div className="grid gap-4 p-6 md:grid-cols-2"><CampoTexto rotulo="Nome do projeto" value={nomeProjeto} onChange={(e) => setNomeProjeto(e.target.value)} /><CampoTexto rotulo="Produto / serviço" value={produtoProjeto} onChange={(e) => setProdutoProjeto(e.target.value)} /><label className="block md:col-span-2"><span className="label-mono mb-1.5 block">Objetivo central</span><textarea value={objetivoProjeto} onChange={(e) => setObjetivoProjeto(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><label className="block md:col-span-2"><span className="label-mono mb-1.5 block">Diagnóstico / contexto</span><textarea value={diagnosticoProjeto} onChange={(e) => setDiagnosticoProjeto(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><CampoTexto rotulo="Início" type="date" value={inicioProjeto} onChange={(e) => setInicioProjeto(e.target.value)} /><CampoTexto rotulo="Prazo estimado" type="date" value={prazoProjeto} onChange={(e) => setPrazoProjeto(e.target.value)} /></div><div className="flex gap-2 border-t border-cloud px-6 py-4"><Botao type="submit" pequeno disabled={salvandoProjeto}><Save size={13} strokeWidth={1.5} /> {salvandoProjeto ? 'Salvando…' : 'Salvar alterações'}</Botao><Botao type="button" pequeno variante="ghost" onClick={() => setEditandoProjeto(false)}>Cancelar</Botao></div></form>}
 
       {/* Stepper do ciclo do projeto */}
       <div className="card mb-8 overflow-x-auto px-6 py-5">
@@ -243,12 +414,13 @@ export function ProjetoDetalhe() {
         <div className="space-y-5 xl:col-span-2">
           <div className="card overflow-hidden">
             <div className="flex items-center justify-between border-b border-cloud px-6 py-4">
-              <RotuloMono>Briefings do projeto</RotuloMono>
-              <span className="font-mono text-xs text-stone">{projeto.briefings.length} versões</span>
+              <div><RotuloMono>Briefings do projeto</RotuloMono><p className="mt-1 text-xs text-stone">Versões preservadas para manter a evolução do escopo.</p></div>
+              <Botao pequeno variante="ghost" onClick={() => setFormBriefingAberto((aberto) => !aberto)}><Plus size={13} strokeWidth={1.5} /> Novo briefing</Botao>
             </div>
+            {formBriefingAberto && <form onSubmit={salvarBriefing} className="space-y-3 border-b border-cloud bg-off/70 px-6 py-5"><label className="block"><span className="label-mono mb-1.5 block">Contexto e direcionamento</span><textarea value={briefingConteudo} onChange={(e) => setBriefingConteudo(e.target.value)} rows={5} placeholder="Descreva o problema, a oportunidade e a proposta de parceria." className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" autoFocus /></label><label className="block"><span className="label-mono mb-1.5 block">Objetivos do briefing</span><textarea value={briefingObjetivos} onChange={(e) => setBriefingObjetivos(e.target.value)} rows={2} placeholder="Ex.: gerar experiência de marca, conteúdo e collab de produto." className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><div className="flex gap-2"><Botao type="submit" pequeno disabled={salvandoBriefing}><Save size={13} strokeWidth={1.5} /> {salvandoBriefing ? 'Publicando…' : 'Salvar e publicar versão'}</Botao><Botao type="button" pequeno variante="ghost" onClick={() => setFormBriefingAberto(false)}>Cancelar</Botao></div></form>}
             <div className="divide-y divide-cloud">
-              {briefingsOrdenados.map((briefing) => (
-                <div key={briefing.versao} className={`px-6 py-4 ${briefing.status === 'vigente' ? '' : 'opacity-70'}`}>
+              {briefingsApi.map((briefing) => (
+                <div key={briefing.id} className={`px-6 py-4 ${briefing.status === 'vigente' ? '' : 'opacity-70'}`}>
                   <div className="mb-1.5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <FileText size={14} strokeWidth={1.5} className="text-stone" />
@@ -259,34 +431,40 @@ export function ProjetoDetalhe() {
                     </div>
                   </div>
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-stone">
-                    {formatarData(briefing.data)} · {briefing.responsavel}
+                    {formatarData(briefing.criadoEm)}
                   </div>
                   <p className="text-sm leading-relaxed text-graphite">{briefing.conteudo}</p>
+                  {briefing.objetivos && <p className="mt-2 rounded-md bg-off px-3 py-2 text-xs leading-relaxed text-stone"><strong className="font-semibold text-graphite">Objetivos:</strong> {briefing.objetivos}</p>}
                 </div>
               ))}
+              {briefingsApi.length === 0 && !formBriefingAberto && <div className="px-6 py-8"><div className="flex items-start gap-3 rounded-xl border border-dashed border-mist bg-off/60 p-4"><FileText size={17} className="mt-0.5 text-accent" strokeWidth={1.5} /><div><p className="font-semibold text-ink">O projeto ainda não tem um briefing publicado.</p><p className="mt-1 text-sm leading-relaxed text-stone">Registre o direcionamento da Aramis para que equipe e IA trabalhem sobre o mesmo contexto.</p><button type="button" onClick={() => setFormBriefingAberto(true)} className="mt-3 text-sm font-semibold text-accent-deep hover:underline">Criar primeiro briefing</button></div></div></div>}
             </div>
           </div>
 
           <div className="card p-6">
-            <RotuloMono className="mb-4">Planejamento estratégico</RotuloMono>
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><RotuloMono>Planejamento estratégico</RotuloMono><p className="mt-1 text-xs text-stone">A versão vigente consolida a leitura da equipe.</p></div><Botao pequeno variante="ghost" onClick={abrirPlanejamento}><Pencil size={13} strokeWidth={1.5} /> {planejamentoVigente ? 'Nova versão' : 'Preencher planejamento'}</Botao></div>
+            {formPlanejamentoAberto && <form onSubmit={salvarPlanejamento} className="anim-abre mb-5 grid gap-3 rounded-xl border border-cloud bg-off/70 p-4 md:grid-cols-2"><label className="block md:col-span-2"><span className="label-mono mb-1.5 block">Diagnóstico</span><textarea value={diagnosticos} onChange={(e) => setDiagnosticos(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><label className="block"><span className="label-mono mb-1.5 block">Objetivos de negócio</span><textarea value={objetivosNegocio} onChange={(e) => setObjetivosNegocio(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><label className="block"><span className="label-mono mb-1.5 block">Desafios</span><textarea value={desafios} onChange={(e) => setDesafios(e.target.value)} rows={3} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><CampoTexto rotulo="Territórios (separe por vírgulas)" value={territoriosPlanejamento} onChange={(e) => setTerritoriosPlanejamento(e.target.value)} placeholder="Ex.: Lifestyle, esportes, Rio de Janeiro" /><label className="block"><span className="label-mono mb-1.5 block">Oportunidades a investigar</span><textarea value={oportunidadesPlanejamento} onChange={(e) => setOportunidadesPlanejamento(e.target.value)} rows={2} className="w-full rounded-md border border-mist bg-paper px-3 py-2 text-sm text-ink outline-none focus:border-accent" /></label><div className="flex gap-2 md:col-span-2"><Botao type="submit" pequeno disabled={salvandoPlanejamento}><Save size={13} strokeWidth={1.5} /> {salvandoPlanejamento ? 'Publicando…' : 'Salvar e publicar versão'}</Botao><Botao type="button" pequeno variante="ghost" onClick={() => setFormPlanejamentoAberto(false)}>Cancelar</Botao></div></form>}
             <div className="space-y-4 text-sm">
               <div>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone">Diagnóstico</div>
-                <p className="leading-relaxed text-graphite">{projeto.planejamento.diagnostico}</p>
+                <p className="leading-relaxed text-graphite">{planejamentoVigente?.diagnosticos || projeto.planejamento.diagnostico || 'Ainda não registrado.'}</p>
               </div>
+              {planejamentoVigente?.objetivosNegocio && <div><div className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone">Objetivos de negócio</div><p className="leading-relaxed text-graphite">{planejamentoVigente.objetivosNegocio}</p></div>}
+              {planejamentoVigente?.desafios && <div><div className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone">Desafios</div><p className="leading-relaxed text-graphite">{planejamentoVigente.desafios}</p></div>}
               <div>
                 <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-stone">Territórios</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {projeto.planejamento.territorios.map((t) => (
+                  {(planejamentoVigente?.territorios || projeto.planejamento.territorios.join(', ')).split(',').map((t) => t.trim()).filter(Boolean).map((t) => (
                     <span key={t} className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs text-accent-deep">
                       {t}
                     </span>
                   ))}
+                  {!planejamentoVigente?.territorios && projeto.planejamento.territorios.length === 0 && <span className="text-sm text-stone">Ainda não registrado.</span>}
                 </div>
               </div>
               <div>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone">Oportunidades</div>
-                <p className="leading-relaxed text-graphite">{projeto.planejamento.oportunidades}</p>
+                <p className="leading-relaxed text-graphite">{planejamentoVigente?.oportunidades || projeto.planejamento.oportunidades || 'Descreva os movimentos e parcerias que merecem pesquisa.'}</p>
               </div>
             </div>
           </div>
@@ -327,8 +505,23 @@ export function ProjetoDetalhe() {
                       {frente.objetivo} · Território: {frente.territorio}
                     </p>
                   </div>
-                  <span className="font-mono text-xs text-stone">{cands.length} candidaturas</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFrenteEditandoId(frente.id)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-mist bg-paper px-3 py-1.5 text-xs font-semibold text-graphite transition-colors hover:border-graphite hover:text-ink"
+                    >
+                      <Pencil size={12} strokeWidth={1.5} /> Editar frente
+                    </button>
+                    <span className="font-mono text-xs text-stone">{cands.length} candidaturas</span>
+                  </div>
                 </div>
+
+                {frenteEditandoId === frente.id && (
+                  <div className="border-b border-cloud bg-off/60 px-6 py-5">
+                    <FormEditarFrente frente={frente} aoFechar={() => setFrenteEditandoId(null)} />
+                  </div>
+                )}
 
                 {/* Candidaturas da frente */}
                 <table className="w-full text-left text-sm">

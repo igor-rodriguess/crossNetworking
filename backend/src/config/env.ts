@@ -72,7 +72,10 @@ const schema = z.object({
   // Teto de cada chamada de LLM. Sem ele, uma chamada travada pendura o
   // pipeline inteiro sem erro. A plataforma prioriza uma sugestão curável em
   // fallback a deixar a interface aguardando minutos pelo modelo local.
-  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(45_000),
+  // Um modelo local pode precisar de alguns segundos extras na primeira chamada
+  // (carregamento em memória). 90s preserva o fallback seguro sem derrubar uma
+  // execução válida do Ollama durante a demonstração ou após ocioso.
+  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
   // Força o modo mock mesmo com chave presente (útil para testes/CI).
   AI_MOCK: booleanEnv,
 });

@@ -1,7 +1,7 @@
 {
   "name": "cross-platform-frontend",
   "version": "0.1.0",
-  "description": "Frontend da Plataforma Cross - Crossnetworking (demo offline com dados mockados)",
+  "description": "Frontend da Plataforma Cross — gestão de relacionamentos, projetos e oportunidades de parceria com IA",
   "private": true,
   "type": "module",
   "scripts": {
@@ -18,7 +18,7 @@
     "pdfjs-dist": "^4.10.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.0",
+    "react-router-dom": "^7.18.2",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

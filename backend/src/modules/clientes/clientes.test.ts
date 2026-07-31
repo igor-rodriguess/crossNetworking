@@ -36,6 +36,9 @@ describe("Clientes — /v1/clientes (RF016)", () => {
     expect(res.status).toBe(201);
     expect(res.body.parte_id).toBe(parteId);
     expect(res.body.status).toBe("ativo");
+
+    const papeis = await request(app).get(`/v1/partes/${parteId}/papeis`).expect(200);
+    expect(papeis.body.itens.some((papel: { papel_codigo: string }) => papel.papel_codigo === "cliente")).toBe(true);
   });
 
   it("rejeita segundo vínculo ativo para a mesma Parte (409 — RN007)", async () => {

@@ -15,7 +15,11 @@ export interface FrenteParaDescoberta {
 const PALAVRAS_GENERICAS = new Set([
   "collabs", "collab", "experiencia", "marca", "produto", "parceria",
   "parcerias", "oportunidades", "desenvolver", "frente", "lifestyle",
-  "de", "do", "da", "e", "com", "para", "em", "marca",
+  "de", "do", "da", "e", "com", "para", "em", "marca", "cliente",
+  "projeto", "briefing", "selecionado", "objetivo", "pesquise", "somente",
+  "externas", "possam", "atender", "interesse", "territorio", "categoria",
+  "estrategico", "estrategicos", "direcionadores", "informados", "equipe",
+  "publico", "prioritario", "posicionamento",
 ]);
 
 function normalizar(texto: string): string {
@@ -50,7 +54,31 @@ function intencaoDaFrente(frente: FrenteParaDescoberta): string[] {
   if (/conteudo/.test(texto)) intencoes.push("conteúdo");
   if (/rio open/.test(texto)) intencoes.push("Rio Open");
   if (/lifestyle.*homem|homem.*lifestyle/.test(texto)) intencoes.push("lifestyle masculino");
-  return [...new Set(intencoes)].slice(0, 3);
+  // Termos de calendário e propriedades (como Rio Open) não podem ser
+  // descartados por uma limitação arbitrária: são justamente o que separa uma
+  // descoberta orientada por briefing de uma pesquisa genérica por setor.
+  return [...new Set(intencoes)];
+}
+
+/**
+ * O briefing cadastrado é a fonte principal. A equipe pode acrescentar poucas
+ * palavras de direcionamento (público, posicionamento, restrição ou ativo) na
+ * tela de oportunidades; elas refinam as consultas, mas nunca substituem a
+ * âncora da frente nem introduzem uma candidata da Base Cross.
+ */
+function direcionadoresDoContexto(contexto: string | undefined, cliente: string): string[] {
+  if (!contexto) return [];
+  // A interface envia um contexto operacional completo. Quando há o marcador,
+  // só o trecho livre preenchido pela equipe deve virar consulta — nomes de
+  // projeto, rótulos de formulário e a frase de fallback não são interesses.
+  const trechoMarcado = /Direcionadores estratégicos informados pela equipe:\s*(.+?)(?:\.\s*Pesquise\s+somente|$)/is.exec(contexto)?.[1];
+  const texto = trechoMarcado ?? contexto;
+  if (/\bnao informado\b|\busar somente o briefing\b/i.test(normalizar(texto))) return [];
+  const termosDoCliente = new Set(normalizar(cliente).split(/\s+/));
+  const termos = normalizar(texto)
+    .split(/\s+/)
+    .filter((termo) => termo.length >= 4 && !PALAVRAS_GENERICAS.has(termo) && !termosDoCliente.has(termo));
+  return [...new Set(termos)].slice(0, 5);
 }
 
 /**
@@ -62,7 +90,10 @@ export function planejarDescobertaDeMercado(input: {
   cliente: string;
   objetivo: string;
   frentes: FrenteParaDescoberta[];
+  contexto?: string;
 }): PlanoPesquisa {
+  const direcionadores = direcionadoresDoContexto(input.contexto, input.cliente);
+  const complementoDeBusca = direcionadores.length ? ` ${direcionadores.join(" ")}` : "";
   const briefs = input.frentes
     .map((frente) => ({ frente, eixo: eixoDaFrente(frente, input.cliente), intencao: intencaoDaFrente(frente) }))
     .filter((brief): brief is { frente: FrenteParaDescoberta; eixo: string; intencao: string[] } => Boolean(brief.eixo))
@@ -71,22 +102,39 @@ export function planejarDescobertaDeMercado(input: {
     ) === indice)
     .slice(0, 6);
   const perguntas = briefs.map(({ frente, eixo, intencao }, indice) => {
-    const formato = intencao.join(" ") || "parceria de marca";
+    const ancorasDoBriefing = intencao.filter((item) => item === "Rio Open" || item === "lifestyle masculino");
+    const conjuntoDeAncoras = new Set<string>(ancorasDoBriefing);
+    const formato = intencao
+      .filter((item) => !conjuntoDeAncoras.has(item))
+      .slice(0, 3)
+      .join(" ") || "parceria de marca";
+    const ancora = ancorasDoBriefing[0];
+    const consultaAmpla = {
+      termo: `site:meioemensagem.com.br ${eixo} ${formato}${complementoDeBusca} marca parceria`,
+      tipo_fonte: "base_setorial" as const,
+      justificativa: `Buscar sinal público de ${formato} no eixo ${eixo}, definido no briefing da frente${direcionadores.length ? ` e refinado por: ${direcionadores.join(", ")}` : ""}.`,
+    };
+    const consultaAncorada = ancora ? {
+      // Sem restringir a um veículo: propriedades como Rio Open têm fontes
+      // oficiais e especializadas próprias, frequentemente mais completas que
+      // uma matéria generalista de marketing.
+      termo: `"${ancora}" marcas patrocinadoras ${formato}${complementoDeBusca} ativação parceria`,
+      tipo_fonte: "web" as const,
+      justificativa: `Encontrar marcas com sinal público ligado diretamente a ${ancora}, propriedade expressa no briefing${direcionadores.length ? ` e aos direcionadores ${direcionadores.join(", ")}` : ""}.`,
+    } : null;
     return {
-      pergunta: `Quais marcas novas de ${eixo} demonstram sinal externo para ${formato}, atendendo ao briefing “${frente.objetivo}”?`,
+      pergunta: `Quais marcas novas de ${eixo} demonstram sinal externo para ${formato}, atendendo ao briefing “${frente.objetivo}”${direcionadores.length ? ` e aos direcionadores ${direcionadores.join(", ")}` : ""}?`,
       prioridade: Math.min(indice + 1, 5),
-      consultas: [
-        {
-          termo: `site:meioemensagem.com.br ${eixo} ${formato} marca parceria`,
-          tipo_fonte: "base_setorial" as const,
-          justificativa: `Buscar sinal público de ${formato} no eixo ${eixo}, definido no briefing da frente.`,
-        },
-        {
-          termo: `marcas brasileiras ${eixo} ${formato} parceria 2026`,
-          tipo_fonte: "noticias" as const,
-          justificativa: `Encontrar marcas com movimento recente que atendam ao objetivo “${frente.objetivo}”.`,
-        },
-      ],
+      consultas: consultaAncorada
+        ? [consultaAncorada, consultaAmpla]
+        : [
+            consultaAmpla,
+            {
+              termo: `marcas brasileiras ${eixo} ${formato}${complementoDeBusca} parceria 2026`,
+              tipo_fonte: "noticias" as const,
+              justificativa: `Encontrar marcas com movimento recente que atendam ao objetivo “${frente.objetivo}”.`,
+            },
+          ],
     };
   });
 
@@ -106,6 +154,6 @@ export function planejarDescobertaDeMercado(input: {
       }],
     }],
     fontes_recomendadas: ["noticias", "base_setorial", "web"],
-    observacoes: `Planejamento determinístico baseado em ${input.frentes.length} frente(s) selecionada(s). A IA só avalia candidatas novas após os gates de evidência e de aderência ao briefing. Objetivo informado: ${input.objetivo}`,
+    observacoes: `Planejamento determinístico baseado em ${input.frentes.length} frente(s) selecionada(s). A IA só avalia candidatas novas após os gates de evidência e de aderência ao briefing.${direcionadores.length ? ` Direcionadores adicionais: ${direcionadores.join(", ")}.` : ""} Objetivo informado: ${input.objetivo}`,
   };
 }

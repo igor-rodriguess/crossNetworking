@@ -132,7 +132,8 @@ interface EstadoPlataforma {
   carregarFrentesDosProjetos: () => Promise<void>;
   criarProjeto: (dados: { clienteId: string; nome: string; objetivo: string; descricao?: string; produto?: string; dataInicio?: string; dataPrevisaoFim?: string; prioridade?: string; status?: StatusProjeto }) => Promise<void>;
   criarFrente: (projetoId: string, dados: { nome: string; objetivo: string; categoria?: string }) => Promise<void>;
-  atualizarProjeto: (id: string, mudancas: { nome?: string; objetivo?: string; produto?: string; status?: StatusProjeto }) => Promise<void>;
+  atualizarFrente: (id: string, mudancas: { nome?: string; objetivo?: string; categoria?: string; status?: Frente['status'] }) => Promise<void>;
+  atualizarProjeto: (id: string, mudancas: { nome?: string; objetivo?: string; descricao?: string; produto?: string; dataInicio?: string; dataPrevisaoFim?: string; status?: StatusProjeto }) => Promise<void>;
   arquivarProjeto: (id: string) => Promise<void>;
 
   // Funil (RF025 — nova candidatura · RF026 — movimentação com histórico, RN017)
@@ -613,6 +614,11 @@ export const useStore = create<EstadoPlataforma>()(
       criarFrente: async (projetoId, dados) => {
         const nova = await projetosApi.criarFrente(projetoId, dados);
         set((s) => ({ frentes: [...s.frentes, nova] }));
+      },
+
+      atualizarFrente: async (id, mudancas) => {
+        const atualizada = await projetosApi.atualizarFrente(id, mudancas);
+        set((s) => ({ frentes: s.frentes.map((frente) => (frente.id === id ? atualizada : frente)) }));
       },
 
       atualizarProjeto: async (id, mudancas) => {

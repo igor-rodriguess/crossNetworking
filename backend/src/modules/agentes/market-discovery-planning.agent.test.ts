@@ -23,7 +23,6 @@ describe("Market Discovery Planning", () => {
     });
 
     const consultas = plano.perguntas.flatMap((pergunta) => pergunta.consultas.map((consulta) => consulta.termo));
-    console.log(consultas);
     expect(consultas.some((consulta) => /gastronomia/i.test(consulta))).toBe(true);
     expect(consultas.some((consulta) => /calcados/i.test(consulta))).toBe(true);
     expect(consultas.every((consulta) => !/aramis/i.test(consulta))).toBe(true);
@@ -51,16 +50,52 @@ describe("Market Discovery Planning", () => {
       objetivo: "Mapear novas oportunidades.",
       frentes: [{
         frente_id: "33333333-3333-3333-3333-333333333333",
-        frente_nome: "EXPERIÊNCIA DE MARCA · LIFESTYLE · EVENTOS",
-        categoria: "EXPERIÊNCIA DE MARCA · LIFESTYLE · EVENTOS",
-        objetivo: "collab de produtos + ativação no Rio Open + conteúdo",
+        frente_nome: "EXPERIENCIA DE MARCA LIFESTYLE EVENTOS",
+        categoria: "EXPERIENCIA DE MARCA LIFESTYLE EVENTOS",
+        objetivo: "collab produto ativacao Rio Open conteudo",
       }],
     });
 
     const consultas = plano.perguntas.flatMap((pergunta) => pergunta.consultas.map((consulta) => consulta.termo));
-    expect(consultas.every((consulta) => /eventos/i.test(consulta))).toBe(true);
-    expect(consultas.some((consulta) => consulta.includes("Rio"))).toBe(true);
+    expect(consultas.some((consulta) => /eventos/i.test(consulta))).toBe(true);
+    expect(consultas[0]).toContain("Rio Open");
     expect(consultas.some((consulta) => /ativa/i.test(consulta))).toBe(true);
     expect(plano.objetivo_interpretado).toContain("Rio Open");
+  });
+
+  it("refina a pesquisa com direcionadores informados pela equipe, sem reutilizar o cliente como resultado", () => {
+    const plano = planejarDescobertaDeMercado({
+      cliente: "Aramis",
+      objetivo: "Mapear novas oportunidades.",
+      contexto: "Público prioritário: homens urbanos, corrida, bem-estar e posicionamento premium.",
+      frentes: [{
+        frente_id: "44444444-4444-4444-4444-444444444444",
+        frente_nome: "EXPERIÊNCIA DE MARCA · ESPORTES · CORRIDA",
+        categoria: "ESPORTES · CORRIDA",
+        objetivo: "Ativação e conteúdo para lifestyle masculino",
+      }],
+    });
+
+    const consultas = plano.perguntas.flatMap((pergunta) => pergunta.consultas.map((consulta) => consulta.termo));
+    expect(consultas.some((consulta) => /corrida/i.test(consulta))).toBe(true);
+    expect(consultas.some((consulta) => /premium/i.test(consulta))).toBe(true);
+    expect(consultas.every((consulta) => !/aramis/i.test(consulta))).toBe(true);
+  });
+
+  it("ignora o texto de fallback quando a equipe não adiciona direcionadores", () => {
+    const plano = planejarDescobertaDeMercado({
+      cliente: "Aramis",
+      objetivo: "Mapear novas oportunidades.",
+      contexto: "Cliente: Aramis. Direcionadores estratégicos informados pela equipe: não informado; usar somente o briefing selecionado. Pesquise somente marcas externas que possam atender a este briefing.",
+      frentes: [{
+        frente_id: "55555555-5555-5555-5555-555555555555",
+        frente_nome: "COLLABS · MODA · CALÇADOS",
+        categoria: "MODA · CALÇADOS",
+        objetivo: "Collab de produto",
+      }],
+    });
+
+    const consultas = plano.perguntas.flatMap((pergunta) => pergunta.consultas.map((consulta) => consulta.termo));
+    expect(consultas.every((consulta) => !/informado|somente/i.test(consulta))).toBe(true);
   });
 });

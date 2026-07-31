@@ -8,6 +8,7 @@ import { AppShell } from './components/AppShell';
 // As páginas exportam nomeado, então mapeamos para `default` no import dinâmico.
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })));
+const Clientes = lazy(() => import('./pages/Clientes').then((m) => ({ default: m.Clientes })));
 const Oportunidades = lazy(() => import('./pages/Oportunidades').then((m) => ({ default: m.Oportunidades })));
 const Partes = lazy(() => import('./pages/Partes').then((m) => ({ default: m.Partes })));
 const ParteDetalhe = lazy(() => import('./pages/ParteDetalhe').then((m) => ({ default: m.ParteDetalhe })));
@@ -58,6 +59,7 @@ export function App() {
               }
             >
               <Route path="/" element={<Dashboard />} />
+              <Route path="/clientes" element={<Clientes />} />
               <Route path="/oportunidades" element={<Oportunidades />} />
               <Route path="/partes" element={<Partes />} />
               <Route path="/partes/:parteId" element={<ParteDetalhe />} />

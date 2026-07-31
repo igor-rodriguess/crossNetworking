@@ -41,6 +41,7 @@ export function clienteDeBackend(
 ): Cliente {
   return {
     id: c.id,
+    parteId: c.parte_id,
     nome: c.parte_nome,
     sigla: siglaDe(c.parte_nome),
     segmento: extra?.segmento ?? '—',

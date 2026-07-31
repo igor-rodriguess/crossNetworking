@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { app } from "../app";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("Sondas operacionais", () => {
   it("expõe liveness e readiness", async () => {
@@ -19,5 +23,16 @@ describe("Sondas operacionais", () => {
   it("não revela detalhes internos no erro de readiness", async () => {
     const res = await request(app).get("/readyz");
     expect(res.body).not.toHaveProperty("detalhe");
+  });
+
+  it("verifica se o modelo Ollama configurado está disponível", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ models: [{ name: process.env.OLLAMA_MODEL ?? "qwen3:4b" }] }),
+    }));
+
+    const res = await request(app).get("/health/ai");
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ status: "ok", provider: "ollama", mode: "local" });
   });
 });

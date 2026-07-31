@@ -42,7 +42,13 @@ const PERSONA_ROTULO: Record<string, string> = {
 };
 
 const NAVEGACAO = [
-  { grupo: 'Operar hoje', itens: [{ para: '/', rotulo: 'Central de operação', icone: LayoutDashboard }] },
+  {
+    grupo: 'Operar hoje',
+    itens: [
+      { para: '/', rotulo: 'Central de operação', icone: LayoutDashboard },
+      { para: '/clientes', rotulo: 'Clientes', icone: Building2 },
+    ],
+  },
   {
     grupo: 'Inteligência Cross',
     itens: [
@@ -94,6 +100,7 @@ function SeletorCliente() {
   const clientes = useStore((s) => s.clientes);
   const adicionarCliente = useStore((s) => s.adicionarCliente);
   const carregarClientes = useStore((s) => s.carregarClientes);
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState('');
@@ -197,6 +204,7 @@ function SeletorCliente() {
                 onClick={() => {
                   setClienteAtivo(c.id);
                   setAberto(false);
+                  navigate(c.parteId ? `/partes/${c.parteId}` : '/clientes');
                 }}
                 className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-off ${
                   c.id === clienteAtivoId ? 'bg-accent-soft' : ''
@@ -283,6 +291,7 @@ function SeletorCliente() {
 
 const TITULOS: Record<string, string> = {
   '/': 'Dashboard',
+  '/clientes': 'Clientes',
   '/oportunidades': 'Oportunidades de parceria · IA',
   '/conhecimento': 'Relatórios & base RAG',
   '/partes': 'Base de relacionamentos',

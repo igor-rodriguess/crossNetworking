@@ -17,6 +17,8 @@ export const criarPerfilSchema = z
     posicionamento: texto,
     objetivos: texto,
     desafios: texto,
+    frentes_prioritarias: texto,
+    responsavel_marca: texto,
   })
   .refine((o) => Object.keys(o).length > 0, { message: "Informe ao menos um campo do perfil" });
 export type CriarPerfilInput = z.infer<typeof criarPerfilSchema>;

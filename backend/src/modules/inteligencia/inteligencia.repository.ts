@@ -58,16 +58,16 @@ export async function inserirPerfil(c: C, parteId: string, i: CriarPerfilInput, 
   );
   const { rows } = await c.query(
     `INSERT INTO cross_intelligence.perfil_estrategico
-       (parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,criado_por_id,atualizado_por_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$7)
-     RETURNING id,parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,status_versao,vigente_desde,criado_em`,
-    [parteId, Number(p[0].n), i.resumo ?? null, i.posicionamento ?? null, i.objetivos ?? null, i.desafios ?? null, u]
+       (parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,frentes_prioritarias,responsavel_marca,criado_por_id,atualizado_por_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$9)
+     RETURNING id,parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,frentes_prioritarias,responsavel_marca,status_versao,vigente_desde,criado_em`,
+    [parteId, Number(p[0].n), i.resumo ?? null, i.posicionamento ?? null, i.objetivos ?? null, i.desafios ?? null, i.frentes_prioritarias ?? null, i.responsavel_marca ?? null, u]
   );
   return rows[0];
 }
 export async function buscarPerfil(c: C, id: string) {
   const { rows } = await c.query(
-    `SELECT id,parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,status_versao,vigente_desde,vigente_ate,criado_em
+    `SELECT id,parte_id,numero_versao,resumo,posicionamento,objetivos,desafios,frentes_prioritarias,responsavel_marca,status_versao,vigente_desde,vigente_ate,criado_em
        FROM cross_intelligence.perfil_estrategico WHERE id=$1 AND arquivado_em IS NULL`,
     [id]
   );
@@ -75,7 +75,7 @@ export async function buscarPerfil(c: C, id: string) {
 }
 export async function listarPerfis(c: C, parteId: string) {
   const { rows } = await c.query(
-    `SELECT id,numero_versao,resumo,posicionamento,objetivos,desafios,status_versao,vigente_desde,vigente_ate,criado_em
+    `SELECT id,numero_versao,resumo,posicionamento,objetivos,desafios,frentes_prioritarias,responsavel_marca,status_versao,vigente_desde,vigente_ate,criado_em
        FROM cross_intelligence.perfil_estrategico WHERE parte_id=$1 AND arquivado_em IS NULL ORDER BY numero_versao DESC`,
     [parteId]
   );

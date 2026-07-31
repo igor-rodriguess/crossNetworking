@@ -76,6 +76,14 @@ export async function obterParte(id: string): Promise<ParteResposta> {
   return formatar(row);
 }
 
+/** Lista as marcas/unidades que pertencem a uma empresa-grupo. */
+export async function listarMarcasDoGrupo(parteId: string) {
+  return withTransaction(async (client) => {
+    await garantirParteAtiva(client, parteId);
+    return repo.listarMarcasDoGrupo(client, parteId);
+  });
+}
+
 /** Lista Partes com busca e paginação (RF004/RF008). */
 export async function listarPartes(filtros: {
   busca: string | null;

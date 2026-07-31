@@ -468,6 +468,9 @@ export const persistirOportunidadesSchema = z.object({
   execucao_pipeline_id: uuid.optional(),
   cliente: z.string().trim().min(1).max(300),
   objetivo: z.string().trim().min(1).max(2000),
+  // Frente e direcionadores que originaram o rascunho. São usados apenas para
+  // repetir o gate de aderência no momento da persistência.
+  contexto: z.string().trim().max(4000).optional(),
   projeto_id: uuid.optional(),
   frente_id: uuid.optional(),
   analises: z.array(pipelineAnaliseSchema),

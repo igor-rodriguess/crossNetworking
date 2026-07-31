@@ -44,6 +44,11 @@ export async function obter(req: Request, res: Response): Promise<void> {
   res.json(parte);
 }
 
+export async function listarMarcasDoGrupo(req: Request, res: Response): Promise<void> {
+  const parteId = exigirUuid(req.params.id, "Parte nÃ£o encontrada");
+  res.json({ itens: await service.listarMarcasDoGrupo(parteId) });
+}
+
 export async function atualizar(req: Request, res: Response): Promise<void> {
   const { id } = req.params;
   if (!UUID_RE.test(id)) throw new NotFoundError("Parte não encontrada");

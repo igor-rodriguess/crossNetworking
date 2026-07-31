@@ -77,7 +77,7 @@ Mantém o histórico e o status do projeto ao longo da entrega.
 
 ### Fora de escopo
 
-- **Prospecção** de clientes e parceiros (acontece **antes** do briefing).
+- Contato, negociação comercial e envio automático de propostas a clientes ou parceiros. A IA identifica e organiza oportunidades; a decisão e a abordagem continuam humanas.
 - Envio efetivo do paper ao cliente (e-mail/mensageria externa).
 - Financeiro contábil, faturamento e contratos.
 - Operação da plataforma pelo cliente final.
@@ -99,7 +99,7 @@ Trazer para dentro o que já existe é o maior desafio do projeto. A estratégia
 
 ## Papel da IA
 
-Uma camada de automação que entra **por cima** de uma base que já funciona sem ela: casar perfis no Crossability, apoiar o preenchimento do Score Card, sugerir configuração ao importar planilhas e gerar o racional do paper — sempre com validação humana antes de qualquer resultado final.
+Uma camada de automação que entra **por cima** de uma base que já funciona sem ela: planeja pesquisas externas, coleta fontes, avalia credibilidade, extrai evidências, resolve entidades, raciocina sobre Crossability, gera rascunhos de oportunidade e apoia o mapeamento de planilhas. O Cross Score Card permanece determinístico e toda sugestão passa por validação humana antes de virar recomendação ou parceria.
 
 ## Abordagem de entrega
 
@@ -108,22 +108,19 @@ O desenvolvimento tem prazo de **um mês**. A estratégia é entregar um **núcl
 Fase
 O que entra
 
-**Construir agora** *(núcleo demonstrável)*
-Espinha do Projeto (briefing → kickoff → análise → acompanhamento) navegável · Cross Score Card funcional de ponta a ponta (fundação já pronta) · configuração básica por cliente/produto · geração do paper a partir do Score Card.
+**Disponível agora**
+Projeto navegável do briefing ao acompanhamento · Cross Score Card funcional · cadastro e edição de dados · importação assistida de CSV e funil histórico · RAG de documentos · oportunidades externas com evidências, racional e Human Gate.
 
-**Modelar** *(estrutura pronta, implementação simples)*
-Crossability: modelar o perfil de ativos/objetivos/consumidores e uma primeira versão de match · integração com o Monday e importação de planilhas.
-
-**Depois**
-Carregar todas as empresas · agente de IA completo para o match · acompanhamento avançado.
+**Próximas evoluções**
+Integração com Monday · expansão da base de conhecimento · implantação do Ollama em servidor de rede · acompanhamento avançado e automações comerciais aprovadas por usuários.
 
 ## Tecnologias
 
-React · Node.js + Express + TypeScript · PostgreSQL · Python + LangGraph (IA) · integração com a Monday API. A fundação de dados e a engine do Score Card já estão implementadas; instruções de execução na pasta `api/`.
+React · Node.js + Express + TypeScript · PostgreSQL · Ollama local (`qwen3:4b`) · DuckDuckGo · Firecrawl. A orquestração atual é executada por pipelines e fila persistida em TypeScript; LangGraph é uma evolução prevista, não uma dependência em produção.
 
 ## Status
 
-Em desenvolvimento. A fundação (banco + engine do Score Card, testada) está pronta e o escopo completo — do briefing ao acompanhamento, com as duas metodologias — está consolidado.
+Pronto para demonstração local: banco, API, frontend, importação, RAG, Score Card e agentes estão conectados. A implantação em servidor e integrações externas de operação seguem como próxima etapa.
 
 ## Autor
 

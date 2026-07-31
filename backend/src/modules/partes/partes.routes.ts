@@ -25,6 +25,7 @@ const leitura = autorizar();
 partesRouter.post("/partes", escrita, asyncHandler(c.criar));
 partesRouter.get("/partes", leitura, asyncHandler(c.listar));
 partesRouter.get("/partes/:id", leitura, asyncHandler(c.obter));
+partesRouter.get("/partes/:id/marcas-grupo", leitura, asyncHandler(c.listarMarcasDoGrupo));
 partesRouter.patch("/partes/:id", escrita, asyncHandler(c.atualizar));
 partesRouter.delete("/partes/:id", escrita, asyncHandler(c.arquivar));
 
@@ -62,6 +63,13 @@ registrarRota({
   tag: "Partes",
   summary: "Obter Parte por id (retorna ETag para concorrência)",
   responses: { "200": "Parte", "404": "Não encontrada" },
+});
+registrarRota({
+  method: "GET",
+  path: "/v1/partes/:id/marcas-grupo",
+  tag: "Partes",
+  summary: "Listar marcas e unidades vinculadas a uma empresa-grupo",
+  responses: { "200": "Marcas do grupo", "404": "Parte nÃ£o encontrada" },
 });
 registrarRota({
   method: "PATCH",

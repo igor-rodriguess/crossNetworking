@@ -307,14 +307,16 @@ export function Artistas() {
             </ul>
           </div>
 
-          <div className="card flex items-start gap-3 border-dashed p-5">
-            <Sparkles size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-accent" />
-            <div>
-              <RotuloMono className="mb-1">Roadmap · IA da plataforma</RotuloMono>
-              <p className="text-sm leading-relaxed text-stone">
-                A próxima etapa cruza automaticamente estes Big Moments com os objetivos e territórios dos
-                clientes — sugerindo qual marca deveria estar em cada janela, sempre com validação humana.
-              </p>
+          <div className="overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent-soft/65 via-paper to-paper p-5 shadow-[0_10px_28px_rgba(0,0,0,0.04)]">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex max-w-2xl gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-paper"><Sparkles size={17} strokeWidth={1.5} /></div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2"><RotuloMono>Radar IA · pesquisa de oportunidades</RotuloMono><Chip tom="pos">disponível</Chip></div>
+                  <p className="mt-2 text-sm leading-relaxed text-graphite">Com este Big Moment como referência, abra o Radar para pesquisar marcas externas que possam ativar a janela. O Radar retorna evidências, fit estratégico e um rascunho de parceria para decisão do time.</p>
+                </div>
+              </div>
+              <Link to="/oportunidades" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition-colors hover:bg-graphite">Pesquisar oportunidades <ArrowRight size={14} strokeWidth={1.5} /></Link>
             </div>
           </div>
         </section>

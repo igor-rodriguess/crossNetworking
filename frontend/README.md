@@ -1,8 +1,8 @@
 # Plataforma Cross — Frontend
 
 Frontend da Plataforma Cross (Crossnetworking): curadoria, score e gestão de parcerias
-estratégicas. **Demo 100% offline com dados mockados** — sem chamadas de API — para
-apresentação ao cliente. Identidade visual: marca CROSS NETWORKING (símbolo geodésico +
+estratégicas. A interface consome a API local e o PostgreSQL da plataforma, com fluxos de
+importação, edição, oportunidades e agentes de IA. Identidade visual: marca CROSS NETWORKING (símbolo geodésico +
 wordmark), base **preto e branco** com **dourado champagne `#B98E4A`** como único acento
 (links, medidores, destaques; hover/texto `#8A6832`), fundo `#F7F5F1`, tipografia
 Archivo · Hanken Grotesk · Space Mono.
@@ -18,7 +18,7 @@ base — a plataforma diferencia quem busca a parceria de quem entra nela.
 - **React 18 + TypeScript** (strict) + **Vite 5**
 - **Tailwind CSS 3** com tokens do design system
 - **Zustand** (estado global com persistência em `localStorage`)
-- **React Router 6** (HashRouter — funciona em qualquer host estático)
+- **React Router 7** (HashRouter — funciona em qualquer host estático)
 - **lucide-react** (ícones lineares 1.5px, conforme o design system)
 - **@fontsource** (fontes empacotadas localmente — nada vem de CDN)
 
@@ -35,13 +35,13 @@ npm run build      # typecheck + build de produção em dist/
 npm run preview    # serve o build
 ```
 
-Login: qualquer nome/e-mail/senha em formato válido (autenticação mockada).
+Login: use uma conta cadastrada no backend. A sessão é autenticada pela API local.
 
 ## Módulos
 
 | Rota | Módulo | O que demonstra |
 |---|---|---|
-| `/login` | Autenticação (mock) | Split-screen com a marca; RF001 simulado |
+| `/login` | Autenticação | Split-screen com a marca e sessão autenticada pela API |
 | `/` | Dashboard | Visão global: saudação, KPIs (projetos em andamento, em negociação, parcerias ativas, valor potencial do pipeline), **funil de projetos por fase do ciclo**, projetos e atividades recentes |
 | `/oportunidades` | **Oportunidades de parceria · IA** | Radar de sugestões com fit Crossability, confiança, fontes consideradas, racional e briefing inicial; toda saída permanece sujeita ao Human Gate |
 | `/partes` | **Base de relacionamentos** | Todas as Partes do ecossistema (organizações e pessoas — RF004/RF005), com visões separadas: **clientes (quem busca a Cross)** × **marcas & organizações (parceiros)** × pessoas & talentos |
@@ -73,7 +73,7 @@ Login: qualquer nome/e-mail/senha em formato válido (autenticação mockada).
 ```
 src/
 ├── components/     # ui.tsx (primitivos), AppShell (sidebar/topbar), Logo
-├── data/mock.ts    # 3 clientes, 23 critérios, 18 marcas, 28 candidaturas, 7 parcerias
+├── api/            # cliente HTTP, contratos e mapeadores da API
 ├── lib/            # score.ts (engine RN023), format.ts, useDadosCliente.ts
 ├── pages/          # Login, Dashboard, Criterios, Marcas, ScoreCard, Ranking, Funil, Cronograma, Resumo
 ├── store/          # Zustand + persistência (chave plataforma-cross-demo)
@@ -81,12 +81,11 @@ src/
 └── main.tsx        # fontes + bootstrap
 ```
 
-O botão **Demo** no rodapé da sidebar restaura os dados de demonstração originais
-(descarta edições persistidas no `localStorage`).
+Os dados de negócio são persistidos pela API; ações de criação, edição, importação e
+curadoria de oportunidades permanecem auditáveis no backend.
 
-## Integração futura com o backend
+## Integração com o backend
 
-O modelo do front espelha o vocabulário da API real (`/v1`, 202 rotas): status de
-candidatura, regra do Score Card, histórico de movimentações e envelope de erros já
-seguem o WAD. A migração consiste em trocar os mocks/store por chamadas à API
-mantendo os mesmos tipos de `src/types.ts`.
+O frontend utiliza a API da plataforma para autenticação, clientes, partes, projetos,
+frentes, candidaturas, Score Card, importação e oportunidades de IA. O contrato HTTP
+mantém o vocabulário de domínio, histórico de movimentações e envelopes de erro.

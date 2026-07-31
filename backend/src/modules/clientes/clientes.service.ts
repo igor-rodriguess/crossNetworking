@@ -43,6 +43,9 @@ export async function criarCliente(input: CriarClienteInput, usuarioId: string |
   return withTransaction(async (client) => {
     const statusId = await exigirCodigo(client, T.statusCliente, input.status_cliente_codigo, "status_cliente");
     const id = await repo.inserirCliente(client, input, statusId, usuarioId);
+    // A promoção comercial e o papel "cliente" precisam acontecer juntos.
+    // Se qualquer etapa falhar, a transação preserva a Parte como ela estava.
+    await repo.garantirPapelCliente(client, input.parte_id, usuarioId);
     const criado = await repo.buscarClientePorId(client, id);
     if (!criado) throw new NotFoundError("Falha ao carregar o cliente recém-criado");
     return criado;

@@ -40,6 +40,7 @@ export interface ParteListaBackend {
   tipo: 'organizacao' | 'pessoa';
   nome_exibicao: string;
   status: string;
+  papeis: string[];
   criado_em: string;
 }
 
@@ -87,6 +88,8 @@ export interface PerfilEstrategicoBackend {
   posicionamento: string | null;
   objetivos: string | null;
   desafios: string | null;
+  frentes_prioritarias: string | null;
+  responsavel_marca: string | null;
   status_versao: string;
 }
 
@@ -147,7 +150,7 @@ export function parteDeBackend(
   };
 }
 
-/** Converte o item enxuto da listagem (sem papéis/contatos/especialização). */
+/** Converte o item enxuto da listagem (sem contatos/especialização). */
 export function parteListaDeBackend(p: ParteListaBackend): Parte {
   return {
     id: p.id,
@@ -157,7 +160,9 @@ export function parteListaDeBackend(p: ParteListaBackend): Parte {
     territorio: '',
     publico: '',
     descricao: '',
-    papeis: [],
+    papeis: p.papeis.map((papel) => papelDeBackend({
+      id: '', papel_codigo: papel, papel_nome: papel, vigente_desde: null, vigente_ate: null,
+    })),
     pracas: [],
     ativos: [],
     canais: [],
@@ -220,6 +225,8 @@ function perfilEstrategicoDeBackend(perfil: PerfilEstrategicoBackend): PerfilEst
     posicionamento: perfil.posicionamento ?? undefined,
     objetivos: perfil.objetivos ?? undefined,
     desafios: perfil.desafios ?? undefined,
+    frentesPrioritarias: perfil.frentes_prioritarias ?? undefined,
+    responsavelMarca: perfil.responsavel_marca ?? undefined,
   };
 }
 

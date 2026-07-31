@@ -61,6 +61,32 @@ export function emModoMock(): boolean {
 }
 
 /**
+ * Carrega o modelo local em segundo plano durante a subida da API. A primeira
+ * inferência de um Ollama em CPU pode levar dezenas de segundos; aquecê-lo
+ * antes da interação deixa importações e pesquisas mais responsivas sem
+ * bloquear a disponibilidade do servidor.
+ */
+export async function aquecerOllama(): Promise<void> {
+  if (env.aiProvider !== "ollama" || emModoMock()) return;
+
+  const resposta = await fetch(`${env.ollamaBaseUrl}/api/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: env.ollamaModel,
+      prompt: "Responda somente: ok",
+      stream: false,
+      keep_alive: "15m",
+      options: { temperature: 0, num_predict: 1 },
+    }),
+    // Não deixa um Ollama indisponível prender a inicialização em segundo plano.
+    signal: AbortSignal.timeout(60_000),
+  });
+  if (!resposta.ok) throw new Error(`Ollama respondeu HTTP ${resposta.status} durante o aquecimento.`);
+  await resposta.text();
+}
+
+/**
  * Executa uma chamada de LLM que retorna JSON. Em modo mock, devolve o stub
  * determinístico sem tocar em rede. A validação do formato fica com o chamador.
  */
@@ -83,6 +109,9 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
         model: modelo,
         messages: opcoes.mensagens,
         stream: false,
+        // Mantém o modelo local carregado entre etapas de um mesmo pipeline.
+        // Evita que cada agente pague novamente o custo de inicialização.
+        keep_alive: "15m",
         think: false,
           format: opcoes.formatoJson ? z.toJSONSchema(opcoes.formatoJson) : ("json" as const),
         options: { temperature: opcoes.temperatura ?? 0.2 },

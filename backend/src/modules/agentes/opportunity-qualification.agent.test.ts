@@ -98,4 +98,59 @@ describe("Opportunity Qualification — descoberta externa", () => {
   it("bloqueia nomes genéricos, mesmo que uma página tenha sido coletada", () => {
     expect(validarCandidataExterna({ cliente: "Aramis", parceiro: "Login", extracao, coleta, credibilidade }).aprovada).toBe(false);
   });
+
+  it("exige a âncora de uma propriedade específica do briefing", () => {
+    const resultado = validarCandidataExterna({
+      cliente: "Aramis",
+      parceiro: "Marca Exemplo",
+      objetivo: "Collab de produto e ativação no Rio Open",
+      extracao,
+      coleta,
+      credibilidade,
+    });
+
+    expect(resultado.aprovada).toBe(false);
+    expect(resultado.motivos.join(" ")).toMatch(/rio open/i);
+  });
+
+  it("exige que a evidência trate do tema específico da frente, não só de uma parceria genérica", () => {
+    const generica = validarCandidataExterna({
+      cliente: "Aramis",
+      parceiro: "Marca Exemplo",
+      objetivo: "Experiência de marca em esportes e corrida",
+      extracao,
+      coleta,
+      credibilidade,
+    });
+    const focoVindoDoContexto = validarCandidataExterna({
+      cliente: "Aramis",
+      parceiro: "Marca Exemplo",
+      objetivo: "Experiência de marca",
+      contexto: "Briefing selecionado: Esportes · Corrida. Direcionador: bem-estar.",
+      extracao,
+      coleta,
+      credibilidade,
+    });
+    const relacionada = validarCandidataExterna({
+      cliente: "Aramis",
+      parceiro: "Marca Exemplo",
+      objetivo: "Experiência de marca em esportes e corrida",
+      extracao: {
+        ...extracao,
+        perfis: [{
+          ...extracao.perfis[0],
+          ativos: ["circuito de corrida de rua"],
+          sinais_parceria: ["patrocínio de corrida e ativações para runners"],
+        }],
+      },
+      coleta,
+      credibilidade,
+    });
+
+    expect(generica.aprovada).toBe(false);
+    expect(generica.motivos.join(" ")).toContain("corrida");
+    expect(focoVindoDoContexto.aprovada).toBe(false);
+    expect(focoVindoDoContexto.motivos.join(" ")).toContain("corrida");
+    expect(relacionada.aprovada).toBe(true);
+  });
 });

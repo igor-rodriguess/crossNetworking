@@ -91,6 +91,7 @@ export interface ParteListaRow {
   tipo: string;
   nome_exibicao: string;
   status: string;
+  papeis: string[];
   criado_em: string;
   total: string;
 }
@@ -100,10 +101,18 @@ export async function listarPartes(
   filtros: { busca: string | null; tipo: string | null; limit: number; offset: number }
 ): Promise<{ itens: Omit<ParteListaRow, "total">[]; total: number }> {
   const { rows } = await client.query<ParteListaRow>(
-    `SELECT p.id, p.tipo, p.nome_exibicao, sp.codigo AS status, p.criado_em,
+    `SELECT p.id, p.tipo, p.nome_exibicao, sp.codigo AS status,
+            COALESCE(papeis.codigos, ARRAY[]::text[]) AS papeis, p.criado_em,
             count(*) OVER() AS total
        FROM cross_core.parte p
        JOIN cross_core.status_parte sp ON sp.id = p.status_parte_id
+       LEFT JOIN LATERAL (
+         SELECT array_agg(pa.codigo ORDER BY pa.ordem NULLS LAST, pa.codigo) AS codigos
+           FROM cross_core.parte_papel pp
+           JOIN cross_core.papel pa ON pa.id = pp.papel_id
+          WHERE pp.parte_id = p.id
+            AND pp.arquivado_em IS NULL
+       ) papeis ON TRUE
       WHERE p.arquivado_em IS NULL
         AND ($1::text IS NULL OR p.nome_exibicao ILIKE '%' || $1 || '%')
         AND ($2::text IS NULL OR p.tipo::text = $2)
@@ -139,6 +148,30 @@ export async function existeParteAtiva(client: PoolClient, id: string): Promise<
     [id]
   );
   return rows.length > 0;
+}
+
+// ---------------------------------------------------------------------------
+// Grupo empresarial e marcas/unidades
+// ---------------------------------------------------------------------------
+
+export interface MarcaDoGrupoRow {
+  id: string;
+  nome: string;
+  categoria: string | null;
+}
+
+export async function listarMarcasDoGrupo(client: PoolClient, grupoParteId: string): Promise<MarcaDoGrupoRow[]> {
+  const { rows } = await client.query<MarcaDoGrupoRow>(
+    `SELECT m.id, m.nome_exibicao AS nome, o.segmento_principal AS categoria
+       FROM cross_core.grupo_marca gm
+       JOIN cross_core.parte m ON m.id = gm.marca_parte_id
+       LEFT JOIN cross_core.organizacao o ON o.parte_id = m.id
+      WHERE gm.grupo_parte_id = $1
+        AND m.arquivado_em IS NULL
+      ORDER BY m.nome_exibicao`,
+    [grupoParteId]
+  );
+  return rows;
 }
 
 /** Tipo da Parte, para validar qual especialização o PATCH pode tocar. */

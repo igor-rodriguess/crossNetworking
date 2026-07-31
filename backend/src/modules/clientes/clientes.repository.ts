@@ -60,6 +60,30 @@ export async function inserirCliente(
   return rows[0].id;
 }
 
+/** Garante que o vínculo comercial também esteja refletido no papel da Parte.
+ * A Parte pode continuar sendo parceira: os papéis são complementares e não
+ * representam cadastros duplicados. */
+export async function garantirPapelCliente(
+  client: PoolClient,
+  parteId: string,
+  criadoPorId: string | null
+): Promise<void> {
+  await client.query(
+    `INSERT INTO cross_core.parte_papel (parte_id, papel_id, vigente_desde, criado_por_id)
+     SELECT $1, p.id, CURRENT_DATE, $2
+       FROM cross_core.papel p
+      WHERE p.codigo = 'cliente'
+        AND NOT EXISTS (
+          SELECT 1
+            FROM cross_core.parte_papel pp
+           WHERE pp.parte_id = $1
+             AND pp.papel_id = p.id
+             AND pp.arquivado_em IS NULL
+        )`,
+    [parteId, criadoPorId]
+  );
+}
+
 export async function buscarClientePorId(client: PoolClient, id: string): Promise<ClienteRow | null> {
   const { rows } = await client.query<ClienteRow>(
     `SELECT ${CLIENTE_COLS} ${CLIENTE_FROM} WHERE cc.id = $1 AND cc.arquivado_em IS NULL`,

@@ -1,4 +1,5 @@
 import { chamarLLMJson, type MensagemLLM, type OrigemLLM } from "./shared/llm";
+import { avaliarTemaDoBriefing } from "./opportunity-qualification.agent";
 import {
   analiseCrossabilitySchema,
   type AnaliseCrossabilitySaida,
@@ -71,6 +72,55 @@ function montarMensagens(input: RaciocinarCrossabilityInput): MensagemLLM[] {
     { role: "system", content: SYSTEM },
     { role: "user", content: `Avalie a Crossability:\n\n${ctx.join("\n")}` },
   ];
+}
+
+function normalizarTexto(texto: string): string {
+  return texto
+    .toLocaleLowerCase("pt-BR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function aderenciaDaEvidenciaAoBriefing(input: RaciocinarCrossabilityInput): {
+  aderente: boolean;
+  referencia: string | null;
+  temSinalDeParceria: boolean;
+  fontesIndependentes: number;
+  camposComEvidencia: number;
+} {
+  const perfil = input.perfil_parceiro ?? {};
+  const evidencia = normalizarTexto([
+    ...(perfil.fontes ?? []).map((fonte) => fonte.evidencia),
+    ...(perfil.ativos ?? []),
+    ...(perfil.sinais_parceria ?? []),
+  ].join(" "));
+  const briefing = normalizarTexto(input.objetivo ?? "");
+  const fontesIndependentes = new Set(
+    (perfil.fontes ?? []).map((fonte) => {
+      try {
+        return new URL(fonte.url).hostname.replace(/^www\./, "");
+      } catch {
+        return fonte.url;
+      }
+    })
+  ).size;
+  const camposComEvidencia = [perfil.publicos, perfil.territorios, perfil.ativos, perfil.sinais_parceria]
+    .filter((campo) => (campo?.length ?? 0) > 0)
+    .length;
+  const temSinalDeParceria = /collab|colabor|parceria|ativacao|patrocin|co[- ]?brand|co[- ]?marketing|apoio/.test(evidencia);
+  const aderenciaTematica = avaliarTemaDoBriefing(briefing, evidencia);
+  if (aderenciaTematica.temas.length) {
+    return {
+      aderente: aderenciaTematica.atende,
+      referencia: aderenciaTematica.referencia,
+      temSinalDeParceria,
+      fontesIndependentes,
+      camposComEvidencia,
+    };
+  }
+  return { aderente: temSinalDeParceria, referencia: null, temSinalDeParceria, fontesIndependentes, camposComEvidencia };
 }
 
 // --- Stub determinístico (modo mock) -----------------------------------------
@@ -148,7 +198,27 @@ export function raciocinarCrossabilityComEvidenciaExterna(
   const temAtivos = (perfil.ativos?.length ?? 0) > 0;
   const temSinais = (perfil.sinais_parceria?.length ?? 0) > 0;
   const baseConfianca = perfil.confianca ?? 0;
-  const fontesSuficientes = fontes.length >= 2;
+  const aderencia = aderenciaDaEvidenciaAoBriefing(input);
+  const fontesSuficientes = aderencia.fontesIndependentes >= 2;
+  const evidenciaRobusta = aderencia.aderente && aderencia.temSinalDeParceria && (fontesSuficientes || temAtivos);
+  const evidenciaMuitoRobusta = aderencia.aderente && aderencia.temSinalDeParceria && fontesSuficientes && temAtivos;
+  const detalheAderencia = aderencia.referencia
+    ? `A evidência externa cita diretamente ${aderencia.referencia}.
+`
+    : "A evidência traz um sinal de parceria compatível com o briefing selecionado.";
+  const confiancaCalculada = Math.round(
+    Math.min(baseConfianca, 85) * 0.45
+    + aderencia.fontesIndependentes * 10
+    + aderencia.camposComEvidencia * 3
+    + (aderencia.referencia ? 15 : 0)
+    + (aderencia.temSinalDeParceria ? 8 : 0)
+  );
+  // Uma única matéria pode abrir um radar, mas não deve ter o mesmo peso de
+  // fontes independentes. O teto preserva essa diferença também no ranking.
+  const confianca = Math.min(
+    fontesSuficientes ? 75 : 58,
+    Math.max(25, confiancaCalculada),
+  );
 
   const saida: AnaliseCrossabilitySaida = {
     compatibilidade_publicos: {
@@ -158,38 +228,38 @@ export function raciocinarCrossabilityComEvidenciaExterna(
         : `A matéria não detalha público de ${parceiro}; não há base externa suficiente para comparar com ${input.cliente}.`,
     },
     compatibilidade_territorios: {
-      nivel: temTerritorios ? "media" : "baixa",
+      nivel: temTerritorios && fontesSuficientes ? "media" : "baixa",
       texto: temTerritorios
-        ? `A atuação citada para ${parceiro} inclui ${perfil.territorios?.slice(0, 3).join(" · ")}. A aderência de praças com ${input.cliente} precisa de validação comercial.`
+        ? `A atuação citada para ${parceiro} inclui ${perfil.territorios?.slice(0, 3).join(" · ")}. ${fontesSuficientes ? `Há ${aderencia.fontesIndependentes} fontes independentes para sustentar a leitura inicial;` : "A informação aparece em fonte única;"} a aderência de praças com ${input.cliente} ainda precisa de validação comercial.`
         : `A fonte não informa praças ou territórios de ${parceiro}; esta dimensão permanece em estudo.`,
     },
     complementaridade_ativos: {
-      nivel: temAtivos ? "media" : "baixa",
+      nivel: evidenciaMuitoRobusta ? "alta" : evidenciaRobusta ? "media" : "baixa",
       texto: temAtivos
-        ? `O artigo cita ativos de ${parceiro}: ${perfil.ativos?.slice(0, 3).join(" · ")}. Eles formam uma hipótese de ativação, ainda sem contrapartida confirmada por ${input.cliente}.`
+        ? `${detalheAderencia} O artigo cita ativos de ${parceiro}: ${perfil.ativos?.slice(0, 3).join(" · ")}. ${evidenciaRobusta ? "Eles formam uma hipótese de ativação aderente ao briefing," : "Ainda não há comprovação suficiente de que esses ativos atendam ao briefing,"} e a contrapartida de ${input.cliente} precisa ser confirmada.`
         : `A matéria não descreve ativos acionáveis de ${parceiro}; não é possível afirmar complementaridade.`,
     },
     sinergias: {
-      nivel: temSinais ? "media" : "baixa",
-      texto: temSinais
+      nivel: evidenciaMuitoRobusta ? "alta" : evidenciaRobusta ? "media" : "baixa",
+      texto: temSinais && evidenciaRobusta
         ? `Há sinal externo de colaboração ou ativação: ${perfil.sinais_parceria?.slice(0, 2).join(" · ")}. A sinergia deve ser validada em briefing conjunto.`
-        : `Sem sinal externo de parceria, canal ou ativação, não há sinergia comprovada neste momento.`,
+        : `A fonte ainda não conecta um movimento de parceria ao briefing selecionado; não há sinergia comprovada neste momento.`,
     },
     fit_estrategico: {
-      nivel: fontesSuficientes && temSinais ? "media" : "baixa",
-      texto: fontesSuficientes && temSinais
-        ? `Duas ou mais evidências externas sustentam a hipótese para o objetivo “${input.objetivo ?? "parceria estratégica"}”.`
-        : `A evidência atual sustenta uma hipótese sobre ${parceiro}, mas não comprova alinhamento estratégico com ${input.cliente}.`,
+      nivel: evidenciaMuitoRobusta ? "alta" : aderencia.aderente && aderencia.temSinalDeParceria ? "media" : "baixa",
+      texto: aderencia.aderente && aderencia.temSinalDeParceria
+        ? `${detalheAderencia} A hipótese atende ao objetivo “${input.objetivo ?? "parceria estratégica"}” em nível ${evidenciaMuitoRobusta ? "alto" : "preliminar"}, mas ainda depende de validação comercial.`
+        : `A evidência atual cita ${parceiro}, mas não comprova que a marca atenda ao briefing de ${input.cliente}.`,
     },
     momento_estrategico: {
-      nivel: temSinais ? "media" : "baixa",
-      texto: temSinais
+      nivel: evidenciaMuitoRobusta ? "alta" : evidenciaRobusta ? "media" : "baixa",
+      texto: temSinais && evidenciaRobusta
         ? `O contexto externo indica movimento de marca que justifica uma abordagem exploratória agora.`
-        : `A fonte não apresenta uma janela comercial ou de calendário verificável para ${parceiro}.`,
+        : `A fonte não apresenta uma janela comercial ou de calendário verificável para este briefing.`,
     },
     recomendacao: "em_estudo",
-    racional_recomendacao: `${parceiro} entrou no radar por evidência externa verificável: ${evidencia} A sugestão é preliminar e não usa a Base Cross como prova de fit. Antes de avançar, validar público, ativos disponíveis, exclusividade e interesse comercial.`,
-    confianca: Math.min(58, Math.max(25, Math.round(baseConfianca * 0.65 + fontes.length * 4))),
+    racional_recomendacao: `${parceiro} entrou no radar por evidência externa verificável: ${evidencia} ${aderencia.aderente ? detalheAderencia : "A aderência ao briefing ainda é insuficiente e deve ser revisada."} Evidência: ${aderencia.fontesIndependentes} fonte(s) independente(s) e ${aderencia.camposComEvidencia} dimensão(ões) de perfil preenchida(s). A sugestão é preliminar e não usa a Base Cross como prova de fit. Antes de avançar, validar público, ativos disponíveis, exclusividade e interesse comercial.`,
+    confianca,
   };
   return { saida, origem: "heuristica" };
 }

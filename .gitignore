@@ -1,0 +1,6 @@
+# Saídas temporárias de execuções de teste (vitest) — não versionar.
+.tmp-vitest-*/
+**/.tmp-vitest-*/
+
+# Scripts temporários de inspeção/carga usados em sessões de trabalho.
+tmp-*.cjs

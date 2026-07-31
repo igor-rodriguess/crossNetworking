@@ -158,6 +158,10 @@ async function extrairFirecrawl(url: string): Promise<PerfilExtraidoWeb> {
         ],
         onlyMainContent: true,
       }),
+      // Uma página bloqueada ou não suportada não pode segurar a edição manual
+      // do perfil. O enriquecedor continua útil usando o snippet da busca e o
+      // Ollama local quando esta tentativa expira.
+      signal: AbortSignal.timeout(12_000),
     });
   } catch (causa) {
     logger.error({ causa }, "Falha de rede ao extrair via Firecrawl");
@@ -206,7 +210,7 @@ function textos(valor: unknown): string[] {
     : [];
 }
 
-async function extrairCandidatasFirecrawl(url: string): Promise<CandidataExtraidaDeArtigo[]> {
+async function extrairCandidatasFirecrawl(url: string, foco?: string): Promise<CandidataExtraidaDeArtigo[]> {
   let resposta: Response;
   try {
     resposta = await fetch(FIRECRAWL_SCRAPE_URL, {
@@ -222,12 +226,14 @@ async function extrairCandidatasFirecrawl(url: string): Promise<CandidataExtraid
             type: "json",
             prompt: [
               "Esta página é uma matéria externa usada para descobrir novas oportunidades de parceria.",
+              foco ? `O briefing que a candidata precisa atender é: ${foco}` : null,
               "Extraia no máximo três MARCAS ou EMPRESAS explicitamente citadas no texto.",
+              "Retorne uma marca somente se a evidência citar a própria marca E trouxer uma relação direta com o briefing informado. Menções incidentais não são candidatas.",
               "Nunca retorne o título da matéria, o nome do veículo, categorias genéricas, eventos ou pessoas que não sejam uma marca/empresa.",
               "Para cada candidata, a evidência deve citar literalmente a própria marca e explicar seu contexto no artigo.",
               "Se não houver uma marca/empresa específica e comprovável, retorne candidatas vazia.",
               "Não invente atributos: use listas vazias e setor não identificado quando o artigo não sustentar o dado.",
-            ].join(" "),
+            ].filter(Boolean).join(" "),
             schema: SCHEMA_CANDIDATAS_ARTIGO,
           },
         ],
@@ -271,9 +277,9 @@ async function extrairCandidatasFirecrawl(url: string): Promise<CandidataExtraid
  * Identifica candidatas reais citadas em uma matéria. Em modo mock, retorna
  * vazio de propósito: um stub não é evidência para criar oportunidade.
  */
-export async function extrairCandidatasDeArtigo(url: string): Promise<ResultadoCandidatasArtigo> {
+export async function extrairCandidatasDeArtigo(url: string, foco?: string): Promise<ResultadoCandidatasArtigo> {
   if (extracaoEmModoMock()) return { candidatas: [], origem: "mock" };
-  return { candidatas: await extrairCandidatasFirecrawl(url), origem: "firecrawl" };
+  return { candidatas: await extrairCandidatasFirecrawl(url, foco), origem: "firecrawl" };
 }
 
 // --- Busca de conteúdo bruto (markdown) ---------------------------------------
@@ -321,6 +327,7 @@ async function scrapeMarkdown(url: string): Promise<string> {
         formats: ["markdown"],
         onlyMainContent: true,
       }),
+      signal: AbortSignal.timeout(15_000),
     });
   } catch (causa) {
     logger.error({ causa }, "Falha de rede ao buscar conteúdo via Firecrawl");

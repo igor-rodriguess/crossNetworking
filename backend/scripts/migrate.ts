@@ -43,10 +43,24 @@ function listMigrationFiles(): string[] {
     .sort();
 }
 
+/** `--test` aplica o schema no banco da suíte (TEST_DATABASE_URL). */
+const alvoTeste = process.argv.includes("--test");
+
 function makeClient(): Client {
-  // Migrations usam a conexão administrativa; cai para DATABASE_URL se
-  // MIGRATION_DATABASE_URL não estiver definida.
-  const url = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
+  // Com --test, o alvo é o banco descartável dos testes; nunca a produção.
+  // Fora dele, migrations usam a conexão administrativa e caem para
+  // DATABASE_URL se MIGRATION_DATABASE_URL não estiver definida.
+  const url = alvoTeste
+    ? process.env.TEST_DATABASE_URL
+    : process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
+
+  if (alvoTeste && !url) {
+    throw new Error(
+      "TEST_DATABASE_URL não definida.\n" +
+        "  1. docker compose up -d db-test\n" +
+        "  2. defina TEST_DATABASE_URL no .env (veja .env.example)"
+    );
+  }
   if (!url) {
     throw new Error("MIGRATION_DATABASE_URL/DATABASE_URL não definida. Copie .env.example para .env.");
   }

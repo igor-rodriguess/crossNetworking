@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/src/server.js",
     "db:migrate": "tsx scripts/migrate.ts",
+    "db:migrate:test": "tsx scripts/migrate.ts --test",
     "db:status": "tsx scripts/migrate.ts status",
     "db:test": "tsx scripts/test-db.ts",
     "db:health": "tsx scripts/db-health.ts",

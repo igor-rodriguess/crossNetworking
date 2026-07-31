@@ -111,8 +111,24 @@ if (isProd && !data.METRICS_TOKEN) {
 const jwtSecret =
   data.JWT_SECRET ?? "dev-secret-somente-para-desenvolvimento-e-testes-32c";
 
+/**
+ * Banco usado pela suíte automatizada.
+ *
+ * Os testes criam clientes, projetos e candidaturas reais. O harness
+ * (tests/setup.ts) envolve cada caso numa transação com ROLLBACK, mas isso não
+ * é garantia suficiente: um teste que abra a própria conexão, ou uma queda no
+ * meio da execução, deixa resíduo. Em julho/2026 foi assim que 25 clientes
+ * "Cli * E2E" foram parar na base real (limpos pela migration 051).
+ *
+ * Por isso, sob VITEST usamos TEST_DATABASE_URL. Quando ela não está definida,
+ * o teste NÃO cai silenciosamente na produção: `db.ts` aborta com instrução de
+ * como subir o banco local. Preferimos falhar ruidosamente a sujar dados reais.
+ */
+const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? null;
+
 export const env = {
   databaseUrl: data.DATABASE_URL,
+  testDatabaseUrl,
   databaseSslStrict: data.DATABASE_SSL_STRICT,
   port: data.PORT,
   nodeEnv: data.NODE_ENV,

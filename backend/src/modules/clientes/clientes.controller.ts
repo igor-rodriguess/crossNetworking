@@ -32,13 +32,17 @@ export async function listar(req: Request, res: Response): Promise<void> {
   const p = parsePaginacao(req.query as Record<string, unknown>);
   const buscaRaw = req.query.busca;
   const busca = typeof buscaRaw === "string" && buscaRaw.trim() ? buscaRaw.trim() : null;
-  const { itens, total } = await service.listarClientes({ busca, limit: p.limit, offset: p.offset });
+  // O escopo vem do usuário autenticado, não de parâmetro da requisição.
+  const { itens, total } = await service.listarClientes(
+    { busca, limit: p.limit, offset: p.offset },
+    req.usuario?.id ?? null
+  );
   res.json(envelopePaginado(itens, total, p));
 }
 
 export async function obter(req: Request, res: Response): Promise<void> {
   const id = exigirUuid(req.params.id, "Cliente não encontrado");
-  const cliente = await service.obterCliente(id);
+  const cliente = await service.obterCliente(id, req.usuario?.id ?? null);
   res.setHeader("ETag", `"${cliente.versao}"`);
   res.json(cliente);
 }

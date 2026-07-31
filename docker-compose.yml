@@ -16,5 +16,33 @@ services:
       timeout: 5s
       retries: 10
 
+  # Banco exclusivo da suíte automatizada. Existe para que `npm test` nunca
+  # toque na base real: os testes criam clientes, projetos e candidaturas, e
+  # embora o harness (tests/setup.ts) faça ROLLBACK de cada caso, qualquer
+  # falha no meio do caminho — ou um teste que abra sua própria conexão —
+  # deixaria resíduo na produção. Foi o que aconteceu em julho/2026 e gerou os
+  # 25 clientes "Cli * E2E" limpos pela migration 051.
+  #
+  # Sem volume: o banco é efêmero de propósito. Cada `docker compose down`
+  # descarta tudo, e `npm run db:migrate:test` reconstrói o schema do zero.
+  db-test:
+    image: postgres:16
+    container_name: cross-db-test
+    environment:
+      POSTGRES_DB: cross_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    command: >
+      postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cross_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
 volumes:
   cross_db_data:

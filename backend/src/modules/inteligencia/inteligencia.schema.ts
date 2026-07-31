@@ -25,15 +25,46 @@ export type CriarPerfilInput = z.infer<typeof criarPerfilSchema>;
 
 // --- RF011 · Catálogos e associações ---------------------------------------
 
+/**
+ * Nome de item de vocabulário controlado (público, praça, território).
+ *
+ * `min(1)` não bastava: uma importação que quebrou textos por vírgula gravou
+ * entradas como "por tabela", "urbanos" e "num vínculo multigeracional entre
+ * gerações." como se fossem públicos. São fragmentos de frase, não termos de
+ * catálogo — e poluíram o vocabulário a ponto de precisar de limpeza manual.
+ *
+ * As regras abaixo rejeitam o formato de fragmento sem engessar termos legítimos
+ * ("Experiências à mesa", "Homens 21-40" e "Comunidade de fitness" passam).
+ */
+const nomeVocabulario = z
+  .string()
+  .trim()
+  .min(2, "nome muito curto")
+  .max(80, "nome muito longo para um item de vocabulário — parece uma frase")
+  .refine((v) => !v.endsWith("."), "nome não deve terminar em ponto — parece um trecho de frase")
+  .refine((v) => !/\?/.test(v), "nome contém '?' — provável falha de codificação de caracteres")
+  .refine(
+    // Limite calibrado contra o vocabulário real: "Consumidores de produtos
+    // para rotina de cuidados com a pele" (10 palavras) é um público legítimo;
+    // acima disso já é descrição, não termo de catálogo.
+    (v) => v.split(/\s+/).length <= 12,
+    "nome com palavras demais — descreva o termo, não a frase inteira"
+  )
+  .refine(
+    // Conectivos no início denunciam um pedaço de frase maior.
+    (v) => !/^(e|ou|com|sem|por|para|que|de|da|do|no|na|num|numa)\s/i.test(v),
+    "nome começa por conectivo — parece continuação de outra frase"
+  );
+
 export const criarPublicoSchema = z.object({
-  nome: z.string().trim().min(1, "nome é obrigatório"),
+  nome: nomeVocabulario,
   descricao: texto,
   faixa_etaria: texto,
 });
 export type CriarPublicoInput = z.infer<typeof criarPublicoSchema>;
 
 export const criarPracaSchema = z.object({
-  nome: z.string().trim().min(1, "nome é obrigatório"),
+  nome: nomeVocabulario,
   uf: z.string().trim().length(2).optional(),
   pais: texto,
 });
@@ -41,7 +72,7 @@ export type CriarPracaInput = z.infer<typeof criarPracaSchema>;
 
 export const criarTerritorioSchema = z.object({
   codigo: z.string().trim().min(1, "codigo é obrigatório"),
-  nome: z.string().trim().min(1, "nome é obrigatório"),
+  nome: nomeVocabulario,
   descricao: texto,
 });
 export type CriarTerritorioInput = z.infer<typeof criarTerritorioSchema>;

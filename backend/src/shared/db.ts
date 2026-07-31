@@ -1,10 +1,41 @@
 import { Pool, PoolClient } from "pg";
 import { env } from "../config/env";
 
-const usaSsl = env.databaseUrl.includes("supabase.") || env.isProd;
+/**
+ * URL efetiva do banco. Sob teste, exige TEST_DATABASE_URL: a suíte cria dados
+ * reais e não pode, em hipótese alguma, apontar para a base de produção.
+ *
+ * A falha é deliberadamente ruidosa — cair de volta em DATABASE_URL seria o
+ * comportamento perigoso que gerou os resíduos limpos pela migration 051.
+ */
+function resolverUrl(): string {
+  if (!env.isTest) return env.databaseUrl;
+
+  if (!env.testDatabaseUrl) {
+    throw new Error(
+      "TEST_DATABASE_URL não definida — a suíte NÃO roda contra o banco de produção.\n" +
+        "  1. Suba o banco de teste:  docker compose up -d db-test\n" +
+        "  2. Aplique o schema:       npm run db:migrate:test\n" +
+        "  3. Rode os testes:         npm test\n" +
+        "Ou defina TEST_DATABASE_URL no .env apontando para um banco descartável."
+    );
+  }
+
+  // Guarda extra: mesmo definida, a URL de teste não pode ser a de produção.
+  if (env.testDatabaseUrl === env.databaseUrl) {
+    throw new Error(
+      "TEST_DATABASE_URL é idêntica a DATABASE_URL. Use um banco separado para os testes."
+    );
+  }
+
+  return env.testDatabaseUrl;
+}
+
+const connectionString = resolverUrl();
+const usaSsl = connectionString.includes("supabase.") || env.isProd;
 
 export const pool = new Pool({
-  connectionString: env.databaseUrl,
+  connectionString,
   // TLS obrigatório em Supabase/produção. A verificação estrita do certificado
   // é controlada por env (default relaxado para o pooler do Supabase).
   ssl: usaSsl ? { rejectUnauthorized: env.databaseSslStrict } : undefined,

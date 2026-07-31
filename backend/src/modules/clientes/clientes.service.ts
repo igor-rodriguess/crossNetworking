@@ -1,5 +1,6 @@
 import { PoolClient } from "pg";
 import { withTransaction } from "../../shared/db";
+import { clientesDoUsuario, podeVerCliente } from "../../shared/escopo";
 import { ConflictError, NotFoundError, ValidationError } from "../../shared/errors";
 import * as repo from "./clientes.repository";
 import {
@@ -52,14 +53,33 @@ export async function criarCliente(input: CriarClienteInput, usuarioId: string |
   }, { usuarioId });
 }
 
-export async function listarClientes(filtros: { busca: string | null; limit: number; offset: number }) {
-  return withTransaction((client) => repo.listarClientes(client, filtros));
+/**
+ * O escopo é resolvido aqui, a partir do usuário autenticado — nunca a partir
+ * da query string. Um usuário sem vínculos declarados continua vendo todas as
+ * contas (equipe interna); ver shared/escopo.ts e a migration 052.
+ */
+export async function listarClientes(
+  filtros: { busca: string | null; limit: number; offset: number },
+  usuarioId: string | null = null
+) {
+  return withTransaction(async (client) => {
+    const clientesPermitidos = await clientesDoUsuario(client, usuarioId);
+    return repo.listarClientes(client, { ...filtros, clientesPermitidos });
+  });
 }
 
-export async function obterCliente(id: string) {
-  const row = await withTransaction((client) => repo.buscarClientePorId(client, id));
-  if (!row) throw new NotFoundError("Cliente não encontrado");
-  return row;
+export async function obterCliente(id: string, usuarioId: string | null = null) {
+  return withTransaction(async (client) => {
+    const row = await repo.buscarClientePorId(client, id);
+    if (!row) throw new NotFoundError("Cliente não encontrado");
+
+    // Fora do escopo responde 404, não 403: informar que a conta existe já
+    // seria vazamento (permite enumerar clientes por tentativa de id).
+    if (!(await podeVerCliente(client, usuarioId, id))) {
+      throw new NotFoundError("Cliente não encontrado");
+    }
+    return row;
+  });
 }
 
 export async function atualizarCliente(

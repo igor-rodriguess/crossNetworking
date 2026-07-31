@@ -94,15 +94,28 @@ export async function buscarClientePorId(client: PoolClient, id: string): Promis
 
 export async function listarClientes(
   client: PoolClient,
-  filtros: { busca: string | null; limit: number; offset: number }
+  filtros: {
+    busca: string | null;
+    limit: number;
+    offset: number;
+    /**
+     * Clientes visíveis ao usuário (escopo — migration 052). `null` significa
+     * sem restrição; a lista, quando presente, limita o resultado. Vem do
+     * serviço, nunca da query string: é o servidor que decide o que o usuário
+     * pode ver.
+     */
+    clientesPermitidos?: string[] | null;
+  }
 ): Promise<{ itens: Omit<ClienteRow, "versao">[]; total: number }> {
+  const permitidos = filtros.clientesPermitidos ?? null;
   const { rows } = await client.query<ClienteRow & { total: string }>(
     `SELECT ${CLIENTE_COLS}, count(*) OVER() AS total ${CLIENTE_FROM}
       WHERE cc.arquivado_em IS NULL
         AND ($1::text IS NULL OR p.nome_exibicao ILIKE '%' || $1 || '%')
+        AND ($4::uuid[] IS NULL OR cc.id = ANY($4))
       ORDER BY cc.criado_em DESC
       LIMIT $2 OFFSET $3`,
-    [filtros.busca, filtros.limit, filtros.offset]
+    [filtros.busca, filtros.limit, filtros.offset, permitidos]
   );
   const total = rows[0] ? Number(rows[0].total) : 0;
   const itens = rows.map(({ total: _t, versao: _v, ...r }) => r);

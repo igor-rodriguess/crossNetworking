@@ -15,6 +15,7 @@ const ParteDetalhe = lazy(() => import('./pages/ParteDetalhe').then((m) => ({ de
 const Artistas = lazy(() => import('./pages/Artistas').then((m) => ({ default: m.Artistas })));
 const Projetos = lazy(() => import('./pages/Projetos').then((m) => ({ default: m.Projetos })));
 const ProjetoDetalhe = lazy(() => import('./pages/ProjetoDetalhe').then((m) => ({ default: m.ProjetoDetalhe })));
+const Frentes = lazy(() => import('./pages/Frentes').then((m) => ({ default: m.Frentes })));
 const Criterios = lazy(() => import('./pages/Criterios').then((m) => ({ default: m.Criterios })));
 const Marcas = lazy(() => import('./pages/Marcas').then((m) => ({ default: m.Marcas })));
 const ScoreCard = lazy(() => import('./pages/ScoreCard').then((m) => ({ default: m.ScoreCard })));
@@ -66,6 +67,7 @@ export function App() {
               <Route path="/artistas" element={<Artistas />} />
               <Route path="/projetos" element={<Projetos />} />
               <Route path="/projetos/:projetoId" element={<ProjetoDetalhe />} />
+              <Route path="/frentes" element={<Frentes />} />
               <Route path="/criterios" element={<Criterios />} />
               <Route path="/marcas" element={<Marcas />} />
               <Route path="/marcas/:candidaturaId" element={<ScoreCard />} />

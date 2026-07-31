@@ -7,6 +7,9 @@ export type Nivel = 'alto' | 'medio' | 'baixo';
 
 export type Prioridade = 'alta' | 'media' | 'baixa';
 
+// Os seis últimos vieram da planilha de trabalho da Cross (migration 050):
+// enquanto os demais descrevem a POSIÇÃO no funil, estes dizem DE QUEM É A
+// PRÓXIMA AÇÃO — o que a equipe consulta no dia a dia para saber onde agir.
 export type StatusCandidatura =
   | 'identificada'
   | 'em_analise'
@@ -17,7 +20,13 @@ export type StatusCandidatura =
   | 'stand_by'
   | 'recusada_cliente'
   | 'recusada_parceiro'
-  | 'encerrada';
+  | 'encerrada'
+  | 'abrir_frente'
+  | 'frente_aberta'
+  | 'aguardando_parceiro'
+  | 'validar_com_cliente'
+  | 'aguardando_ok_cliente'
+  | 'parceria_andamento';
 
 export type StatusParceria = 'planejada' | 'ativa' | 'concluida';
 

@@ -44,9 +44,10 @@ const PERSONA_ROTULO: Record<string, string> = {
 const NAVEGACAO = [
   {
     grupo: 'Operar hoje',
+    // O cliente em contexto vem do seletor no topo — não há item de menu para
+    // "Clientes": toda a plataforma já se filtra pela conta selecionada lá.
     itens: [
       { para: '/', rotulo: 'Central de operação', icone: LayoutDashboard },
-      { para: '/clientes', rotulo: 'Clientes', icone: Building2 },
     ],
   },
   {
@@ -68,7 +69,7 @@ const NAVEGACAO = [
     grupo: 'Estruturar',
     itens: [
       { para: '/projetos', rotulo: 'Projetos & briefings', icone: FolderKanban },
-      { para: '/funil', rotulo: 'Funil de oportunidades', icone: Filter },
+      { para: '/frentes', rotulo: 'Mapeamento de oportunidades', icone: Filter },
     ],
   },
   {
@@ -301,6 +302,7 @@ const TITULOS: Record<string, string> = {
   '/marcas': 'Base de marcas',
   '/ranking': 'Ranking',
   '/funil': 'Funil comercial',
+  '/frentes': 'Mapeamento de oportunidades',
   '/cronograma': 'Cronograma',
   '/resumo': 'Resumo executivo',
   '/usuarios': 'Equipe & acessos',

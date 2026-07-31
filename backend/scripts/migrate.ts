@@ -20,8 +20,21 @@ import "dotenv/config";
 
 const MIGRATIONS_DIR = path.resolve(__dirname, "..", "database", "migrations");
 
+/**
+ * Checksum do CONTEÚDO da migration, não dos seus bytes.
+ *
+ * Os fins de linha são normalizados para LF antes do hash porque o git os
+ * converte conforme a plataforma (core.autocrlf no Windows): o mesmo arquivo,
+ * intocado, passa a ter bytes diferentes após um checkout. Sem isso, trocar de
+ * branch marcava dezenas de migrations já aplicadas como "modificadas" e
+ * travava o runner.
+ *
+ * A garantia do WAD 7.4.22 é preservada: qualquer alteração real de SQL muda o
+ * hash. Só diferença de fim de linha — que não altera semântica — é ignorada.
+ */
 function sha256(text: string): string {
-  return createHash("sha256").update(text, "utf8").digest("hex");
+  const normalizado = text.replace(/\r\n/g, "\n");
+  return createHash("sha256").update(normalizado, "utf8").digest("hex");
 }
 
 function listMigrationFiles(): string[] {

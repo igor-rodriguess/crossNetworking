@@ -60,6 +60,36 @@ export const STATUS_CANDIDATURA: Record<StatusCandidatura, { rotulo: string; tom
   recusada_cliente: { rotulo: 'Recusada pelo cliente', tom: 'neg' },
   recusada_parceiro: { rotulo: 'Recusada pelo parceiro', tom: 'neg' },
   encerrada: { rotulo: 'Encerrada', tom: 'neutro' },
+  // Status operacionais (planilha da Cross) — dizem de quem é a próxima ação.
+  abrir_frente: { rotulo: 'Abrir frente', tom: 'neutro' },
+  frente_aberta: { rotulo: 'Frente aberta', tom: 'info' },
+  aguardando_parceiro: { rotulo: 'Aguardando parceiro', tom: 'warn' },
+  validar_com_cliente: { rotulo: 'Validar com o cliente', tom: 'info' },
+  aguardando_ok_cliente: { rotulo: 'Aguardando OK do cliente', tom: 'warn' },
+  parceria_andamento: { rotulo: 'Parceria em andamento', tom: 'pos' },
+};
+
+/**
+ * De quem é a próxima ação em cada status — a leitura que a planilha de
+ * trabalho oferece e que o funil não dava. Alimenta o filtro "quem age agora".
+ */
+export const RESPONSAVEL_ACAO: Record<StatusCandidatura, 'cross' | 'cliente' | 'parceiro' | 'nenhum'> = {
+  identificada: 'cross',
+  em_analise: 'cross',
+  recomendada: 'cross',
+  abrir_frente: 'cross',
+  frente_aberta: 'cross',
+  apresentada: 'cliente',
+  validar_com_cliente: 'cliente',
+  aguardando_ok_cliente: 'cliente',
+  aguardando_parceiro: 'parceiro',
+  em_negociacao: 'parceiro',
+  aprovada: 'cross',
+  parceria_andamento: 'nenhum',
+  stand_by: 'nenhum',
+  recusada_cliente: 'nenhum',
+  recusada_parceiro: 'nenhum',
+  encerrada: 'nenhum',
 };
 
 export const STATUS_PARCERIA: Record<StatusParceria, string> = {

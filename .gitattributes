@@ -1,0 +1,17 @@
+# Fim de linha normalizado no repositório (LF), evitando que checkouts entre
+# branches reescrevam arquivos e alterem seus bytes sem mudar o conteúdo.
+* text=auto eol=lf
+
+# Migrations têm o checksum verificado pelo runner (WAD 7.4.22): precisam
+# manter LF no disco em qualquer plataforma.
+*.sql text eol=lf
+
+# Binários — nunca converter.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.gz binary
+*.zip binary

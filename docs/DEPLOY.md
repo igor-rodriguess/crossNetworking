@@ -17,11 +17,40 @@ A plataforma tem três peças com necessidades diferentes de hospedagem:
 | **Backend** | processo Node de longa duração | serviço de aplicação (Render, Railway, Fly.io, AWS…) |
 | **Frontend** | HTML/CSS/JS estático | CDN ou host estático (Vercel, Netlify, Cloudflare Pages) |
 
-> **Atenção a um mal-entendido comum:** o Supabase hospeda o **banco**, não a
-> API Express. Ele oferece Postgres, Auth, Storage e Edge Functions (Deno) — mas
-> um backend Node de longa duração precisa de outro provedor.
+O Supabase hospeda o **banco**. A API Express precisa de outro provedor: o
+Supabase oferece Edge Functions, mas são Deno e de execução curta, não um
+processo Node contínuo.
 
-### 1.1 Domínio sugerido
+### 1.1 Por que um processo contínuo, e não serverless
+
+A maior parte da API é CRUD sobre o Postgres e caberia bem em funções
+serverless. Duas características do sistema, porém, exigem um processo que
+permaneça vivo entre requisições:
+
+**Tarefas de IA que continuam depois da resposta.** `agendarPipeline()` cria a
+tarefa, devolve o identificador imediatamente e segue processando em segundo
+plano (`executarTarefaEmSegundoPlano`), gravando progresso no banco enquanto a
+interface faz *polling*. Um pipeline de descoberta percorre planejamento,
+coleta, verificação, extração e raciocínio — trabalho de minutos. Em serverless,
+a execução é encerrada assim que a resposta é enviada, e o pipeline morreria no
+meio. O próprio código reconhece esse risco: `recuperarTarefasInterrompidas()`
+roda na inicialização para encerrar tarefas que ficaram presas após uma queda.
+
+**Estado em memória entre requisições.** O pool de conexões do Postgres, o
+*rate limit* por IP e o aquecimento do modelo local (`aquecerOllama`) pressupõem
+continuidade. Em funções isoladas, cada invocação recomeça — o pool não se
+reaproveita (problema conhecido de serverless com Postgres) e o rate limit
+deixaria de valer, já que cada instância contaria separadamente.
+
+**Se a plataforma abrir mão dos agentes de IA assíncronos**, o restante da API
+roda em serverless sem impedimento — as rotas de domínio são requisição/resposta
+comuns. Manter os agentes exige um processo contínuo, ou extraí-los para um
+*worker* separado com fila (arquitetura maior, que hoje não se justifica).
+
+Para a escala da Cross — dezenas de usuários internos —, um único processo com
+1 GB de RAM atende com folga, e é a opção mais simples de operar.
+
+### 1.2 Domínio
 
 ```
 app.crossnetworking.com.br   → frontend
@@ -31,7 +60,7 @@ api.crossnetworking.com.br   → backend
 Separar por subdomínio simplifica CORS, certificados e permite escalar as duas
 camadas de forma independente.
 
-### 1.2 Região
+### 1.3 Região
 
 O banco está em `us-east-2` (Ohio). **Hospede o backend na mesma região ou o
 mais próximo possível**: cada requisição faz várias idas e voltas ao banco, e
@@ -42,11 +71,19 @@ latência entre continentes se acumula (backend no Brasil com banco em Ohio cust
 
 ## 2. Dimensionamento e custo
 
-O backend é leve: recebe requisição, consulta o Postgres, devolve JSON. Não faz
-processamento pesado — o trabalho de banco fica no Supabase e o de IA em serviço
-externo. **512 MB de RAM atendem; 1 GB dá folga.**
+O backend é leve: recebe requisição, consulta o Postgres, devolve JSON. O
+trabalho de banco fica no Supabase e a inferência de IA em serviço externo
+(Ollama, DeepSeek ou OpenAI) — o processo Node apenas orquestra. **512 MB de RAM
+atendem; 1 GB dá folga.**
 
-Para a equipe da Cross (dezenas de pessoas, não milhares), a carga é baixa.
+Para a equipe da Cross — dezenas de pessoas, não milhares — a carga é baixa: a
+plataforma responde a algumas requisições por minuto, não por segundo.
+
+Um ponto de atenção no dimensionamento: os pipelines de IA rodam **dentro do
+processo da API** (seção 1.1). Um pipeline em execução ocupa memória e CPU do
+mesmo processo que atende as requisições. Com uso esporádico, isso é irrelevante;
+se a descoberta de oportunidades passar a rodar em volume, vale extrair os
+agentes para um worker separado antes de simplesmente aumentar a máquina.
 
 | Item | Faixa mensal |
 |---|---|
@@ -200,33 +237,38 @@ suíte se recusa a rodar em vez de escrever na base real. Ver SAD, seção 8.
 
 ## 7. Segurança em produção
 
-Checklist antes de expor a plataforma:
+A configuração exigida em produção está descrita na seção 3; a aplicação recusa
+iniciar se `JWT_SECRET` ou `METRICS_TOKEN` estiverem ausentes, ou se
+`CORS_ORIGIN` for `*`. HTTPS é fornecido pelos provedores citados. A conexão da
+aplicação usa o papel `cross_app`, sem DDL e sem superusuário, de modo que uma
+eventual comprometição da API não alcance a estrutura do banco.
 
-- [ ] `CORS_ORIGIN` com as origens exatas (nunca `*`)
-- [ ] `JWT_SECRET` e `METRICS_TOKEN` aleatórios e diferentes entre si
-- [ ] HTTPS obrigatório (fornecido pelos provedores citados)
-- [ ] `DATABASE_URL` com o papel `cross_app` (sem DDL)
-- [ ] `TRUST_PROXY=true` apenas se houver proxy confiável à frente
-- [ ] Backups verificados e restauração testada
-- [ ] Rotação de segredos definida
-- [ ] **RLS habilitado** antes de conceder acesso a usuários externos à Cross
+`TRUST_PROXY` só deve ser habilitado quando houver proxy confiável à frente:
+com ele ligado sem proxy, o rate limit passa a confiar em cabeçalho que o
+cliente pode forjar.
 
-O último item é a dívida registrada no SAD (seção 9.1). O escopo por cliente
-existe na camada de serviço; enquanto o banco não tiver políticas de RLS, uma
-consulta que esqueça o filtro contorna o isolamento.
+### 7.1 Postura verificada
 
-### 7.1 Sobre pentest
+Verificação executada em 31/07/2026 contra a aplicação em execução cobriu
+acesso sem token, token forjado com `alg=none`, assinatura adulterada, injeção
+de SQL em campos de busca, vazamento de hash de senha nas respostas e exposição
+de endpoints administrativos. Todos os vetores foram rejeitados.
 
-Um teste de invasão (*pentest*) verifica se o sistema **resiste** a um ataque —
-diferente dos testes automatizados, que verificam se ele **funciona**.
+As proteções de borda em vigor: `helmet` para cabeçalhos, CORS por origem
+explícita, rate limit de 300 requisições por minuto por IP, limite de 1 MB no
+corpo da requisição, e consultas parametrizadas em toda a camada de repositório.
+Senhas usam scrypt, comparadas em tempo constante mesmo quando o usuário não
+existe — o tempo de resposta não revela quais e-mails estão cadastrados.
 
-Verificação executada em 31/07/2026 cobriu: acesso sem token, token forjado
-(`alg=none`), assinatura adulterada, SQL injection, vazamento de hash de senha e
-exposição de endpoints sensíveis. Todos os vetores foram rejeitados.
+### 7.2 Limitação conhecida: isolamento entre clientes
 
-O gap conhecido, a ser informado a quem conduzir o pentest formal, é
-**autorização multi-tenant**: o isolamento por cliente é recente e ainda não tem
-enforcement no banco.
+O escopo por cliente (SAD, seção 4.2) é aplicado na camada de serviço. Enquanto
+o banco não tiver políticas de *Row Level Security*, uma consulta que esqueça o
+filtro contorna o isolamento — o banco não recusaria por conta própria.
+
+Com a operação atual, restrita à equipe interna da Cross, o risco é contido.
+A recomendação é habilitar RLS **antes** de conceder acesso a usuários externos,
+e é o principal ponto a informar a quem conduzir um teste de invasão formal.
 
 ---
 

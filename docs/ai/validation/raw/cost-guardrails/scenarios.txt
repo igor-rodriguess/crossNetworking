@@ -1,0 +1,163 @@
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 1 — EXECUÇÃO NORMAL (dentro do orçamento)
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : 3 operações de LLM (gpt-4o-mini), teto 1.00 USD
+
+  op 1: DECISÃO=PERMITIDO  atual=0.000000  projetado=0.060000  teto=1.00
+  op 2: DECISÃO=PERMITIDO  atual=0.060000  projetado=0.060000  teto=1.00
+  op 3: DECISÃO=PERMITIDO  atual=0.120000  projetado=0.060000  teto=1.00
+
+OUTPUT     : status=success
+  chamadas realizadas : 3
+  chamadas evitadas   : 0
+  custo realizado     : 0.180000 USD
+  custo evitado       : 0.000000 USD
+  duração             : 1ms
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 2 — ESTOURO DE ORÇAMENTO
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : operações de 0.75 USD cada, teto 1.00 USD
+
+  op 1: atual=0.000000  projetado=0.750000  soma=0.750000  teto=1.00
+         DECISÃO=PERMITIDO
+  op 2: atual=0.750000  projetado=0.750000  soma=1.500000  teto=1.00
+         DECISÃO=BLOQUEADO  motivo=execution_cost_limit
+  op 3: atual=0.750000  projetado=0.750000  soma=1.500000  teto=1.00
+         DECISÃO=BLOQUEADO  motivo=execution_cost_limit
+
+OUTPUT     : status=budget_blocked
+  chamadas realizadas : 1
+  chamadas evitadas   : 2
+  custo realizado     : 0.750000 USD
+  custo evitado       : 1.500000 USD
+  duração             : 2ms
+  motivo principal    : execution_cost_limit
+  detalhe             : Custo atual 0.750000 + estimado 0.750000 excede o teto de 1.000000 USD por execução.
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 3 — MODELO COM CUSTO DESCONHECIDO
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : modelo="gpt-5-turbo-imaginario" (fora da tabela de preços)
+             modo estrito = true
+
+  estimated_cost = null   ← NÃO é zero
+  DECISÃO        = BLOQUEADO
+  motivo         = cost_unknown
+
+OUTPUT     : status=cost_unknown
+  chamadas realizadas : 0
+  chamadas evitadas   : 1
+  custo realizado     : 0.000000 USD
+  custo evitado       : desconhecido (por isso foi bloqueado)
+  detalhe             : Custo não estimável para o modelo "gpt-5-turbo-imaginario" e o modo estrito está ativo. Cadastre o preço em shared/custo.ts ou desative AI_STRICT_COST_MODE em desenvolvimento.
+
+  [contraste] modo estrito=false → DECISÃO=PERMITIDO (uso só em desenvolvimento)
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 4 — EXCESSO DE FERRAMENTAS
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : 4 buscas web pedidas, teto 2 | 4 scrapes pedidos, teto 2
+
+  busca 1: usadas=0  teto=2  DECISÃO=PERMITIDO
+  busca 2: usadas=1  teto=2  DECISÃO=PERMITIDO
+  busca 3: usadas=2  teto=2  DECISÃO=BLOQUEADO  motivo=web_search_limit
+  busca 4: usadas=2  teto=2  DECISÃO=BLOQUEADO  motivo=web_search_limit
+
+  scrape 1: usados=0  teto=2  DECISÃO=PERMITIDO
+  scrape 2: usados=1  teto=2  DECISÃO=PERMITIDO
+  scrape 3: usados=2  teto=2  DECISÃO=BLOQUEADO  motivo=scrape_limit
+  scrape 4: usados=2  teto=2  DECISÃO=BLOQUEADO  motivo=scrape_limit
+
+OUTPUT     : status=budget_blocked (ferramentas)
+  chamadas realizadas : 2 buscas + 2 scrapes
+  chamadas evitadas   : 4
+  bloqueios           : web_search_limit, web_search_limit, scrape_limit, scrape_limit
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 5 — CANDIDATE EXPLOSION
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : 500 candidatos após pré-filtro
+             teto de reasoning = 3
+
+  DECISÃO  : TOP 3 seguem para LLM  |  497 cortados
+             marca-1, marca-2, marca-3
+
+OUTPUT     : status=success (com corte)
+  chamadas realizadas : 3 (1 LLM por candidato)
+  chamadas evitadas   : 497
+  custo realizado     : ~0.180000 USD
+  custo evitado       : ~29.820000 USD
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 6 — KILL SWITCH
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : AI_PAID_PROVIDERS_ENABLED=false
+             orçamento disponível = 9999 USD (irrelevante)
+             chave de API presente no ambiente = sim (hipótese)
+
+  LLM pago      : DECISÃO=BLOQUEADO  motivo=paid_providers_disabled
+  Firecrawl     : DECISÃO=BLOQUEADO  motivo=paid_providers_disabled
+  Embeddings    : DECISÃO=BLOQUEADO  motivo=paid_providers_disabled
+  LLM local     : DECISÃO=PERMITIDO  ← provedor local segue disponível
+
+OUTPUT     : status=budget_blocked (paid_providers_disabled)
+  chamadas pagas realizadas : 0
+  chamadas pagas evitadas   : 3
+  custo realizado           : 0.000000 USD
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 7 — RETRY POLICY (complemento)
+──────────────────────────────────────────────────────────────────────────────
+  timeout de rede    classe=temporario   repete=SIM
+  HTTP 503           classe=temporario   repete=SIM
+  validação          classe=validacao    repete=NÃO
+  Human Gate         classe=human_gate   repete=NÃO
+  orçamento          classe=orcamento    repete=NÃO
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 8 — API KEY PRESENTE + KILL SWITCH DESLIGADO
+──────────────────────────────────────────────────────────────────────────────
+INPUT      : OPENAI_API_KEY presente no ambiente = "sk-proj-chav..."
+             AI_PAID_PROVIDERS_ENABLED = false
+             orçamento = 9999 USD | teto de chamadas = 999
+
+  DECISÃO  = BLOQUEADO
+  motivo   = paid_providers_disabled
+  detalhe  = Providers pagos desabilitados (AI_PAID_PROVIDERS_ENABLED=false). A chamada não foi realizada, mesmo havendo chave no ambiente.
+
+OUTPUT     : status=budget_blocked
+  chamadas pagas realizadas : 0
+  custo realizado           : 0.000000 USD
+  CONCLUSÃO: ter chave NÃO é autorização para gastar.
+
+──────────────────────────────────────────────────────────────────────────────
+CENÁRIO 9 — TELEMETRIA DE UM BLOQUEIO (contexto completo)
+──────────────────────────────────────────────────────────────────────────────
+{
+  "runId": "run-7f3a",
+  "execucaoPaiId": "exec-pai-91c2",
+  "jornada": "partner_discovery",
+  "provedor": "openai",
+  "tentativa": 1,
+  "motivo": "execution_cost_limit",
+  "detalhe": "Custo atual 0.000000 + estimado 0.750000 excede o teto de 0.010000 USD por execução.",
+  "agente": "crossability_reasoning",
+  "etapa": "reasoning",
+  "modelo": "gpt-4o-mini",
+  "tipoOperacao": "llm",
+  "custoAtual": 0,
+  "custoProjetado": 0.75,
+  "limite": 0.01,
+  "chamadasLlm": 0,
+  "buscasWeb": 2,
+  "scrapes": 1,
+  "candidatos": 67,
+  "decisao": "bloqueado",
+  "momento": "2026-08-07T22:51:10.277Z"
+}
+
+──────────────────────────────────────────────────────────────────────────────
+FIM
+──────────────────────────────────────────────────────────────────────────────

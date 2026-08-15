@@ -22,6 +22,8 @@ import {
 } from "./opportunity-qualification.agent";
 import * as ragService from "./rag.service";
 import { mapearComLimite } from "./shared/concorrencia";
+import { estimarCusto } from "./shared/custo";
+import { OrcamentoExecucao } from "./shared/budget";
 import { env } from "../../config/env";
 import { logger } from "../../shared/logger";
 import type { OrigemLLM } from "./shared/llm";
@@ -1672,8 +1674,9 @@ export async function gerarOportunidades(
   input: GerarOportunidadesInput,
   usuarioId: string | null,
   reportar?: ReportarProgresso,
+  checkpoint?: Checkpoint,
 ) {
-  const pipeline = await executarPipeline(input, "partner_discovery", usuarioId, reportar);
+  const pipeline = await executarPipeline(input, "partner_discovery", usuarioId, reportar, checkpoint);
   const nomesJaMapeados = await withTransaction(async (client) => {
     const [funil, oportunidades] = await Promise.all([
       repo.listarParceirosJaMapeadosNoFunil(client, input.cliente),
@@ -1729,6 +1732,25 @@ export async function listarOportunidades(filtros: { cliente?: string }, p: Pagi
 type PipelineInput = ExecutarPartnerDiscoveryInput | ExecutarMarketIntelligenceInput;
 type PipelineCodigo = "partner_discovery" | "market_intelligence";
 
+/** Entrada de checkpoint de uma etapa já concluída. */
+export interface EtapaCheckpoint<T = unknown> {
+  saida: T;
+  execucao_id?: string;
+  origem?: string;
+  concluida_em: string;
+}
+
+/**
+ * Contrato mínimo de checkpoint. Deliberadamente pequeno: ler e gravar por
+ * nome de etapa. Quem implementa decide onde persistir (hoje, o JSONB de
+ * `tarefa_pipeline`); o pipeline não conhece o meio de armazenamento.
+ */
+export interface Checkpoint {
+  ler<T>(etapa: string): EtapaCheckpoint<T> | undefined;
+  gravar(etapa: string, dados: EtapaCheckpoint): Promise<void>;
+  tentativa?: number;
+}
+
 interface AuditoriaAgenteInput {
   agente: string;
   origem: string;
@@ -1739,23 +1761,112 @@ interface AuditoriaAgenteInput {
   usuarioId: string | null;
   projetoId?: string;
   frenteId?: string;
+  /** Modelo que atendeu; ausente nas etapas determinísticas. */
+  modelo?: string;
+  /** Tokens consumidos; ausente nas etapas sem LLM. */
+  tokens?: { entrada: number; saida: number; cache?: number };
+  /** Instante em que a etapa começou — para latência real, não de gravação. */
+  iniciadoEm?: Date;
+  /** Execução-pai do pipeline, quando a etapa roda dentro de um. */
+  execucaoPaiId?: string | null;
+  tentativa?: number;
+  /** Uso de ferramentas externas a registrar junto (mesma transação). */
+  ferramentas?: Omit<repo.RegistroUsoFerramenta, "execucaoId">[];
 }
 
+/**
+ * Persiste a execução de uma etapa com sua telemetria.
+ *
+ * Antes, esta função descartava tokens e duração (`duracaoMs: undefined`, sem
+ * campos de token): toda execução de pipeline gravava consumo zero, mesmo com
+ * provedor real. Agora recebe e grava o que o cliente LLM já capturava.
+ *
+ * O uso de ferramenta é gravado na MESMA transação da execução: se a execução
+ * não for registrada, seu consumo também não deve ficar órfão.
+ */
 async function auditarAgente(input: AuditoriaAgenteInput): Promise<string> {
-  return withTransaction((client) =>
-    repo.registrarExecucao(client, {
+  const finalizadoEm = new Date();
+  const duracaoMs = input.iniciadoEm
+    ? Math.max(0, finalizadoEm.getTime() - input.iniciadoEm.getTime())
+    : undefined;
+
+  return withTransaction(async (client) => {
+    const id = await repo.registrarExecucao(client, {
       agente: input.agente,
       status: input.status ?? "sucesso",
       origem: input.origem,
       entrada: input.entrada,
       saida: input.saida,
       erro: input.erro,
-      duracaoMs: undefined,
+      tokensEntrada: input.tokens?.entrada ?? 0,
+      tokensSaida: input.tokens?.saida ?? 0,
+      tokensCache: input.tokens?.cache ?? 0,
+      duracaoMs,
+      modelo: input.modelo ?? null,
+      custoEstimado: estimarCusto(input.modelo, input.tokens),
+      iniciadoEm: input.iniciadoEm ?? null,
+      finalizadoEm,
+      execucaoPaiId: input.execucaoPaiId ?? null,
+      tentativa: input.tentativa ?? 1,
       criadoPorId: input.usuarioId,
       projetoId: input.projetoId ?? null,
       frenteId: input.frenteId ?? null,
-    })
-  );
+    });
+
+    for (const uso of input.ferramentas ?? []) {
+      await repo.registrarUsoFerramenta(client, { ...uso, execucaoId: id });
+    }
+
+    return id;
+  });
+}
+
+/**
+ * Deriva afirmações verificáveis dos perfis extraídos.
+ *
+ * O Fact Verifier corrobora uma afirmação contando DOMÍNIOS DISTINTOS entre
+ * suas fontes. Para alimentá-lo sem inventar nada, transformamos cada campo do
+ * perfil ("público X", "atua em Y") numa afirmação e anexamos as URLs que a
+ * extração já registrou como evidência daquele perfil.
+ *
+ * Quando o perfil não trouxe fontes próprias, caímos nas URLs da coleta que
+ * mencionam a entidade — é uma aproximação, e por isso a afirmação tende a
+ * cair em `fonte_unica`, que é a leitura honesta de "só um lugar diz isso".
+ *
+ * Nada aqui altera o perfil nem descarta candidata: apenas produz o material
+ * que a etapa de verificação classifica.
+ */
+export function afirmacoesDosPerfis(
+  extracao: ExtracaoSaida,
+  coleta: ColetaFontesSaida
+): Array<{ texto: string; fontes: string[] }> {
+  const urlsDaColeta = coleta.coletas.flatMap((c) => c.resultados.map((r) => r.url)).filter(Boolean);
+  const afirmacoes: Array<{ texto: string; fontes: string[] }> = [];
+
+  for (const perfil of extracao.perfis) {
+    const fontesDoPerfil = (perfil.fontes ?? []).map((f) => f.url).filter(Boolean);
+    const fontes = fontesDoPerfil.length ? fontesDoPerfil : urlsDaColeta;
+    if (!fontes.length) continue;
+
+    const campos: Array<[string, string[] | undefined]> = [
+      ["atua no setor", perfil.setor ? [perfil.setor] : []],
+      ["tem como público", perfil.publicos],
+      ["atua nos territórios", perfil.territorios],
+      ["dispõe dos ativos", perfil.ativos],
+      ["apresenta sinais de parceria", perfil.sinais_parceria],
+    ];
+
+    for (const [predicado, valores] of campos) {
+      for (const valor of (valores ?? []).slice(0, 3)) {
+        if (!valor?.trim()) continue;
+        afirmacoes.push({ texto: `${perfil.nome} ${predicado}: ${valor.trim()}`, fontes });
+      }
+    }
+  }
+
+  // Teto defensivo: a verificação é barata, mas o JSONB da auditoria não deve
+  // crescer sem limite numa execução com muitos perfis.
+  return afirmacoes.slice(0, 60);
 }
 
 function consultasLimitadas(plano: PlanoPesquisa, limite: number) {
@@ -1822,9 +1933,19 @@ async function executarPipeline(
   input: PipelineInput,
   pipeline: PipelineCodigo,
   usuarioId: string | null,
-  reportar?: ReportarProgresso
+  reportar?: ReportarProgresso,
+  checkpoint?: Checkpoint
 ): Promise<PipelineSaida> {
   const inicio = Date.now();
+  // Orçamento desta execução. Vive por execução (não global), então duas
+  // rodadas simultâneas não contaminam o consumo uma da outra. O contexto é
+  // herdado por cada decisão, para a telemetria responder depois
+  // "por que esta execução foi interrompida?".
+  const orcamento = new OrcamentoExecucao(undefined, {
+    jornada: pipeline,
+    provedor: env.aiProvider,
+    tentativa: checkpoint?.tentativa ?? 1,
+  });
   const etapas: Array<{
     nome: string;
     status: "sucesso" | "parcial" | "ignorada";
@@ -1845,6 +1966,53 @@ async function executarPipeline(
     projeto_id: input.projeto_id ?? null,
     frente_id: input.frente_id ?? null,
   };
+
+  // Execução-pai criada ANTES das etapas, para que cada uma nasça já apontando
+  // para ela (execucao_pai_id). Sem isso, agregar custo por pipeline exigiria
+  // varrer o JSONB de tarefa_pipeline.etapas. A saída é preenchida no fecho.
+  const execucaoPaiId = await auditarAgente({
+    agente: pipeline,
+    origem: "pipeline",
+    entrada: entradaAuditoria,
+    saida: { status: "executando" },
+    usuarioId,
+    projetoId: input.projeto_id,
+    frenteId: input.frente_id,
+    iniciadoEm: new Date(inicio),
+    tentativa: checkpoint?.tentativa ?? 1,
+  });
+
+  /**
+   * Executa uma etapa, ou devolve o resultado já gravado no checkpoint.
+   *
+   * É o mecanismo mínimo pedido: uma etapa concluída não roda de novo só
+   * porque uma posterior falhou — nem refaz a chamada externa, nem recobra.
+   * Sem fila e sem processo separado; o estado vive na própria tarefa.
+   */
+  async function comCheckpoint<T>(
+    nome: string,
+    executar: () => Promise<{ saida: T; execucaoId?: string; origem?: string }>
+  ): Promise<{ saida: T; execucaoId?: string; origem?: string; retomada: boolean }> {
+    const salvo = checkpoint?.ler<T>(nome);
+    if (salvo) {
+      etapas.push({
+        nome,
+        status: "sucesso",
+        execucao_id: salvo.execucao_id,
+        origem: salvo.origem,
+        observacao: "Retomada do checkpoint — etapa não foi reexecutada.",
+      });
+      return { saida: salvo.saida, execucaoId: salvo.execucao_id, origem: salvo.origem, retomada: true };
+    }
+    const resultado = await executar();
+    await checkpoint?.gravar(nome, {
+      saida: resultado.saida,
+      execucao_id: resultado.execucaoId,
+      origem: resultado.origem,
+      concluida_em: new Date().toISOString(),
+    });
+    return { ...resultado, retomada: false };
+  }
 
   // Progresso: soma dos pesos das etapas já concluídas. Falhar ao reportar
   // nunca derruba o pipeline — é informação de acompanhamento, não resultado.
@@ -1876,91 +2044,146 @@ async function executarPipeline(
       .filter(Boolean)
       .join("\n");
 
-    const planejamento = pipeline === "partner_discovery"
-      ? await withTransaction(async (client) => ({
-          plano: planejarDescobertaDeMercado({
-            cliente: input.cliente,
+    const planoCheckpoint = await comCheckpoint<PlanoPesquisa>("search_planning", async () => {
+      const iniciadoEm = new Date();
+      const planejamento = pipeline === "partner_discovery"
+        ? await withTransaction(async (client) => ({
+            plano: planejarDescobertaDeMercado({
+              cliente: input.cliente,
+              objetivo: input.objetivo,
+              contexto: input.contexto,
+              frentes: await repo.listarFrentesParaDescoberta(
+                client,
+                input.cliente,
+                input.projeto_id ?? null,
+                input.frente_id ?? null,
+              ),
+            }),
+            origem: "heuristica" as const,
+            modelo: undefined,
+            tokens: undefined,
+          }))
+        : await planejarPesquisa({
             objetivo: input.objetivo,
-            contexto: input.contexto,
-            frentes: await repo.listarFrentesParaDescoberta(
-              client,
-              input.cliente,
-              input.projeto_id ?? null,
-              input.frente_id ?? null,
-            ),
-          }),
-          origem: "heuristica" as const,
-        }))
-      : await planejarPesquisa({
-          objetivo: input.objetivo,
-          contexto: contextoPipeline,
-          projeto_id: input.projeto_id,
-          frente_id: input.frente_id,
-        });
-    const planejamentoId = await auditarAgente({
-      agente: "search_planning",
-      origem: planejamento.origem,
-      entrada: { objetivo: input.objetivo, contexto: contextoPipeline },
-      saida: planejamento.plano,
-      usuarioId,
-      projetoId: input.projeto_id,
-      frenteId: input.frente_id,
+            contexto: contextoPipeline,
+            projeto_id: input.projeto_id,
+            frente_id: input.frente_id,
+          });
+      const execucaoId = await auditarAgente({
+        agente: "search_planning",
+        origem: planejamento.origem,
+        entrada: { objetivo: input.objetivo, contexto: contextoPipeline },
+        saida: planejamento.plano,
+        usuarioId,
+        projetoId: input.projeto_id,
+        frenteId: input.frente_id,
+        modelo: planejamento.modelo,
+        tokens: planejamento.tokens,
+        iniciadoEm,
+        execucaoPaiId,
+      });
+      return { saida: planejamento.plano, execucaoId, origem: planejamento.origem };
     });
-    etapas.push({ nome: "search_planning", status: "sucesso", execucao_id: planejamentoId, origem: planejamento.origem });
+    if (!planoCheckpoint.retomada) {
+      etapas.push({
+        nome: "search_planning",
+        status: "sucesso",
+        execucao_id: planoCheckpoint.execucaoId,
+        origem: planoCheckpoint.origem,
+      });
+    }
+    const planejamento = { plano: planoCheckpoint.saida, origem: planoCheckpoint.origem ?? "heuristica" };
     await anunciar("source_collector");
 
-    const consultas = consultasLimitadas(planejamento.plano, input.limite_consultas);
-    const coleta = await coletarFontes({
-      consultas,
-      limite_por_consulta: input.limite_resultados_por_consulta,
-      projeto_id: input.projeto_id,
-      frente_id: input.frente_id,
-    });
-    const coletaId = await auditarAgente({
-      agente: "source_collector",
-      origem: coleta.origem,
-      entrada: { consultas: consultas.length, limite_por_consulta: input.limite_resultados_por_consulta },
-      saida: coleta.saida,
-      usuarioId,
-      projetoId: input.projeto_id,
-      frenteId: input.frente_id,
-    });
-    etapas.push({ nome: "source_collector", status: coleta.saida.total_resultados ? "sucesso" : "parcial", execucao_id: coletaId, origem: coleta.origem });
+    // Guardrail de ferramenta: a coleta faz uma busca por consulta. Cortamos a
+    // lista ao que o orçamento ainda permite ANTES de disparar qualquer busca —
+    // bloquear depois não devolveria a chamada já feita.
+    const consultasPlanejadas = consultasLimitadas(planejamento.plano, input.limite_consultas);
+    const buscasDisponiveis = Math.max(
+      0,
+      orcamento.limites.maxBuscasWeb - orcamento.chamadasDe("web_search")
+    );
+    const consultas = consultasPlanejadas.slice(0, buscasDisponiveis);
+    const consultasBloqueadas = consultasPlanejadas.length - consultas.length;
+    if (consultasBloqueadas > 0) {
+      orcamento.autorizarFerramenta("web_search", { agente: "source_collector", etapa: "source_collector" });
+      logger.warn(
+        { bloqueadas: consultasBloqueadas, teto: orcamento.limites.maxBuscasWeb },
+        "Consultas de busca cortadas pelo guardrail de custo"
+      );
+    }
 
-    const credibilidade = avaliarCredibilidade({ coleta: coleta.saida, projeto_id: input.projeto_id, frente_id: input.frente_id });
-    const credibilidadeId = await auditarAgente({
-      agente: "source_credibility",
-      origem: "heuristica",
-      entrada: { total_resultados: coleta.saida.total_resultados },
-      saida: credibilidade.saida,
-      usuarioId,
-      projetoId: input.projeto_id,
-      frenteId: input.frente_id,
+    const coletaCheckpoint = await comCheckpoint<ColetaFontesSaida>("source_collector", async () => {
+      const iniciadoEm = new Date();
+      const resultado = await coletarFontes({
+        consultas,
+        limite_por_consulta: input.limite_resultados_por_consulta,
+        projeto_id: input.projeto_id,
+        frente_id: input.frente_id,
+      });
+      orcamento.registrarUsoFerramenta("web_search", consultas.length);
+      const execucaoId = await auditarAgente({
+        agente: "source_collector",
+        origem: resultado.origem,
+        entrada: { consultas: consultas.length, limite_por_consulta: input.limite_resultados_por_consulta },
+        saida: resultado.saida,
+        usuarioId,
+        projetoId: input.projeto_id,
+        frenteId: input.frente_id,
+        iniciadoEm,
+        execucaoPaiId,
+        // A busca externa é cobrada por chamada quando atendida pelo Firecrawl.
+        // Registramos sempre: em DuckDuckGo o custo é zero, mas o volume de
+        // chamadas continua sendo o dado que explica latência e rate limit.
+        ferramentas: [{
+          ferramenta: resultado.origem === "firecrawl" ? "firecrawl_search" : "web_search",
+          chamadas: consultas.length,
+          unidades: resultado.saida.total_resultados,
+          detalhe: { origem: resultado.origem },
+        }],
+      });
+      return { saida: resultado.saida, execucaoId, origem: resultado.origem };
     });
-    etapas.push({ nome: "source_credibility", status: "sucesso", execucao_id: credibilidadeId, origem: "heuristica" });
+    const coleta = { saida: coletaCheckpoint.saida, origem: coletaCheckpoint.origem ?? "mock" };
+    if (!coletaCheckpoint.retomada) {
+      etapas.push({
+        nome: "source_collector",
+        status: coleta.saida.total_resultados ? "sucesso" : "parcial",
+        execucao_id: coletaCheckpoint.execucaoId,
+        origem: coleta.origem,
+      });
+    }
+
+    const credibilidadeCheckpoint = await comCheckpoint<CredibilidadeSaida>("source_credibility", async () => {
+      const iniciadoEm = new Date();
+      const resultado = avaliarCredibilidade({ coleta: coleta.saida, projeto_id: input.projeto_id, frente_id: input.frente_id });
+      const execucaoId = await auditarAgente({
+        agente: "source_credibility",
+        origem: "heuristica",
+        entrada: { total_resultados: coleta.saida.total_resultados },
+        saida: resultado.saida,
+        usuarioId,
+        projetoId: input.projeto_id,
+        frenteId: input.frente_id,
+        iniciadoEm,
+        execucaoPaiId,
+      });
+      return { saida: resultado.saida, execucaoId, origem: "heuristica" };
+    });
+    const credibilidade = { saida: credibilidadeCheckpoint.saida };
+    if (!credibilidadeCheckpoint.retomada) {
+      etapas.push({
+        nome: "source_credibility",
+        status: "sucesso",
+        execucao_id: credibilidadeCheckpoint.execucaoId,
+        origem: "heuristica",
+      });
+    }
     await anunciar("information_extractor");
     // Não vale acionar Firecrawl/Ollama sobre links sem uma fonte minimamente
     // confiável. Esta é a primeira barreira contra títulos de login, cookies e
     // páginas genéricas que antes viravam falsas "marcas" no radar.
     const haFonteConfiavel = credibilidade.saida.avaliacoes.some((avaliacao) => avaliacao.score >= 70);
-
-    let verificacao: VerificacaoSaida | null = null;
-    if (input.afirmacoes?.length) {
-      const verificada = verificarFatos({ afirmacoes: input.afirmacoes, projeto_id: input.projeto_id, frente_id: input.frente_id });
-      const verificacaoId = await auditarAgente({
-        agente: "fact_verifier",
-        origem: "heuristica",
-        entrada: { afirmacoes: input.afirmacoes.length },
-        saida: verificada.saida,
-        usuarioId,
-        projetoId: input.projeto_id,
-        frenteId: input.frente_id,
-      });
-      verificacao = verificada.saida;
-      etapas.push({ nome: "fact_verifier", status: "sucesso", execucao_id: verificacaoId, origem: "heuristica" });
-    } else {
-      etapas.push({ nome: "fact_verifier", status: "ignorada", observacao: "Nenhuma afirmação foi fornecida pelo chamador." });
-    }
 
     const entradaExtracao = {
       coleta: coleta.saida,
@@ -1969,11 +2192,22 @@ async function executarPipeline(
       projeto_id: input.projeto_id,
       frente_id: input.frente_id,
     };
-    const extracao = coleta.saida.total_resultados && haFonteConfiavel
+    const inicioExtracao = new Date();
+    // Guardrail de scraping: a extração busca conteúdo de página pelo Firecrawl,
+    // cobrado por página. Autorizamos antes; negado, a extração não roda.
+    const scrapeAutorizado = orcamento.autorizarFerramenta("firecrawl_scrape", {
+      agente: "information_extractor",
+      etapa: "information_extractor",
+      paga: !env.extracaoMock,
+    });
+    const extracao = coleta.saida.total_resultados && haFonteConfiavel && scrapeAutorizado.permitido
       ? pipeline === "partner_discovery"
         ? await extrairCandidatasExternas(entradaExtracao)
         : await extrairInformacoes(entradaExtracao)
       : { saida: { total_conteudos: 0, perfis: [] }, origem: "mock" as const, fonteConteudo: undefined };
+    if (extracao.saida.total_conteudos) {
+      orcamento.registrarUsoFerramenta("firecrawl_scrape", extracao.saida.total_conteudos);
+    }
     const extracaoId = await auditarAgente({
       agente: "information_extractor",
       origem: extracao.origem,
@@ -1982,6 +2216,20 @@ async function executarPipeline(
       usuarioId,
       projetoId: input.projeto_id,
       frenteId: input.frente_id,
+      modelo: extracao.modelo,
+      tokens: extracao.tokens,
+      iniciadoEm: inicioExtracao,
+      execucaoPaiId,
+      // O extractor busca o conteúdo das páginas pelo Firecrawl — cobrado por
+      // página. Sem este registro, o scraping é a parte invisível da conta.
+      ferramentas: extracao.saida.total_conteudos
+        ? [{
+            ferramenta: "firecrawl_scrape" as const,
+            chamadas: extracao.saida.total_conteudos,
+            unidades: extracao.saida.total_conteudos,
+            detalhe: { origem: extracao.origem },
+          }]
+        : undefined,
     });
     etapas.push({
       nome: "information_extractor",
@@ -1990,19 +2238,85 @@ async function executarPipeline(
       origem: extracao.origem,
       observacao: haFonteConfiavel ? undefined : "Nenhuma fonte atingiu a credibilidade mínima; extração e LLM foram poupados.",
     });
+    await anunciar("fact_verifier");
+
+    // -------------------------------------------------------------------------
+    // Fact Verifier — agora dentro do fluxo real.
+    //
+    // Antes, esta etapa só rodava se o CHAMADOR enviasse `afirmacoes`, o que
+    // nunca acontece numa execução automática: a etapa era sempre "ignorada" e
+    // nenhum fato chegava verificado ao Crossability. Agora derivamos as
+    // afirmações dos próprios perfis extraídos e as corroboramos contra as
+    // fontes coletadas, ANTES do reasoning.
+    //
+    // A verificação não descarta perfil: ela ANOTA o status de cada afirmação
+    // (corroborada / fonte_unica / nao_confirmada). Quem decide o peso disso é
+    // o reasoning, que já trata evidência fraca de forma conservadora. Descartar
+    // aqui mudaria a lógica de negócio do Crossability, que está fora do escopo.
+    // -------------------------------------------------------------------------
+    const afirmacoesDerivadas = afirmacoesDosPerfis(extracao.saida, coleta.saida);
+    const afirmacoesParaVerificar = [...(input.afirmacoes ?? []), ...afirmacoesDerivadas];
+
+    let verificacao: VerificacaoSaida | null = null;
+    if (afirmacoesParaVerificar.length) {
+      const inicioVerificacao = new Date();
+      const verificada = verificarFatos({
+        afirmacoes: afirmacoesParaVerificar,
+        projeto_id: input.projeto_id,
+        frente_id: input.frente_id,
+      });
+      const verificacaoId = await auditarAgente({
+        agente: "fact_verifier",
+        origem: "heuristica",
+        entrada: {
+          afirmacoes: afirmacoesParaVerificar.length,
+          do_chamador: input.afirmacoes?.length ?? 0,
+          derivadas_da_extracao: afirmacoesDerivadas.length,
+        },
+        saida: verificada.saida,
+        usuarioId,
+        projetoId: input.projeto_id,
+        frenteId: input.frente_id,
+        iniciadoEm: inicioVerificacao,
+        execucaoPaiId,
+      });
+      verificacao = verificada.saida;
+      etapas.push({
+        nome: "fact_verifier",
+        status: "sucesso",
+        execucao_id: verificacaoId,
+        origem: "heuristica",
+        observacao:
+          `${verificada.saida.resumo.corroborada} corroborada(s), ` +
+          `${verificada.saida.resumo.fonte_unica} de fonte única, ` +
+          `${verificada.saida.resumo.nao_confirmada} não confirmada(s).`,
+      });
+    } else {
+      etapas.push({
+        nome: "fact_verifier",
+        status: "ignorada",
+        observacao: "Não houve perfil extraído nem afirmação do chamador para verificar.",
+      });
+    }
     await anunciar("entity_resolver");
 
     let entidades: EntidadesSaida | null = null;
     if (extracao.saida.perfis.length) {
       const nomes = [...new Set(extracao.saida.perfis.map((p) => p.nome).filter(Boolean))];
+      const inicioEntidades = new Date();
       const resolucao = await withTransaction(async (client) => {
         const resultado = await resolverEntidades(client, entidadeInput(input, nomes));
+        const fim = new Date();
         const id = await repo.registrarExecucao(client, {
           agente: "entity_resolver",
           status: "sucesso",
           origem: "heuristica",
           entrada: { num_entidades: nomes.length, tipo: "organizacao" },
           saida: resultado.saida,
+          duracaoMs: fim.getTime() - inicioEntidades.getTime(),
+          iniciadoEm: inicioEntidades,
+          finalizadoEm: fim,
+          execucaoPaiId,
           criadoPorId: usuarioId,
           projetoId: input.projeto_id ?? null,
           frenteId: input.frente_id ?? null,
@@ -2033,6 +2347,7 @@ async function executarPipeline(
       .filter(Boolean)
       .join(" ")
       .slice(0, 2000);
+    const inicioRag = new Date();
     try {
       rag = await ragService.buscar({ consulta: consultaRag, limite: 5 });
       const ragId = await auditarAgente({
@@ -2043,6 +2358,18 @@ async function executarPipeline(
         usuarioId,
         projetoId: input.projeto_id,
         frenteId: input.frente_id,
+        iniciadoEm: inicioRag,
+        execucaoPaiId,
+        // Embeddings são cobrados por uso quando servidos pela OpenAI: uma
+        // chamada por busca. Em modo mock o custo é zero, mas o volume fica
+        // registrado para dimensionar o gasto antes de ligar a chave.
+        modelo: rag.embedding_origem === "openai" ? env.openaiEmbedModel : undefined,
+        ferramentas: [{
+          ferramenta: "embeddings" as const,
+          chamadas: 1,
+          unidades: 1,
+          detalhe: { origem: rag.embedding_origem, operacao: "busca" },
+        }],
       });
       etapas.push({
         nome: "rag_retrieval",
@@ -2064,7 +2391,7 @@ async function executarPipeline(
     // Só uma entidade que também aparece em fonte confiável segue para a LLM.
     // A resolução e a extração continuam auditadas acima; esta porta decide se
     // há material suficiente para consumir inferência e produzir um rascunho.
-    const perfis = extracao.saida.perfis
+    const aprovados = extracao.saida.perfis
       .filter((perfil) => validarCandidataExterna({
         cliente: input.cliente,
         parceiro: perfil.nome,
@@ -2075,10 +2402,29 @@ async function executarPipeline(
         credibilidade: credibilidade.saida,
       }).aprovada)
       .slice(0, input.limite_candidatos);
+
+    // Guardrail de "candidate explosion": o reasoning gasta UMA chamada de LLM
+    // por candidato. O limite do chamador (`limite_candidatos`) é uma
+    // preferência; o teto do orçamento é uma proteção — vale mesmo que o
+    // chamador peça mais, e não depende do pré-filtro ter funcionado bem.
+    const corte = orcamento.limitarCandidatos(aprovados);
+    const perfis = corte.selecionados;
+    const cortados = corte.cortados;
+    if (cortados > 0) {
+      logger.warn(
+        {
+          candidatos_recebidos: corte.recebidos,
+          candidatos_permitidos: corte.permitidos,
+          candidatos_descartados_por_limite: cortados,
+          limite: corte.limite,
+        },
+        "Candidatos cortados pelo guardrail de custo antes do reasoning"
+      );
+    }
     // Uma chamada de LLM por candidato. Com modelo local, dispará-las todas de
     // uma vez faz elas competirem pela mesma CPU e ficarem mais lentas cada uma;
     // por isso a janela limitada em vez de Promise.all direto.
-    const analises = await mapearComLimite(
+    const analisesBrutas = await mapearComLimite(
       perfis,
       env.aiProvider === "ollama" ? 1 : 4,
       async (perfil) => {
@@ -2094,9 +2440,44 @@ async function executarPipeline(
           projeto_id: input.projeto_id,
           frente_id: input.frente_id,
         };
+        const inicioReasoning = new Date();
+        // A variante heurística não consome LLM; só a de market_intelligence
+        // consome. Pedimos autorização ANTES da chamada — nunca depois.
+        const usaLlm = pipeline !== "partner_discovery";
+        if (usaLlm) {
+          const modeloPrevisto =
+            env.aiProvider === "ollama" ? env.ollamaModel
+              : env.aiProvider === "deepseek" ? env.deepseekModel
+                : env.openaiModel;
+          const autorizacao = orcamento.autorizarLlm({
+            modelo: modeloPrevisto,
+            // Estimativa conservadora por candidato; o consumo real é debitado
+            // depois, com os tokens que o provedor efetivamente reportar.
+            tokens: { entrada: 4_000, saida: 1_200 },
+            local: env.aiProvider === "ollama",
+            agente: "crossability_reasoning",
+            etapa: "crossability_reasoning",
+          });
+          if (!autorizacao.permitido) {
+            // Não lança: interrompe ESTE candidato e deixa os anteriores
+            // intactos. Preservar o trabalho já feito é requisito do guardrail.
+            logger.warn(
+              { motivo: autorizacao.motivo, parceiro: perfil.nome, custoAtual: autorizacao.custoAtual },
+              "Reasoning bloqueado pelo guardrail de custo"
+            );
+            return null;
+          }
+        }
         const reasoning = pipeline === "partner_discovery"
           ? raciocinarCrossabilityComEvidenciaExterna(entradaReasoning)
           : await raciocinarCrossability(entradaReasoning);
+        if (usaLlm) {
+          orcamento.registrarConsumoLlm(
+            reasoning.modelo,
+            reasoning.tokens ?? { entrada: 0, saida: 0 },
+            reasoning.origem === "mock" || reasoning.origem === "ollama"
+          );
+        }
         const id = await auditarAgente({
           agente: "crossability_reasoning",
           origem: reasoning.origem,
@@ -2105,19 +2486,35 @@ async function executarPipeline(
           usuarioId,
           projetoId: input.projeto_id,
           frenteId: input.frente_id,
+          modelo: reasoning.modelo,
+          tokens: reasoning.tokens,
+          iniciadoEm: inicioReasoning,
+          execucaoPaiId,
         });
         return { parceiro: perfil.nome, execucao_id: id, origem: reasoning.origem, analise: reasoning.saida };
       }
     );
+    // Candidatos bloqueados pelo guardrail voltam como null e são descartados —
+    // os já analisados seguem normalmente.
+    const analises = analisesBrutas.filter((a): a is NonNullable<typeof a> => a !== null);
+    const bloqueadosNoReasoning = analisesBrutas.length - analises.length;
+
+    const observacaoReasoning = [
+      analises.length ? `${analises.length} candidato(s) analisado(s).` : "Sem candidatos para analisar.",
+      cortados > 0 ? `${cortados} candidato(s) cortado(s) pelo teto de ${orcamento.limites.maxCandidatosReasoning}.` : null,
+      bloqueadosNoReasoning > 0 ? `${bloqueadosNoReasoning} bloqueado(s) por orçamento.` : null,
+    ].filter(Boolean).join(" ");
+
     etapas.push({
       nome: "crossability_reasoning",
       status: analises.length ? "sucesso" : "parcial",
       origem: analises[0]?.origem,
-      observacao: analises.length ? `${analises.length} candidato(s) analisado(s).` : "Sem candidatos para analisar.",
+      observacao: observacaoReasoning,
     });
 
     await anunciar("recommendation");
     let recomendacao: RecomendacaoSaida | null = null;
+    const inicioRecomendacao = new Date();
     if (analises.length) {
       const ranked = recomendarParceiros({
         candidatos: analises.map((a) => ({ parceiro: a.parceiro, analise: a.analise })),
@@ -2132,6 +2529,8 @@ async function executarPipeline(
         usuarioId,
         projetoId: input.projeto_id,
         frenteId: input.frente_id,
+        iniciadoEm: inicioRecomendacao,
+        execucaoPaiId,
       });
       recomendacao = ranked.saida;
       etapas.push({ nome: "recommendation", status: "sucesso", execucao_id: recomendacaoId, origem: "heuristica" });
@@ -2139,13 +2538,21 @@ async function executarPipeline(
       etapas.push({ nome: "recommendation", status: "ignorada", observacao: "A recomendação exige ao menos um candidato analisado." });
     }
 
-    const status = analises.length ? "sucesso" : "insufficient_evidence";
+    // Uma execução interrompida por orçamento NÃO é erro técnico: distinguir os
+    // dois é o que permite ao usuário saber que faltou verba, não que quebrou.
+    const status = orcamento.foiBloqueada && !analises.length
+      ? (orcamento.motivoPrincipal === "cost_unknown" ? "cost_unknown" : "budget_blocked")
+      : analises.length ? "sucesso" : "insufficient_evidence";
+
     const observacoes = [
       `Pipeline ${pipeline} executado em ${Date.now() - inicio}ms.`,
       "Toda análise permanece como rascunho até o Human Gate.",
     ];
     if (!coleta.saida.total_resultados) observacoes.push("A coleta não retornou resultados; forneça fontes ou ajuste o provedor.");
-    if (!analises.length) observacoes.push("Não houve evidência suficiente para gerar recomendação.");
+    if (!analises.length && !orcamento.foiBloqueada) observacoes.push("Não houve evidência suficiente para gerar recomendação.");
+    for (const bloqueio of orcamento.historicoBloqueios) {
+      observacoes.push(`Guardrail (${bloqueio.motivo}): ${bloqueio.detalhe}`);
+    }
 
     const semExecucaoId = {
       pipeline,
@@ -2163,34 +2570,41 @@ async function executarPipeline(
       recomendacao,
       observacoes,
     } as const;
-    const parentId = await auditarAgente({
-      agente: pipeline,
-      origem: "pipeline",
-      entrada: entradaAuditoria,
-      saida: {
-        status,
-        etapas: etapas.map((e) => ({ nome: e.nome, status: e.status, origem: e.origem })),
-        total_resultados: coleta.saida.total_resultados,
-        total_perfis: extracao.saida.perfis.length,
-        total_analises: analises.length,
-        recomendacao: recomendacao?.ranking[0]?.parceiro ?? null,
-      },
-      usuarioId,
-      projetoId: input.projeto_id,
-      frenteId: input.frente_id,
-    });
-    return pipelineSaidaSchema.parse({ ...semExecucaoId, execucao_id: parentId });
+    // O pai já existe (criado antes das etapas). Aqui ele é FECHADO, e os
+    // totais de token e custo são somados das filhas em SQL.
+    await withTransaction((client) =>
+      repo.finalizarExecucaoPai(client, {
+        id: execucaoPaiId,
+        status: "sucesso",
+        saida: {
+          status,
+          etapas: etapas.map((e) => ({ nome: e.nome, status: e.status, origem: e.origem })),
+          total_resultados: coleta.saida.total_resultados,
+          total_perfis: extracao.saida.perfis.length,
+          total_analises: analises.length,
+          recomendacao: recomendacao?.ranking[0]?.parceiro ?? null,
+          // Telemetria do guardrail: consumo, limites e cada bloqueio com seu
+          // motivo estruturado — o pai reflete o desfecho financeiro real.
+          orcamento: orcamento.resumo(),
+          bloqueios: orcamento.historicoBloqueios,
+        },
+        iniciadoEm: new Date(inicio),
+      })
+    ).catch((causa) => logger.warn({ causa, execucaoPaiId }, "Falha ao fechar a execução-pai do pipeline"));
+
+    return pipelineSaidaSchema.parse({ ...semExecucaoId, execucao_id: execucaoPaiId });
   } catch (erro) {
-    await auditarAgente({
-      agente: pipeline,
-      origem: "pipeline",
-      status: "erro",
-      entrada: entradaAuditoria,
-      erro: erro instanceof Error ? erro.message : String(erro),
-      usuarioId,
-      projetoId: input.projeto_id,
-      frenteId: input.frente_id,
-    }).catch(() => undefined);
+    // Fecha o mesmo pai com erro, preservando o vínculo com as etapas que já
+    // rodaram. Antes, o catch criava um registro novo e solto — as etapas
+    // concluídas ficavam órfãs de qualquer execução com status de falha.
+    await withTransaction((client) =>
+      repo.finalizarExecucaoPai(client, {
+        id: execucaoPaiId,
+        status: "erro",
+        erro: erro instanceof Error ? erro.message : String(erro),
+        iniciadoEm: new Date(inicio),
+      })
+    ).catch(() => undefined);
     throw erro;
   }
 }
@@ -2254,9 +2668,24 @@ async function executarTarefaEmSegundoPlano(
         })
       );
     };
+
+    // Checkpoint desta tarefa. Numa primeira execução vem vazio; numa retomada
+    // traz as etapas já concluídas, que não serão refeitas nem recobradas.
+    const salvo = await withTransaction((client) => repo.lerCheckpoint(client, tarefaId));
+    const checkpoint: Checkpoint = {
+      ler: <T,>(etapa: string) => salvo[etapa] as EtapaCheckpoint<T> | undefined,
+      gravar: async (etapa, dados) => {
+        // Falhar ao gravar checkpoint não derruba a execução: perde-se a
+        // retomada daquela etapa, não o resultado em andamento.
+        await withTransaction((client) =>
+          repo.gravarCheckpointEtapa(client, tarefaId, etapa, dados as repo.EtapaCheckpointRow)
+        ).catch((causa) => logger.warn({ causa, tarefaId, etapa }, "Falha ao gravar checkpoint da etapa"));
+      },
+    };
+
     const saida = pipeline === "partner_discovery"
-      ? (await gerarOportunidades(input, usuarioId, reportarProgresso)).pipeline
-      : await executarPipeline(input, pipeline, usuarioId, reportarProgresso);
+      ? (await gerarOportunidades(input, usuarioId, reportarProgresso, checkpoint)).pipeline
+      : await executarPipeline(input, pipeline, usuarioId, reportarProgresso, checkpoint);
 
     await withTransaction((client) =>
       repo.finalizarTarefa(client, tarefaId, {

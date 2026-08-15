@@ -17,9 +17,16 @@ import { logger } from "../../../shared/logger";
 // A API v2 recebe os formatos estruturados diretamente no array `formats`.
 const FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape";
 
-/** True quando a extração deve usar o stub (sem chave Firecrawl ou AI_MOCK). */
+/**
+ * True quando a extração deve usar o stub.
+ *
+ * Cobre três situações: AI_MOCK ligado, ausência de chave Firecrawl e — desde
+ * os guardrails de custo — kill switch de providers pagos desligado. O Firecrawl
+ * é cobrado por página, então entra no mesmo regime das demais chamadas pagas.
+ * As três funções de scraping deste arquivo passam por aqui.
+ */
 export function extracaoEmModoMock(): boolean {
-  return env.extracaoMock;
+  return env.extracaoMock || !env.paidProvidersEnabled;
 }
 
 // Schema do perfil que pedimos ao Firecrawl extrair de uma página. Alinhado ao

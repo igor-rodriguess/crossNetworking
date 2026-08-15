@@ -267,7 +267,9 @@ export function raciocinarCrossabilityComEvidenciaExterna(
 export interface ResultadoReasoningAgente {
   saida: AnaliseCrossabilitySaida;
   origem: OrigemLLM;
-  tokens?: { entrada: number; saida: number };
+  tokens?: { entrada: number; saida: number; cache?: number };
+  /** Modelo que atendeu; ausente na variante heurística. */
+  modelo?: string;
 }
 
 /** Produz a análise Crossability (rascunho) das 6 dimensões. */
@@ -283,5 +285,5 @@ export async function raciocinarCrossability(
   });
 
   const saida = analiseCrossabilitySchema.parse(resultado.dados);
-  return { saida, origem: resultado.origem, tokens: resultado.tokens };
+  return { saida, origem: resultado.origem, tokens: resultado.tokens, modelo: resultado.modelo };
 }

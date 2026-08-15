@@ -51,8 +51,18 @@ export interface ResultadoLLM<T> {
   dados: T;
   /** Provedor que atendeu ("openai"/"deepseek") ou "mock" quando do stub. */
   origem: OrigemLLM;
-  /** Tokens consumidos (só no modo real). */
-  tokens?: { entrada: number; saida: number };
+  /**
+   * Tokens consumidos (só no modo real). `cache` conta os tokens de entrada que
+   * o provedor serviu de cache — cobrados a preço menor, então precisam ser
+   * separados de `entrada` para o custo estimado não ficar superdimensionado.
+   */
+  tokens?: { entrada: number; saida: number; cache?: number };
+  /**
+   * Modelo que efetivamente atendeu ("gpt-4o-mini", "qwen3:4b"). Distinto de
+   * `origem`, que guarda só o provedor: o preço por token varia por modelo, não
+   * por provedor, então sem este campo não há como estimar custo.
+   */
+  modelo?: string;
 }
 
 /** True quando os agentes devem usar o stub (sem chave ou AI_MOCK). */
@@ -96,6 +106,18 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
   }
 
   const provedor = opcoes.provedor ?? env.aiProvider;
+
+  // Kill switch, última linha de defesa. `env.aiMock` já considera o switch, mas
+  // esta checagem fica junto do `fetch`: se alguém no futuro chamar este wrapper
+  // por um caminho que contorne aquele cálculo, a chamada paga ainda não sai.
+  // Provedor local (Ollama) não é afetado — não fatura.
+  if (provedor !== "ollama" && !env.paidProvidersEnabled) {
+    logger.warn(
+      { provedor },
+      "Chamada a provedor pago bloqueada: AI_PAID_PROVIDERS_ENABLED=false. Usando stub determinístico."
+    );
+    return { dados: opcoes.mock(opcoes.mensagens), origem: "mock" };
+  }
   const usarFallbackLocal = provedor === "ollama";
   const fallbackLocal = (motivo: string, causa?: unknown): ResultadoLLM<T> => {
     logger.warn({ causa, provedor, motivo }, "Ollama indisponível ou lento; agente seguirá com fallback local");
@@ -156,7 +178,14 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
   type RespostaLLM = {
     choices?: { message?: { content?: string } }[];
     message?: { content?: string };
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
+    usage?: {
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      // OpenAI expõe os tokens servidos de cache aqui; o DeepSeek usa o campo
+      // plano `prompt_cache_hit_tokens`. Lemos os dois — ausente vira 0.
+      prompt_tokens_details?: { cached_tokens?: number };
+      prompt_cache_hit_tokens?: number;
+    };
     prompt_eval_count?: number;
     eval_count?: number;
   };
@@ -194,9 +223,14 @@ export async function chamarLLMJson<T>(opcoes: OpcoesLLM<T>): Promise<ResultadoL
   return {
     dados,
     origem: provedor,
+    modelo,
     tokens: {
       entrada: json.usage?.prompt_tokens ?? json.prompt_eval_count ?? 0,
       saida: json.usage?.completion_tokens ?? json.eval_count ?? 0,
+      cache:
+        json.usage?.prompt_tokens_details?.cached_tokens ??
+        json.usage?.prompt_cache_hit_tokens ??
+        0,
     },
   };
 }

@@ -89,6 +89,13 @@ export const resultadoBuscaSchema = z.object({
   url: z.string(),
   trecho: z.string(),
   fonte: z.string(),
+  // Proveniência da evidência. Opcionais porque nem todo provedor de busca
+  // informa a data: `null` significa "não foi possível determinar", que é
+  // diferente de "sem data". A dimensão `momento_estrategico` da Crossability
+  // depende de saber se a matéria é recente — sem isso, uma notícia de 2019
+  // pesa igual a uma de 2026.
+  publicado_em: z.string().nullable().optional(),
+  coletado_em: z.string().nullable().optional(),
 });
 
 export const coletaPorConsultaSchema = z.object({
@@ -444,7 +451,18 @@ const pipelineRagSaidaSchema = z.object({
 
 export const pipelineSaidaSchema = z.object({
   pipeline: z.enum(["partner_discovery", "market_intelligence"]),
-  status: z.enum(["sucesso", "parcial", "insufficient_evidence"]),
+  // `budget_blocked` e `cost_unknown` distinguem interrupção por guardrail de
+  // custo de um erro técnico: o trabalho anterior foi preservado e o motivo é
+  // financeiro, não uma falha do pipeline. `cancelled` fica reservado para
+  // interrupção deliberada.
+  status: z.enum([
+    "sucesso",
+    "parcial",
+    "insufficient_evidence",
+    "budget_blocked",
+    "cost_unknown",
+    "cancelled",
+  ]),
   execucao_id: z.string(),
   etapas: z.array(pipelineEtapaSchema),
   plano: planoPesquisaSchema,

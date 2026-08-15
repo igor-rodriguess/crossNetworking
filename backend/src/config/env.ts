@@ -78,6 +78,39 @@ const schema = z.object({
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
   // Força o modo mock mesmo com chave presente (útil para testes/CI).
   AI_MOCK: booleanEnv,
+
+  // --- Guardrails de custo (Sprint 0D) -------------------------------------
+  // Medir custo não é controlar custo. Estes limites são verificados ANTES de
+  // cada operação potencialmente paga; ver shared/budget.ts.
+  //
+  // KILL SWITCH. Enquanto false, nenhuma chamada paga acontece — mesmo com
+  // chave presente no ambiente. Ter/não ter chave não é proteção suficiente:
+  // uma chave colada por engano no .env não deve, sozinha, liberar gasto.
+  // Provedores locais (Ollama) continuam funcionando normalmente.
+  AI_PAID_PROVIDERS_ENABLED: booleanEnv,
+  // Teto de custo estimado por execução de pipeline, em USD.
+  AI_MAX_COST_PER_RUN_USD: z.coerce.number().nonnegative().default(0.5),
+  // Tetos de chamadas por execução. Conservadores para desenvolvimento —
+  // NÃO são os valores finais de produção.
+  AI_MAX_LLM_CALLS_PER_RUN: z.coerce.number().int().positive().default(20),
+  AI_MAX_WEB_SEARCHES_PER_RUN: z.coerce.number().int().positive().default(12),
+  AI_MAX_SCRAPES_PER_RUN: z.coerce.number().int().positive().default(15),
+  // Trava contra "candidate explosion": quantos candidatos podem seguir para
+  // o reasoning (1 chamada de LLM por candidato).
+  AI_MAX_REASONING_CANDIDATES: z.coerce.number().int().positive().default(8),
+  AI_MAX_RETRIES_PER_STEP: z.coerce.number().int().min(0).max(5).default(2),
+  // Modo estrito de custo: operação paga cujo custo NÃO é estimável (modelo
+  // fora da tabela de preços) é BLOQUEADA. `null` não é gratuito — é "não sei
+  // quanto custa", e liberar isso é como assinar cheque em branco.
+  // Default true: fail-safe. Pode ser desligado em desenvolvimento.
+  AI_STRICT_COST_MODE: z.preprocess((v) => {
+    if (typeof v === "string") {
+      const t = v.trim().toLowerCase();
+      if (t === "true") return true;
+      if (t === "false") return false;
+    }
+    return v;
+  }, z.boolean().default(true)),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -157,23 +190,42 @@ export const env = {
   // AI_MOCK cru — força o stub em qualquer camada (busca/extração), útil em CI.
   forcarMock: data.AI_MOCK,
   // Chave do provedor de LLM selecionado (a que o wrapper usa de fato).
+  // O kill switch tem precedência: sem ele ligado, a chave é ignorada e o
+  // provedor pago fica inalcançável.
   llmApiKey:
-    data.AI_PROVIDER === "deepseek"
-      ? data.DEEPSEEK_API_KEY
-      : data.AI_PROVIDER === "openai"
-        ? data.OPENAI_API_KEY
-        : undefined,
-  // Modo mock do LLM: AI_MOCK ou provedor selecionado sem chave. (Não usamos mais
-  // LLM próprio — extração é via Firecrawl —, mas os agentes de reasoning que ainda
-  // referenciam isto seguem em stub por padrão, sem quebrar.)
+    !data.AI_PAID_PROVIDERS_ENABLED
+      ? undefined
+      : data.AI_PROVIDER === "deepseek"
+        ? data.DEEPSEEK_API_KEY
+        : data.AI_PROVIDER === "openai"
+          ? data.OPENAI_API_KEY
+          : undefined,
+  // Modo mock do LLM: AI_MOCK, kill switch desligado, ou provedor selecionado
+  // sem chave. (Não usamos mais LLM próprio — extração é via Firecrawl —, mas
+  // os agentes de reasoning que ainda referenciam isto seguem em stub por
+  // padrão, sem quebrar.)
   aiMock:
     data.AI_MOCK ||
     (data.AI_PROVIDER !== "ollama" &&
-      !(data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY)),
-  // Extração via Firecrawl: real quando há chave Firecrawl e AI_MOCK está off.
-  extracaoMock: data.AI_MOCK || !data.FIRECRAWL_API_KEY,
-  // Embeddings do RAG só são reais com chave OpenAI (DeepSeek não tem embeddings).
-  embeddingMock: data.AI_MOCK || !data.OPENAI_API_KEY,
+      (!data.AI_PAID_PROVIDERS_ENABLED ||
+        !(data.AI_PROVIDER === "deepseek" ? data.DEEPSEEK_API_KEY : data.OPENAI_API_KEY))),
+  // Extração via Firecrawl: real quando há chave Firecrawl, AI_MOCK off e o
+  // kill switch ligado — o Firecrawl é cobrado por página.
+  extracaoMock: data.AI_MOCK || !data.AI_PAID_PROVIDERS_ENABLED || !data.FIRECRAWL_API_KEY,
+  // Embeddings do RAG só são reais com chave OpenAI (DeepSeek não tem
+  // embeddings) e com o kill switch ligado — são cobrados por uso.
+  embeddingMock: data.AI_MOCK || !data.AI_PAID_PROVIDERS_ENABLED || !data.OPENAI_API_KEY,
+
+  // --- Guardrails de custo -------------------------------------------------
+  paidProvidersEnabled: data.AI_PAID_PROVIDERS_ENABLED,
+  strictCostMode: data.AI_STRICT_COST_MODE,
+  maxCostPerRunUsd: data.AI_MAX_COST_PER_RUN_USD,
+  maxLlmCallsPerRun: data.AI_MAX_LLM_CALLS_PER_RUN,
+  maxWebSearchesPerRun: data.AI_MAX_WEB_SEARCHES_PER_RUN,
+  maxScrapesPerRun: data.AI_MAX_SCRAPES_PER_RUN,
+  maxReasoningCandidates: data.AI_MAX_REASONING_CANDIDATES,
+  maxRetriesPerStep: data.AI_MAX_RETRIES_PER_STEP,
+
   isTest,
   isProd,
 };

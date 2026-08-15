@@ -129,7 +129,9 @@ function extracaoMock(conteudos: string[]): ExtracaoSaida {
 export interface ResultadoExtracaoAgente {
   saida: ExtracaoSaida;
   origem: OrigemLLM;
-  tokens?: { entrada: number; saida: number };
+  tokens?: { entrada: number; saida: number; cache?: number };
+  /** Modelo que atendeu; ausente no modo mock/heurístico. */
+  modelo?: string;
   // De onde veio o conteúdo buscado via URL (quando havia 'urls'/'coleta'); ausente se só 'conteudos'.
   fonteConteudo?: "firecrawl" | "mock";
 }
@@ -161,7 +163,13 @@ export async function extrairInformacoes(input: ExtrairInformacoesInput): Promis
     perfis: bruto.perfis ?? [],
   };
   const saida = extracaoSaidaSchema.parse(candidato);
-  return { saida, origem: resultado.origem, tokens: resultado.tokens, fonteConteudo: fonteConteudo ?? undefined };
+  return {
+    saida,
+    origem: resultado.origem,
+    tokens: resultado.tokens,
+    modelo: resultado.modelo,
+    fonteConteudo: fonteConteudo ?? undefined,
+  };
 }
 
 function normalizarChave(valor: string): string {

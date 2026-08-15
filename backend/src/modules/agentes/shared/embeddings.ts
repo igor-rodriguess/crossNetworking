@@ -87,6 +87,13 @@ export async function gerarEmbeddings(textos: string[]): Promise<ResultadoEmbedd
   if (embeddingEmModoMock()) {
     return { vetores: textos.map(embeddingMock), origem: "mock" };
   }
+  // Kill switch, última linha de defesa junto do fetch. Embeddings da OpenAI são
+  // cobrados por uso; `env.embeddingMock` já considera o switch, mas esta
+  // checagem protege qualquer caminho futuro que contorne aquele cálculo.
+  if (!env.paidProvidersEnabled) {
+    logger.warn({}, "Embeddings pagos bloqueados: AI_PAID_PROVIDERS_ENABLED=false. Usando stub determinístico.");
+    return { vetores: textos.map(embeddingMock), origem: "mock" };
+  }
   return { vetores: await embeddingOpenAI(textos), origem: "openai" };
 }
 

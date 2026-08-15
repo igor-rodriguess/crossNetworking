@@ -24,6 +24,21 @@ export interface ResultadoBusca {
   trecho: string;
   // De onde veio (domínio ou origem).
   fonte: string;
+  /**
+   * Data de publicação, quando o provedor a informa (ISO-8601). `null` = não
+   * foi possível determinar — distinto de "sem data". O DuckDuckGo HTML não
+   * expõe este dado; o Firecrawl às vezes sim.
+   */
+  publicado_em?: string | null;
+  /** Instante da coleta (ISO-8601). Sempre preenchido: nós o conhecemos. */
+  coletado_em?: string | null;
+}
+
+/** Normaliza uma data de provedor para ISO-8601; `null` quando não interpretável. */
+function dataIso(valor: unknown): string | null {
+  if (typeof valor !== "string" || !valor.trim()) return null;
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? null : data.toISOString();
 }
 
 /** True quando a busca deve usar o stub. DuckDuckGo não precisa de chave, então
@@ -36,24 +51,31 @@ export function buscaEmModoMock(): boolean {
 function buscaMock(termo: string, limite: number): ResultadoBusca[] {
   const base = termo.trim().slice(0, 60);
   const slug = encodeURIComponent(base.toLowerCase().replace(/\s+/g, "-"));
+  const coletadoEm = new Date().toISOString();
   const modelos: ResultadoBusca[] = [
     {
       titulo: `${base} — panorama e principais players`,
       url: `https://exemplo-setorial.com/${slug}`,
       trecho: `Visão geral sobre "${base}", com os atores mais relevantes do setor. (resultado MOCK)`,
       fonte: "exemplo-setorial.com",
+      publicado_em: null,
+      coletado_em: coletadoEm,
     },
     {
       titulo: `Notícia: novidades sobre ${base}`,
       url: `https://noticias-exemplo.com/2026/${slug}`,
       trecho: `Cobertura recente relacionada a "${base}", incluindo parcerias anunciadas. (resultado MOCK)`,
       fonte: "noticias-exemplo.com",
+      publicado_em: null,
+      coletado_em: coletadoEm,
     },
     {
       titulo: `Análise de mercado — ${base}`,
       url: `https://relatorios-exemplo.com/${slug}`,
       trecho: `Dados e tendências de "${base}": tamanho de mercado, público, oportunidades. (resultado MOCK)`,
       fonte: "relatorios-exemplo.com",
+      publicado_em: null,
+      coletado_em: coletadoEm,
     },
   ];
   return modelos.slice(0, Math.max(1, Math.min(limite, modelos.length)));
@@ -121,7 +143,15 @@ function extrairResultadosHtml(html: string, limite: number): ResultadoBusca[] {
     } catch {
       /* url inválida — mantém como está */
     }
-    resultados.push({ titulo, url: href, trecho: (snip?.texto ?? "").slice(0, 500), fonte });
+    resultados.push({
+      titulo,
+      url: href,
+      trecho: (snip?.texto ?? "").slice(0, 500),
+      fonte,
+      // O endpoint HTML do DuckDuckGo não expõe a data de publicação.
+      publicado_em: null,
+      coletado_em: new Date().toISOString(),
+    });
   }
   return resultados;
 }
@@ -176,6 +206,9 @@ interface FirecrawlResultadoBusca {
   title?: string;
   description?: string;
   url?: string;
+  // O Firecrawl às vezes devolve a data no bloco de metadados da página.
+  publishedDate?: string;
+  metadata?: { publishedTime?: string; publishedDate?: string; modifiedTime?: string };
 }
 
 interface FirecrawlBuscaResposta {
@@ -189,7 +222,9 @@ interface FirecrawlBuscaResposta {
  * etapa posterior de extração, credibilidade e validação do candidato.
  */
 async function buscaFirecrawl(termo: string, limite: number): Promise<ResultadoBusca[]> {
-  if (env.extracaoMock || !env.firecrawlApiKey) return [];
+  // O Firecrawl é cobrado por chamada. `env.extracaoMock` já considera o kill
+  // switch; a checagem explícita fica junto do fetch como última defesa.
+  if (env.extracaoMock || !env.paidProvidersEnabled || !env.firecrawlApiKey) return [];
 
   try {
     const resposta = await fetch(FIRECRAWL_SEARCH_URL, {
@@ -232,6 +267,12 @@ async function buscaFirecrawl(termo: string, limite: number): Promise<ResultadoB
           url: resultado.url,
           trecho: (resultado.description ?? "").trim().slice(0, 500),
           fonte,
+          publicado_em:
+            dataIso(resultado.publishedDate) ??
+            dataIso(resultado.metadata?.publishedTime) ??
+            dataIso(resultado.metadata?.publishedDate) ??
+            null,
+          coletado_em: new Date().toISOString(),
         }];
       })
       .slice(0, limite);

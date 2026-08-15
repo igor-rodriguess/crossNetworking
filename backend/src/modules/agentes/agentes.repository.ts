@@ -12,7 +12,19 @@ export interface RegistroExecucao {
   erro?: string | null;
   tokensEntrada?: number;
   tokensSaida?: number;
+  /** Tokens de entrada servidos de cache pelo provedor (cobrados mais barato). */
+  tokensCache?: number;
   duracaoMs?: number;
+  /** Modelo que atendeu. Ausente quando a etapa não usou LLM. */
+  modelo?: string | null;
+  /** Custo estimado em USD; null quando não estimável. */
+  custoEstimado?: number | null;
+  iniciadoEm?: Date | null;
+  finalizadoEm?: Date | null;
+  /** Execução-pai do pipeline; null quando a etapa rodou isolada por rota. */
+  execucaoPaiId?: string | null;
+  /** Número da tentativa (1 = primeira). */
+  tentativa?: number;
   criadoPorId?: string | null;
   projetoId?: string | null;
   frenteId?: string | null;
@@ -25,9 +37,11 @@ export async function registrarExecucao(
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO cross_ai.execucao_agente
        (agente, status, origem, entrada, saida, erro,
-        tokens_entrada, tokens_saida, duracao_ms,
+        tokens_entrada, tokens_saida, tokens_cache, duracao_ms,
+        modelo, custo_estimado, iniciado_em, finalizado_em,
+        execucao_pai_id, tentativa,
         criado_por_id, projeto_id, frente_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
      RETURNING id`,
     [
       dados.agente,
@@ -38,10 +52,161 @@ export async function registrarExecucao(
       dados.erro ?? null,
       dados.tokensEntrada ?? 0,
       dados.tokensSaida ?? 0,
+      dados.tokensCache ?? 0,
       dados.duracaoMs ?? null,
+      dados.modelo ?? null,
+      dados.custoEstimado ?? null,
+      dados.iniciadoEm ?? null,
+      dados.finalizadoEm ?? null,
+      dados.execucaoPaiId ?? null,
+      dados.tentativa ?? 1,
       dados.criadoPorId ?? null,
       dados.projetoId ?? null,
       dados.frenteId ?? null,
+    ]
+  );
+  return rows[0].id;
+}
+
+// -----------------------------------------------------------------------------
+// Checkpoint por etapa (cross_ai.tarefa_pipeline.checkpoint).
+//
+// Mecanismo mínimo de retomada: guarda a saída de cada etapa concluída para que
+// uma falha posterior não obrigue a refazer — e, com API paga, a não recobrar —
+// o que já foi feito. Sem fila, sem processo separado.
+// -----------------------------------------------------------------------------
+
+export interface EtapaCheckpointRow {
+  saida: unknown;
+  execucao_id?: string;
+  origem?: string;
+  concluida_em: string;
+}
+
+export async function lerCheckpoint(
+  client: PoolClient,
+  tarefaId: string
+): Promise<Record<string, EtapaCheckpointRow>> {
+  const { rows } = await client.query<{ checkpoint: Record<string, EtapaCheckpointRow> | null }>(
+    `SELECT checkpoint FROM cross_ai.tarefa_pipeline WHERE id = $1`,
+    [tarefaId]
+  );
+  return rows[0]?.checkpoint ?? {};
+}
+
+/**
+ * Grava (ou substitui) a entrada de uma etapa no checkpoint.
+ *
+ * `jsonb_set` com merge no servidor evita ler-modificar-escrever: duas etapas
+ * que terminem próximas não sobrescrevem uma à outra.
+ */
+export async function gravarCheckpointEtapa(
+  client: PoolClient,
+  tarefaId: string,
+  etapa: string,
+  dados: EtapaCheckpointRow
+): Promise<void> {
+  await client.query(
+    `UPDATE cross_ai.tarefa_pipeline
+        SET checkpoint = COALESCE(checkpoint, '{}'::jsonb) || jsonb_build_object($2::text, $3::jsonb),
+            atualizado_em = NOW()
+      WHERE id = $1`,
+    [tarefaId, etapa, JSON.stringify(dados)]
+  );
+}
+
+/**
+ * Fecha a execução-pai de um pipeline.
+ *
+ * O pai é criado ANTES das etapas (para que elas tenham a que se vincular) e
+ * fechado aqui com o resultado. Os totais consolidados vêm das filhas, somados
+ * em SQL — a fonte de verdade do custo é a soma das etapas, não um acumulador
+ * mantido em memória que se perderia num restart.
+ */
+export async function finalizarExecucaoPai(
+  client: PoolClient,
+  dados: {
+    id: string;
+    status: "sucesso" | "erro";
+    saida?: unknown;
+    erro?: string | null;
+    iniciadoEm: Date;
+  }
+): Promise<void> {
+  await client.query(
+    `UPDATE cross_ai.execucao_agente AS pai
+        SET status = $2,
+            saida = $3,
+            erro = $4,
+            finalizado_em = NOW(),
+            duracao_ms = GREATEST(0, (EXTRACT(EPOCH FROM (NOW() - $5::timestamptz)) * 1000)::int),
+            tokens_entrada = COALESCE(filhas.tokens_entrada, 0),
+            tokens_saida = COALESCE(filhas.tokens_saida, 0),
+            tokens_cache = COALESCE(filhas.tokens_cache, 0),
+            custo_estimado = filhas.custo_estimado
+       FROM (
+            SELECT sum(tokens_entrada)::int AS tokens_entrada,
+                   sum(tokens_saida)::int   AS tokens_saida,
+                   sum(tokens_cache)::int   AS tokens_cache,
+                   -- NULL quando nenhuma etapa teve custo estimável: "não
+                   -- medido" não deve virar "custou zero".
+                   sum(custo_estimado)      AS custo_estimado
+              FROM cross_ai.execucao_agente
+             WHERE execucao_pai_id = $1
+       ) AS filhas
+      WHERE pai.id = $1`,
+    [
+      dados.id,
+      dados.status,
+      dados.saida !== undefined ? JSON.stringify(dados.saida) : null,
+      dados.erro ?? null,
+      dados.iniciadoEm.toISOString(),
+    ]
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Uso de ferramentas externas (Firecrawl, busca web, embeddings).
+//
+// Ficam fora de execucao_agente porque não têm tokens e porque uma execução
+// pode acionar várias ferramentas — colunas na execução ficariam esparsas.
+// -----------------------------------------------------------------------------
+
+export type FerramentaExterna =
+  | "web_search"
+  | "firecrawl_search"
+  | "firecrawl_scrape"
+  | "embeddings"
+  | "tool_call";
+
+export interface RegistroUsoFerramenta {
+  execucaoId: string;
+  ferramenta: FerramentaExterna;
+  chamadas?: number;
+  /** Unidades consumidas: páginas raspadas, trechos embutidos, resultados. */
+  unidades?: number;
+  falhas?: number;
+  custoEstimado?: number | null;
+  detalhe?: unknown;
+}
+
+export async function registrarUsoFerramenta(
+  client: PoolClient,
+  dados: RegistroUsoFerramenta
+): Promise<string> {
+  const { rows } = await client.query<{ id: string }>(
+    `INSERT INTO cross_ai.uso_ferramenta
+       (execucao_id, ferramenta, chamadas, unidades, falhas, custo_estimado, detalhe)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id`,
+    [
+      dados.execucaoId,
+      dados.ferramenta,
+      dados.chamadas ?? 1,
+      dados.unidades ?? 0,
+      dados.falhas ?? 0,
+      dados.custoEstimado ?? null,
+      dados.detalhe !== undefined ? JSON.stringify(dados.detalhe) : null,
     ]
   );
   return rows[0].id;

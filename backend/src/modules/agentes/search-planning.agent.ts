@@ -93,7 +93,9 @@ function planoMock(input: PlanejarPesquisaInput): PlanoPesquisa {
 export interface ResultadoPlanejamento {
   plano: PlanoPesquisa;
   origem: OrigemLLM;
-  tokens?: { entrada: number; saida: number };
+  tokens?: { entrada: number; saida: number; cache?: number };
+  /** Modelo que atendeu; ausente no modo mock/heurístico. */
+  modelo?: string;
 }
 
 /** Executa o planejamento de pesquisa e devolve o plano validado. */
@@ -116,5 +118,5 @@ export async function planejarPesquisa(input: PlanejarPesquisaInput): Promise<Re
   // A saída do LLM (real ou mock) é validada pelo mesmo schema — o modelo pode
   // errar o formato; aqui garantimos que o resto do pipeline recebe algo válido.
   const plano = planoPesquisaSchema.parse(resultado.dados);
-  return { plano, origem: resultado.origem, tokens: resultado.tokens };
+  return { plano, origem: resultado.origem, tokens: resultado.tokens, modelo: resultado.modelo };
 }

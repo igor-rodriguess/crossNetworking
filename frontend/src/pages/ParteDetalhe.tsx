@@ -1,12 +1,11 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Building2, MapPin, Music2, Pencil, Plus, Radio, Trash2, UserRound } from 'lucide-react';
-import { CLIENTES, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import * as partesApi from '../api/partes.api';
 import * as clientesApi from '../api/clientes.api';
 import type { Parte } from '../types';
-import { PARCERIAS } from '../data/mock';
 
 // Ids reais do backend são UUID; ids de seed mock (ex.: "parte-...") não casam.
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -454,6 +453,15 @@ export function ParteDetalhe() {
   const [marcasDoGrupo, setMarcasDoGrupo] = useState<partesApi.MarcaDoGrupo[]>([]);
 
   const parte = useStore((s) => s.partes.find((p) => p.id === parteId));
+  const parcerias = useStore((s) => s.parcerias);
+  const clientes = useStore((s) => s.clientes);
+  const carregarParcerias = useStore((s) => s.carregarParcerias);
+
+  // Parcerias reais do cliente ativo. Falhar aqui deixa a seção vazia com o
+  // empty state existente — melhor do que exibir parceria que não existe.
+  useEffect(() => {
+    carregarParcerias().catch(() => undefined);
+  }, [carregarParcerias]);
 
   // Carrega a Parte completa do backend (papéis + contatos) ao abrir. Só
   // dispara para ids reais (UUID); ignora os ids de seed mock ainda presentes.
@@ -474,10 +482,13 @@ export function ParteDetalhe() {
 
   if (!parte) return <Navigate to="/partes" replace />;
 
-  const historicoParcerias = PARCERIAS.filter((p) => p.marcaId === parte.id).map((p) => ({
-    parceria: p,
-    cliente: CLIENTES.find((cl) => cl.id === p.clienteId)!,
-  }));
+  // Parcerias reais do cliente ativo, vindas da API. Antes esta lista era
+  // montada a partir de um array estático de exemplo, exibindo parcerias que
+  // não existiam na base. O cliente pode não estar carregado ainda; nesse caso
+  // o vínculo fica sem nome, e não com um nome inventado.
+  const historicoParcerias = parcerias
+    .filter((p) => p.marcaId === parte.id)
+    .map((p) => ({ parceria: p, cliente: clientes.find((cl) => cl.id === p.clienteId) }));
 
   function abrirEdicao() {
     setEditNome(parte!.nome);
@@ -679,7 +690,8 @@ export function ParteDetalhe() {
                       <div>
                         <div className="text-sm font-semibold text-ink">{parceria.nome}</div>
                         <div className="text-xs text-stone">
-                          com {cliente.nome} · {parceria.tipo} · {formatarData(parceria.dataInicio)} a{' '}
+                          {cliente ? `com ${cliente.nome} · ` : ''}
+                          {parceria.tipo} · {formatarData(parceria.dataInicio)} a{' '}
                           {formatarData(parceria.dataFim)}
                         </div>
                       </div>

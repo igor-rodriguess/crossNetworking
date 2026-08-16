@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   BookOpen,
@@ -6,6 +7,7 @@ import {
   ChevronRight,
   ExternalLink,
   FileText,
+  Filter,
   Radar,
   Search,
   ShieldCheck,
@@ -180,12 +182,25 @@ export function Oportunidades() {
     <div>
       <CabecalhoPagina
         sobretitulo="Inteligência Cross · curadoria humana"
-        titulo="Oportunidades de parceria"
-        descricao="Sugestões reais produzidas pelo pipeline de IA, com fit Crossability, fontes utilizadas e briefing inicial para a equipe avaliar."
+        titulo="Oportunidades"
+        descricao="Sugestões reais produzidas pelo pipeline de IA, com fit Crossability, fontes utilizadas e briefing inicial para a equipe avaliar. Toda sugestão permanece como rascunho até a validação humana."
         acoes={
-          <Botao pequeno disabled={gerando || !cliente || !frenteSelecionada} onClick={() => void mapearNovasOportunidades()}>
-            <Sparkles size={14} strokeWidth={1.5} /> {gerando ? 'Pesquisando o briefing…' : 'Pesquisar este briefing'}
-          </Botao>
+          <div className="flex flex-wrap items-center gap-2">
+            {/*
+              O funil é o estágio operacional de uma oportunidade, não uma área
+              própria: deixou o menu principal e passou a ser alcançado daqui,
+              onde a decisão acontece. A rota /funil segue intacta.
+            */}
+            <Link
+              to="/funil"
+              className="inline-flex items-center gap-1.5 rounded-full border border-cloud bg-paper px-3.5 py-1.5 text-sm font-semibold text-graphite transition-colors hover:border-mist hover:text-ink"
+            >
+              <Filter size={14} strokeWidth={1.5} /> Ver funil
+            </Link>
+            <Botao pequeno disabled={gerando || !cliente || !frenteSelecionada} onClick={() => void mapearNovasOportunidades()}>
+              <Sparkles size={14} strokeWidth={1.5} /> {gerando ? 'Pesquisando o briefing…' : 'Pesquisar este briefing'}
+            </Botao>
+          </div>
         }
       />
 

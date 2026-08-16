@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Building2, Plus, Search, UserRound } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
-import { PARCERIAS } from '../data/mock';
 import {
   Botao,
   CabecalhoPagina,
@@ -107,7 +106,12 @@ function FormNovaParte({ aoFechar }: { aoFechar: () => void }) {
 export function Partes() {
   const candidaturas = useStore((s) => s.candidaturas);
   const partes = useStore((s) => s.partes);
+  // Parcerias reais do cliente ativo (carregadas da API pelo store). Antes esta
+  // tela contava a partir de um array estático de exemplo, exibindo números que
+  // não correspondiam à base — corrigido nesta sprint.
+  const parcerias = useStore((s) => s.parcerias);
   const carregarPartes = useStore((s) => s.carregarPartes);
+  const carregarParcerias = useStore((s) => s.carregarParcerias);
   const partesCarregando = useStore((s) => s.partesCarregando);
   const { toast } = useToast();
   const [busca, setBusca] = useState('');
@@ -122,6 +126,13 @@ export function Partes() {
     );
   }, [carregarPartes, toast]);
 
+  // As parcerias do cliente ativo alimentam o contador por Parte. Falhar aqui
+  // não derruba a tela: o contador simplesmente fica em zero, o que é honesto —
+  // nenhum número é inventado para preencher a lacuna.
+  useEffect(() => {
+    carregarParcerias().catch(() => undefined);
+  }, [carregarParcerias]);
+
   const participacao = useMemo(() => {
     const mapa = new Map<string, { candidaturas: number; parcerias: number }>();
     for (const p of partes) mapa.set(p.id, { candidaturas: 0, parcerias: 0 });
@@ -129,12 +140,12 @@ export function Partes() {
       const reg = mapa.get(c.marcaId);
       if (reg) reg.candidaturas += 1;
     }
-    for (const p of PARCERIAS) {
+    for (const p of parcerias) {
       const reg = mapa.get(p.marcaId);
       if (reg) reg.parcerias += 1;
     }
     return mapa;
-  }, [candidaturas, partes]);
+  }, [candidaturas, partes, parcerias]);
 
   const filtradas = partes.filter((p) => {
     if (busca && !normalizar(`${p.nome} ${p.categoria} ${p.territorio}`).includes(normalizar(busca))) return false;

@@ -15,7 +15,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { CLIENTES, FRENTES, PROJETOS, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
 import { useUI } from '../store/useUI';
 import { normalizar } from '../lib/texto';
 
@@ -67,6 +67,9 @@ export function CommandPalette() {
   const partes = useStore((s) => s.partes);
   const candidaturas = useStore((s) => s.candidaturas);
   const perfisArtistas = useStore((s) => s.perfisArtistas);
+  const clientes = useStore((s) => s.clientes);
+  const projetos = useStore((s) => s.projetos);
+  const frentes = useStore((s) => s.frentes);
   const setClienteAtivo = useStore((s) => s.setClienteAtivo);
 
   const aberto = useUI((s) => s.buscaAberta);
@@ -113,7 +116,10 @@ export function CommandPalette() {
         ir: () => navigate(r.para),
       });
     }
-    for (const c of CLIENTES) {
+    // Clientes, projetos e frentes reais do store (API). Antes esta lista vinha
+    // de arrays de exemplo: a busca global oferecia clientes e projetos que não
+    // existiam na base, e ativá-los levava a um cliente inexistente.
+    for (const c of clientes) {
       lista.push({
         id: `cli-${c.id}`,
         titulo: c.nome,
@@ -126,11 +132,11 @@ export function CommandPalette() {
         },
       });
     }
-    for (const p of PROJETOS) {
+    for (const p of projetos) {
       lista.push({
         id: `proj-${p.id}`,
         titulo: p.nome,
-        subtitulo: `Projeto · ${CLIENTES.find((c) => c.id === p.clienteId)?.nome ?? ''}`,
+        subtitulo: `Projeto · ${clientes.find((c) => c.id === p.clienteId)?.nome ?? ''}`,
         grupo: 'Projetos',
         icone: FolderKanban,
         ir: () => navigate(`/projetos/${p.id}`),
@@ -138,7 +144,7 @@ export function CommandPalette() {
     }
     for (const cand of candidaturas) {
       const marca = partes.find((pp) => pp.id === cand.marcaId);
-      const frente = FRENTES.find((f) => f.id === cand.frenteId);
+      const frente = frentes.find((f) => f.id === cand.frenteId);
       if (!marca) continue;
       lista.push({
         id: `cand-${cand.id}`,

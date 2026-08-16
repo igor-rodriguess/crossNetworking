@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, CheckCircle2, Clock3, FileText, Pencil, Plus, Save, Trash2, Undo2, Users, X } from 'lucide-react';
-import { MARCAS, useStore } from '../store/useStore';
+import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -486,7 +486,10 @@ export function ProjetoDetalhe() {
               .filter((c) => c.frenteId === frente.id)
               .map((c) => ({
                 candidatura: c,
-                marca: partes.find((m) => m.id === c.marcaId) ?? MARCAS.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
+                // Sem fallback em dados de exemplo: quando a Parte não estiver
+                // carregada, o cartão mostra um rótulo neutro em vez do nome de
+                // uma marca fictícia.
+                marca: partes.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
                 score: calcularScore(criterios, avaliacoes.find((a) => a.candidaturaId === c.id)),
               }))
               .sort((a, b) => (b.score?.total ?? -1) - (a.score?.total ?? -1));
@@ -701,7 +704,10 @@ export function ProjetoDetalhe() {
                 .flatMap((c) =>
                   c.historico.map((mov) => ({
                     mov,
-                    marca: partes.find((m) => m.id === c.marcaId) ?? MARCAS.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
+                    // Sem fallback em dados de exemplo: quando a Parte não estiver
+                // carregada, o cartão mostra um rótulo neutro em vez do nome de
+                // uma marca fictícia.
+                marca: partes.find((m) => m.id === c.marcaId) ?? { id: c.marcaId, nome: 'Parceiro', categoria: '—', territorio: '', publico: '', descricao: '' },
                   })),
                 )
                 .sort((a, b) => b.mov.data.localeCompare(a.mov.data))

@@ -4,10 +4,11 @@ import { AlertCircle, ArrowRight, CalendarClock, FileWarning } from 'lucide-reac
 import { useStore } from '../store/useStore';
 import { ErroApi } from '../api/erros';
 import { useToast } from '../components/Toast';
-import { FASES_PROJETO, HOJE, formatarDataCurta, indiceFase } from '../lib/format';
+import { FASES_PROJETO, HOJE, STATUS_CANDIDATURA, formatarDataCurta, indiceFase } from '../lib/format';
 import { Chip, FaixaEstatisticas, RotuloMono } from '../components/ui';
 import { STATUS_PROJETO } from './Projetos';
 import type { ReactNode } from 'react';
+import type { StatusCandidatura } from '../types';
 
 // Anel de progresso do ciclo (SVG puro, sem dependências)
 function AnelProgresso({ percentual }: { percentual: number }) {
@@ -84,9 +85,30 @@ export function Dashboard() {
   const primeiroNome = (usuario?.nome ?? 'Equipe Cross').split(' ')[0];
 
   // ── KPIs globais (sem valores financeiros) ────────────────────────────────
-  const projetosAndamento = PROJETOS.filter((p) => p.status === 'em_andamento').length;
   const emNegociacao = candidaturas.filter((c) => c.status === 'em_negociacao').length;
   const parceriasAtivas = PARCERIAS.filter((p) => p.status === 'ativa').length;
+
+  // ── Leitura de oportunidade ───────────────────────────────────────────────
+  // A candidatura é, hoje, a estrutura que representa a Oportunidade
+  // (docs/product/01). Os estágios abaixo são os que já existem no banco —
+  // nenhum estado novo foi inventado para esta tela.
+  const ENCERRADOS: StatusCandidatura[] = ['recusada_cliente', 'recusada_parceiro', 'encerrada'];
+  const AGUARDANDO_CROSS: StatusCandidatura[] = ['abrir_frente', 'validar_com_cliente'];
+
+  const oportunidadesEmAvaliacao = candidaturas.filter((c) => !ENCERRADOS.includes(c.status)).length;
+  const oportunidadesAguardando = candidaturas.filter((c) => AGUARDANDO_CROSS.includes(c.status)).length;
+
+  // Distribuição real por estágio, na ordem oficial do funil. Estágios sem
+  // nenhuma oportunidade não aparecem — a lista mostra o que existe, não um
+  // esqueleto de estados vazios.
+  const distribuicaoFunil = (Object.keys(STATUS_CANDIDATURA) as StatusCandidatura[])
+    .map((status) => ({
+      status,
+      rotulo: STATUS_CANDIDATURA[status].rotulo,
+      total: candidaturas.filter((c) => c.status === status).length,
+    }))
+    .filter((linha) => linha.total > 0);
+  const maxFunil = Math.max(1, ...distribuicaoFunil.map((l) => l.total));
 
   // ── Ciclo dos projetos: quantos projetos ativos em cada fase ─────────────
   const ciclo = FASES_PROJETO.map((fase) => ({
@@ -163,29 +185,29 @@ export function Dashboard() {
           {saudacao()}, {primeiroNome}
         </h1>
         <p className="mt-1.5 text-sm text-stone">
-          Panorama geral dos projetos e oportunidades de todos os clientes da Cross.
+          O que precisa da sua atenção hoje na operação da Cross.
         </p>
       </div>
 
-      {/* Hero da operação */}
+      {/* Hero — a oportunidade em avaliação passa a ser a leitura principal */}
       <section className="relative mb-6 overflow-hidden rounded-xl bg-ink px-8 py-7">
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
           <div className="max-w-xl">
             <span className="inline-block rounded-full border border-graphite px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-mist">
-              Operação Cross · {new Date(HOJE).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              Cross Intelligence · {new Date(HOJE).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
             </span>
             <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight text-paper">
-              {projetosAndamento} projetos em movimento.
+              {oportunidadesEmAvaliacao} oportunidades em avaliação.
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-mist">
-              {emNegociacao} candidaturas em negociação e {parceriasAtivas} parcerias ativas em execução —
-              acompanhe o ciclo de cada projeto do briefing ao acompanhamento.
+              {emNegociacao} em negociação e {oportunidadesAguardando} aguardando a próxima ação da Cross.
+              Cada oportunidade é uma hipótese de negócio até a validação humana.
             </p>
             <Link
-              to="/projetos"
+              to="/oportunidades"
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-accent-deep"
             >
-              Ver todos os projetos <ArrowRight size={15} strokeWidth={1.5} />
+              Ver oportunidades <ArrowRight size={15} strokeWidth={1.5} />
             </Link>
           </div>
           <AnelProgresso percentual={progressoCiclo} />
@@ -195,15 +217,46 @@ export function Dashboard() {
         <div className="pointer-events-none absolute -bottom-24 right-24 h-64 w-64 rounded-full border border-graphite" />
       </section>
 
-      {/* Faixa de indicadores */}
+      {/* Faixa de indicadores — inteligência primeiro, execução depois */}
       <FaixaEstatisticas
         itens={[
-          { rotulo: 'Projetos em andamento', valor: projetosAndamento, detalhe: `${PROJETOS.length} na base histórica` },
-          { rotulo: 'Em negociação', valor: emNegociacao, detalhe: 'candidaturas em tratativa' },
+          { rotulo: 'Oportunidades', valor: candidaturas.length, detalhe: 'no radar do cliente ativo' },
+          { rotulo: 'Em negociação', valor: emNegociacao, detalhe: 'conversa em curso' },
+          { rotulo: 'Empresas na base', valor: partes.length, detalhe: 'clientes, marcas e talentos' },
           { rotulo: 'Parcerias ativas', valor: parceriasAtivas, detalhe: `${PARCERIAS.length} no portfólio` },
-          { rotulo: 'Partes na base', valor: partes.length, detalhe: 'clientes, marcas e talentos' },
         ]}
       />
+
+      {/* Funil — distribuição real por estágio; nenhum estado é inventado */}
+      <section className="card mt-6 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-cloud px-6 py-4">
+          <RotuloMono>Funil de oportunidades</RotuloMono>
+          <Link to="/funil" className="flex items-center gap-1 text-xs font-semibold text-accent hover:text-accent-deep">
+            Visão completa <ArrowRight size={12} strokeWidth={1.5} />
+          </Link>
+        </div>
+        {distribuicaoFunil.length === 0 ? (
+          <p className="px-6 py-10 text-center text-sm text-stone">
+            Nenhuma oportunidade no funil deste cliente. Quando a Cross Intelligence identificar novas
+            oportunidades, a distribuição por estágio aparece aqui.
+          </p>
+        ) : (
+          <ul className="divide-y divide-cloud">
+            {distribuicaoFunil.map(({ status, rotulo, total }) => (
+              <li key={status} className="flex items-center gap-4 px-6 py-3">
+                <span className="w-56 shrink-0 truncate text-sm text-graphite">{rotulo}</span>
+                <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-cloud">
+                  <span
+                    className="block h-full rounded-full bg-accent transition-all duration-500"
+                    style={{ width: `${(total / maxFunil) * 100}%` }}
+                  />
+                </span>
+                <span className="w-8 shrink-0 text-right font-mono text-xs font-bold text-ink">{total}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-5">
         {/* Ciclo dos projetos — leitura em barras, uma fase por linha */}
@@ -271,10 +324,14 @@ export function Dashboard() {
         </section>
       </div>
 
-      {/* Projetos recentes */}
+      {/*
+        Projetos continuam existindo no domínio como iniciativa consolidada,
+        mas deixam de ser a leitura principal do painel: entram como contexto,
+        depois das oportunidades. A rota /projetos segue acessível.
+      */}
       <section className="card mt-6 overflow-hidden">
         <div className="flex items-center justify-between border-b border-cloud px-6 py-4">
-          <RotuloMono>Projetos recentes</RotuloMono>
+          <RotuloMono>Iniciativas em andamento</RotuloMono>
           <Link to="/projetos" className="flex items-center gap-1 text-xs font-semibold text-accent hover:text-accent-deep">
             Base completa <ArrowRight size={12} strokeWidth={1.5} />
           </Link>

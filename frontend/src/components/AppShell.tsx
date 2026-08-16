@@ -4,21 +4,14 @@ import {
   BarChart3,
   BookOpenCheck,
   Building2,
-  CalendarRange,
   ChevronsUpDown,
-  FileText,
-  Filter,
-  FolderKanban,
   LayoutDashboard,
   Library,
   Menu,
   Music2,
-  ListOrdered,
   LogOut,
   Plus,
-  RotateCcw,
   Search,
-  SlidersHorizontal,
   Sparkles,
   Trophy,
   Upload,
@@ -41,50 +34,43 @@ const PERSONA_ROTULO: Record<string, string> = {
   coordenador: 'Coordenador',
 };
 
+// Navegação da Cross Intelligence.
+//
+// A ordem comunica a lógica do produto — INTELIGÊNCIA → OPORTUNIDADE →
+// DECISÃO → AÇÃO HUMANA — e não mais o fluxo operacional antigo
+// (projeto → execução → entrega → resultado).
+//
+// Páginas do modelo antigo (cronograma, resumo, frentes, critérios, ranking,
+// detalhe de parceria, funil) saíram DAQUI, não do sistema: as rotas seguem
+// registradas em App.tsx e acessíveis por URL. Ver docs/product/06.
 const NAVEGACAO = [
   {
-    grupo: 'Operar hoje',
-    // O cliente em contexto vem do seletor no topo — não há item de menu para
-    // "Clientes": toda a plataforma já se filtra pela conta selecionada lá.
+    grupo: 'Início',
+    itens: [{ para: '/', rotulo: 'Dashboard', icone: LayoutDashboard }],
+  },
+  {
+    grupo: 'Oportunidades',
+    // O funil é estágio DA oportunidade, não área própria: mora dentro desta
+    // tela, com link para a visão completa em /funil.
+    itens: [{ para: '/oportunidades', rotulo: 'Oportunidades', icone: Sparkles }],
+  },
+  {
+    grupo: 'Relacionamentos',
     itens: [
-      { para: '/', rotulo: 'Central de operação', icone: LayoutDashboard },
+      { para: '/partes', rotulo: 'Empresas', icone: Library },
+      { para: '/clientes', rotulo: 'Clientes', icone: Building2 },
+      { para: '/artistas', rotulo: 'Artistas', icone: Music2 },
     ],
   },
   {
-    grupo: 'Inteligência Cross',
-    itens: [
-      { para: '/oportunidades', rotulo: 'Oportunidades de IA', icone: Sparkles },
-      { para: '/conhecimento', rotulo: 'Relatórios & base RAG', icone: BookOpenCheck },
-    ],
+    grupo: 'Inteligência',
+    itens: [{ para: '/conhecimento', rotulo: 'Base de conhecimento', icone: BookOpenCheck }],
   },
   {
-    grupo: 'Descobrir',
-    itens: [
-      { para: '/partes', rotulo: 'Relacionamentos', icone: Library },
-      { para: '/marcas', rotulo: 'Mapa de oportunidades', icone: Building2 },
-      { para: '/artistas', rotulo: 'Artistas & momentos', icone: Music2 },
-    ],
-  },
-  {
-    grupo: 'Estruturar',
-    itens: [
-      { para: '/projetos', rotulo: 'Projetos & briefings', icone: FolderKanban },
-      { para: '/frentes', rotulo: 'Mapeamento de oportunidades', icone: Filter },
-    ],
-  },
-  {
-    grupo: 'Avaliar & decidir',
-    itens: [
-      { para: '/criterios', rotulo: 'Critérios & pesos', icone: SlidersHorizontal },
-      { para: '/ranking', rotulo: 'Ranking & decisões', icone: Trophy },
-    ],
-  },
-  {
-    grupo: 'Executar & medir',
-    itens: [
-      { para: '/cronograma', rotulo: 'Cronograma de parcerias', icone: CalendarRange },
-      { para: '/resumo', rotulo: 'Resultados & resumo', icone: FileText },
-    ],
+    grupo: 'Decisão',
+    // Crossability não é item de menu: é motor metodológico, aplicado dentro
+    // das análises. A rota e a página seguem preservadas.
+    itens: [{ para: '/marcas', rotulo: 'Score Cards', icone: Trophy }],
   },
   {
     grupo: 'Administração',
@@ -101,7 +87,6 @@ function SeletorCliente() {
   const clientes = useStore((s) => s.clientes);
   const adicionarCliente = useStore((s) => s.adicionarCliente);
   const carregarClientes = useStore((s) => s.carregarClientes);
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState('');
@@ -203,9 +188,13 @@ function SeletorCliente() {
                 role="option"
                 aria-selected={c.id === clienteAtivoId}
                 onClick={() => {
+                  // Trocar o cliente ativo apenas troca o recorte da
+                  // plataforma. Antes esta ação navegava para a ficha da Parte
+                  // (ou desviava para /clientes quando não havia parteId) —
+                  // comportamento surpreendente, e o único acesso a /clientes.
+                  // Clientes agora tem item próprio em Relacionamentos.
                   setClienteAtivo(c.id);
                   setAberto(false);
-                  navigate(c.parteId ? `/partes/${c.parteId}` : '/clientes');
                 }}
                 className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-off ${
                   c.id === clienteAtivoId ? 'bg-accent-soft' : ''
@@ -292,21 +281,22 @@ function SeletorCliente() {
 
 const TITULOS: Record<string, string> = {
   '/': 'Dashboard',
-  '/clientes': 'Clientes',
-  '/oportunidades': 'Oportunidades de parceria · IA',
-  '/conhecimento': 'Relatórios & base RAG',
-  '/partes': 'Base de relacionamentos',
+  '/clientes': 'Clientes Cross',
+  '/oportunidades': 'Oportunidades',
+  '/conhecimento': 'Base de conhecimento',
+  '/partes': 'Empresas & relacionamentos',
   '/artistas': 'Artistas & Big Moments',
-  '/projetos': 'Projetos & briefings',
-  '/criterios': 'Critérios & pesos',
-  '/marcas': 'Base de marcas',
-  '/ranking': 'Ranking',
-  '/funil': 'Funil comercial',
-  '/frentes': 'Mapeamento de oportunidades',
-  '/cronograma': 'Cronograma',
-  '/resumo': 'Resumo executivo',
+  '/marcas': 'Score Cards',
+  '/funil': 'Funil de oportunidades',
   '/usuarios': 'Equipe & acessos',
   '/importar': 'Importar dados',
+  // Rotas fora da navegação principal, ainda acessíveis por URL.
+  '/projetos': 'Projetos',
+  '/criterios': 'Critérios & pesos',
+  '/ranking': 'Ranking',
+  '/frentes': 'Frentes de oportunidade',
+  '/cronograma': 'Cronograma',
+  '/resumo': 'Resumo executivo',
 };
 
 function tituloDaRota(pathname: string): string {
@@ -321,7 +311,6 @@ function tituloDaRota(pathname: string): string {
 export function AppShell() {
   const usuario = useStore((s) => s.usuario);
   const logout = useStore((s) => s.logout);
-  const restaurarDemo = useStore((s) => s.restaurarDemo);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [menuAberto, setMenuAberto] = useState(false);
@@ -418,14 +407,13 @@ export function AppShell() {
               </div>
             </div>
           </div>
+          {/*
+            O botão "Demo" (restaurarDemo) saiu da interface: a plataforma opera
+            com dados reais de clientes, e um clique acidental restauraria dados
+            de demonstração sobre eles. A ação continua existindo no store, para
+            desenvolvimento e testes — apenas não é mais alcançável pela UI.
+          */}
           <div className="flex gap-2">
-            <button
-              onClick={() => restaurarDemo()}
-              title="Restaurar dados de demonstração"
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-graphite px-2 py-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-mist transition-colors hover:border-stone hover:text-paper"
-            >
-              <RotateCcw size={11} strokeWidth={1.5} /> Demo
-            </button>
             <button
               onClick={() => {
                 logout();
@@ -488,8 +476,8 @@ export function AppShell() {
           <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-stone">
             © 2026 Crossnetworking
           </span>
-          <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-stone">
-            <ListOrdered size={11} strokeWidth={1.5} /> Conectado à API · dados reais
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-stone">
+            Cross Intelligence
           </span>
         </footer>
       </div>

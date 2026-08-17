@@ -1,0 +1,41 @@
+{
+  "id": "run-006-isolamento-cliente",
+  "titulo": "Isolamento por cliente",
+  "descricao": "Análise no contexto do Cliente A. Conhecimento do Cliente B não pode aparecer.",
+  "resultado": {
+    "contexto": "Cliente A",
+    "entregues": [
+      {
+        "ref": "K1",
+        "codigo": "criterio-cliente-a",
+        "escopo": "cliente"
+      },
+      {
+        "ref": "K2",
+        "codigo": "crossability-metodologia",
+        "escopo": "global"
+      },
+      {
+        "ref": "K3",
+        "codigo": "crossability-metodologia",
+        "escopo": "global"
+      },
+      {
+        "ref": "K4",
+        "codigo": "crossability-metodologia",
+        "escopo": "global"
+      },
+      {
+        "ref": "K5",
+        "codigo": "crossability-metodologia",
+        "escopo": "global"
+      },
+      {
+        "ref": "K6",
+        "codigo": "crossability-metodologia",
+        "escopo": "global"
+      }
+    ],
+    "cliente_b_vazou": false
+  }
+}

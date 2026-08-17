@@ -1,0 +1,38 @@
+{
+  "id": "run-008-payload-crossability",
+  "titulo": "Contexto para o futuro Crossability",
+  "descricao": "Evidence e Knowledge como estruturas SEPARADAS. Nenhum reasoning é executado.",
+  "resultado": {
+    "verified_evidence": [
+      {
+        "_nota": "PLACEHOLDER — fixture de Evidence, não produzida por esta sprint.",
+        "claim": "A marca X anunciou coleção cápsula com presença em São Paulo.",
+        "source_url": "https://exemplo-fixture.com/materia",
+        "published_at": null,
+        "collected_at": "2026-08-15T21:33:35.847Z",
+        "verification_status": "fonte_unica"
+      }
+    ],
+    "cross_knowledge": {
+      "embedding_origem": "mock",
+      "referencias": [
+        {
+          "ref": "K1",
+          "chunkId": "c85b47c7-b428-45ff-9960-105b9eae6572",
+          "documentoId": "4cfd47a7-cee3-4495-8864-45694117dba1",
+          "codigo": "crossability-metodologia",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability › Compatibilidade de públicos",
+          "categoria": "metodologia_crossability",
+          "versao": 2,
+          "escopo": "global",
+          "status": "validado",
+          "relevancia": 0.39,
+          "conteudo": "Metodologia Crossability › Compatibilidade de públicos\n\nAvalia se os públicos do cliente e do parceiro casam ou se complementam.\nComplementaridade costuma gerar mais valor do que sobreposição total: públicos\nidênticos somam alcance, públicos complementares abrem alcance novo.",
+          "aprovadoEm": "2026-08-15T21:33:35.762Z"
+        }
+      ],
+      "conhecimento_insuficiente": false
+    }
+  }
+}

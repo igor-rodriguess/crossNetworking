@@ -1,0 +1,117 @@
+{
+  "id": "run-001-recuperacao-forte",
+  "titulo": "Recuperação forte",
+  "descricao": "Consulta claramente sustentada pelo conhecimento indexado.",
+  "resultado": {
+    "consulta": "Como avaliar se os públicos do cliente e do parceiro são compatíveis?",
+    "filtros": {
+      "categorias": null,
+      "clienteCrossId": null,
+      "topK": 5,
+      "limiarRelevancia": 0.35
+    },
+    "embeddingOrigem": "mock",
+    "referencias": [
+      {
+        "ref": "K1",
+        "chunkId": "c85b47c7-b428-45ff-9960-105b9eae6572",
+        "documentoId": "4cfd47a7-cee3-4495-8864-45694117dba1",
+        "codigo": "crossability-metodologia",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Compatibilidade de públicos",
+        "categoria": "metodologia_crossability",
+        "versao": 2,
+        "escopo": "global",
+        "status": "validado",
+        "relevancia": 0.413,
+        "conteudo": "Metodologia Crossability › Compatibilidade de públicos\n\nAvalia se os públicos do cliente e do parceiro casam ou se complementam.\nComplementaridade costuma gerar mais valor do que sobreposição total: públicos\nidênticos somam alcance, públicos complementares abrem alcance novo.",
+        "aprovadoEm": "2026-08-15T21:33:35.762Z"
+      }
+    ],
+    "descartados": [
+      {
+        "chunkId": "95b6ad44-fcc0-47c6-98c5-c8f5712030ba",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Complementaridade de ativos",
+        "versao": 2,
+        "relevancia": 0.226,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "f1258ec1-616d-4c19-9ba1-cd89a867ee4b",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Fit estratégico",
+        "versao": 2,
+        "relevancia": 0.171,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "948ef6a1-49a6-42ef-84c9-68973aa39f05",
+        "documento": "Princípios de operação dos agentes Cross",
+        "secao": "Princípios de operação dos agentes Cross › Evidência rastreável",
+        "versao": 1,
+        "relevancia": 0.163,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "472fce72-2d1b-4aef-9885-46c5ac3c6959",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability",
+        "versao": 2,
+        "relevancia": 0.11,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "8a08204f-5be2-4dcf-ab13-ea9c2df8e643",
+        "documento": "Princípios de operação dos agentes Cross",
+        "secao": "Princípios de operação dos agentes Cross › Não inventar o ausente",
+        "versao": 1,
+        "relevancia": 0.099,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "a3a68d5f-731e-43e5-a61e-e07825383be9",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Compatibilidade de territórios",
+        "versao": 2,
+        "relevancia": 0.073,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "fe56af58-5f93-41c3-8589-c4d5f0958ce5",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Sinergias",
+        "versao": 2,
+        "relevancia": 0.019,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "ec9810bf-617b-43f0-add6-199a567ebec0",
+        "documento": "Princípios de operação dos agentes Cross",
+        "secao": "Princípios de operação dos agentes Cross › Agente propõe, humano promove",
+        "versao": 1,
+        "relevancia": 0.017,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "d0e7ae27-7854-43a6-adee-900def7d525a",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Momento estratégico",
+        "versao": 2,
+        "relevancia": 0,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "47974871-3907-4dca-beb4-7e06751b43aa",
+        "documento": "Princípios de operação dos agentes Cross",
+        "secao": "Princípios de operação dos agentes Cross",
+        "versao": 1,
+        "relevancia": 0,
+        "motivo": "baixa_relevancia"
+      }
+    ],
+    "conhecimentoInsuficiente": false,
+    "totalConsiderados": 11,
+    "duracaoMs": 3
+  }
+}

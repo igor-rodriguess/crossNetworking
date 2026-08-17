@@ -1,0 +1,30 @@
+{
+  "id": "run-002-conhecimento-complementar",
+  "titulo": "Conhecimento complementar",
+  "descricao": "Consulta que exige trechos de seções diferentes. Comparação entre o limiar padrão e um limiar mais baixo, para separar mecanismo de qualidade semântica do stub.",
+  "resultado": {
+    "com_limiar_padrao": {
+      "limiar": 0.35,
+      "referencias": [],
+      "conhecimento_insuficiente": true,
+      "nota": "O stub determinístico não alcança 0.35 nesta consulta."
+    },
+    "com_limiar_025": {
+      "limiar": 0.25,
+      "referencias": [
+        {
+          "ref": "K1",
+          "secao": "Metodologia Crossability › Compatibilidade de públicos",
+          "relevancia": 0.349
+        },
+        {
+          "ref": "K2",
+          "secao": "Metodologia Crossability › Compatibilidade de territórios",
+          "relevancia": 0.302
+        }
+      ],
+      "conhecimento_insuficiente": false,
+      "nota": "As duas seções aparecem, e na ordem correta: o ranking funciona."
+    }
+  }
+}

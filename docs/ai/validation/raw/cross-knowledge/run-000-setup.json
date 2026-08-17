@@ -1,0 +1,26 @@
+{
+  "id": "run-000-setup",
+  "titulo": "Indexação",
+  "descricao": "Conhecimento real do repositório indexado no banco de teste.",
+  "resultado": {
+    "documentos": [
+      {
+        "codigo": "crossability-metodologia",
+        "versao": 2,
+        "chunks": 7
+      },
+      {
+        "codigo": "principios-agentes",
+        "versao": 1,
+        "chunks": 4
+      }
+    ],
+    "embedding_origem": "mock",
+    "base": {
+      "documentos": 2,
+      "versoes": 2,
+      "chunks": 11,
+      "validados": 2
+    }
+  }
+}

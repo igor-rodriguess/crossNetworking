@@ -1,0 +1,80 @@
+{
+  "id": "run-007-descartados",
+  "titulo": "Conhecimento descartado",
+  "descricao": "O que o retrieval encontrou e NÃO entregou, com o motivo de cada descarte.",
+  "resultado": {
+    "total_considerados": 14,
+    "entregues": 0,
+    "descartados_por_motivo": {
+      "baixa_relevancia": 11,
+      "obsoleto": 2,
+      "nao_validado": 1
+    },
+    "amostra": [
+      {
+        "chunkId": "472fce72-2d1b-4aef-9885-46c5ac3c6959",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability",
+        "versao": 2,
+        "relevancia": 0.269,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "95b6ad44-fcc0-47c6-98c5-c8f5712030ba",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Complementaridade de ativos",
+        "versao": 2,
+        "relevancia": 0.261,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "006fc2e5-c437-40c9-8ccf-cb5b2bfe1fea",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability",
+        "versao": 1,
+        "relevancia": 0.217,
+        "motivo": "obsoleto"
+      },
+      {
+        "chunkId": "c85b47c7-b428-45ff-9960-105b9eae6572",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Compatibilidade de públicos",
+        "versao": 2,
+        "relevancia": 0.14,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "f1258ec1-616d-4c19-9ba1-cd89a867ee4b",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Fit estratégico",
+        "versao": 2,
+        "relevancia": 0.093,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "b4751411-77fc-4ccb-9edb-7508c497bd17",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Dimensões avaliadas",
+        "versao": 1,
+        "relevancia": 0.09,
+        "motivo": "obsoleto"
+      },
+      {
+        "chunkId": "d0e7ae27-7854-43a6-adee-900def7d525a",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability › Momento estratégico",
+        "versao": 2,
+        "relevancia": 0.089,
+        "motivo": "baixa_relevancia"
+      },
+      {
+        "chunkId": "ec9810bf-617b-43f0-add6-199a567ebec0",
+        "documento": "Princípios de operação dos agentes Cross",
+        "secao": "Princípios de operação dos agentes Cross › Agente propõe, humano promove",
+        "versao": 1,
+        "relevancia": 0.021,
+        "motivo": "baixa_relevancia"
+      }
+    ]
+  }
+}

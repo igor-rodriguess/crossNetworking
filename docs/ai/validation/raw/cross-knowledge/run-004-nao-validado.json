@@ -1,0 +1,28 @@
+{
+  "id": "run-004-nao-validado",
+  "titulo": "Conhecimento não validado",
+  "descricao": "Rascunho existe no banco mas não é entregue ao agente.",
+  "resultado": {
+    "producao": {
+      "referencias": [
+        "principios-agentes",
+        "crossability-metodologia",
+        "principios-agentes",
+        "crossability-metodologia",
+        "principios-agentes"
+      ]
+    },
+    "diagnostico": {
+      "descartados": [
+        {
+          "chunkId": "69fff815-27c1-4c54-a876-e86a4aa4ee7c",
+          "documento": "Playbook de abordagem (em elaboração)",
+          "secao": "Playbook de abordagem › Primeiro contato",
+          "versao": 1,
+          "relevancia": 0.714,
+          "motivo": "nao_validado"
+        }
+      ]
+    }
+  }
+}

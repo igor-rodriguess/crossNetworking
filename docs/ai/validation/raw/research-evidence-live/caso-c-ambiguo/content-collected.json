@@ -1,0 +1,45 @@
+{
+  "paginas": [
+    {
+      "url": "https://reserva.is/",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 6850,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "duracao_ms": 11531
+    },
+    {
+      "url": "https://www.spanishdict.com/translate/reserva",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 17574,
+      "frases_candidatas": 5,
+      "fatos_extraidos": 3,
+      "duracao_ms": 1409
+    },
+    {
+      "url": "https://www.collinsdictionary.com/us/dictionary/spanish-english/reserva",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 44706,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "duracao_ms": 1482
+    }
+  ],
+  "trechos": [
+    {
+      "url": "https://www.spanishdict.com/translate/reserva",
+      "trecho": "Affirmative imperative tú conjugation of reservar."
+    },
+    {
+      "url": "https://www.spanishdict.com/translate/reserva",
+      "trecho": "--- --- Compruebe si su reserva ha sido confirmada por nuestro proveedor."
+    },
+    {
+      "url": "https://www.spanishdict.com/translate/reserva",
+      "trecho": "Envía un mail a irene@yogadurga.es confirmando tu reserva y asistencia."
+    }
+  ]
+}

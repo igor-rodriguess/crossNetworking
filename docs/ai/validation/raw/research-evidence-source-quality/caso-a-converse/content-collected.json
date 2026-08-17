@@ -1,0 +1,41 @@
+{
+  "paginas": [
+    {
+      "url": "https://www.converse.com/",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 107301,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "descartados_pii": 0,
+      "publicado_em": null,
+      "origem_data": "desconhecida",
+      "duracao_ms": 974
+    },
+    {
+      "url": "https://www.converse.com/c/all-stars",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 18254,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "descartados_pii": 0,
+      "publicado_em": null,
+      "origem_data": "desconhecida",
+      "duracao_ms": 586
+    },
+    {
+      "url": "https://www.converse.com/shop/collabs",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 112520,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "descartados_pii": 0,
+      "publicado_em": null,
+      "origem_data": "desconhecida",
+      "duracao_ms": 3501
+    }
+  ],
+  "trechos": []
+}

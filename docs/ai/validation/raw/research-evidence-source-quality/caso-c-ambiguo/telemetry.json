@@ -1,0 +1,44 @@
+{
+  "duracao_ms": 5178,
+  "consultas": 3,
+  "buscas_web": 3,
+  "scrapes": 1,
+  "fontes_coletadas": 1,
+  "fontes_descartadas": 11,
+  "fatos_extraidos": 0,
+  "fatos_verificados": 0,
+  "custo_estimado_usd": 0,
+  "bloqueios_guardrail": [],
+  "duracao_total_ms": 5178,
+  "limites_aplicados": {
+    "custoMaximoUsd": 0.5,
+    "maxBuscasWeb": 3,
+    "maxScrapes": 3,
+    "maxChamadasLlm": 0,
+    "maxCandidatosReasoning": 5,
+    "maxTentativasPorEtapa": 1
+  },
+  "orcamento": {
+    "custo_realizado_usd": 0,
+    "chamadas_llm": 0,
+    "uso_ferramentas": {
+      "web_search": 3,
+      "firecrawl_scrape": 1
+    },
+    "bloqueios": 0,
+    "motivo_principal": null,
+    "limites": {
+      "custoMaximoUsd": 0.5,
+      "maxChamadasLlm": 0,
+      "maxBuscasWeb": 3,
+      "maxScrapes": 3,
+      "maxCandidatosReasoning": 5,
+      "maxTentativasPorEtapa": 1,
+      "providersPagosHabilitados": true,
+      "modoEstrito": true
+    }
+  },
+  "embedding_mode": "stub",
+  "llm_pago_utilizado": false,
+  "firecrawl_utilizado": true
+}

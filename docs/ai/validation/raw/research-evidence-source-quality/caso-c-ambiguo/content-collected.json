@@ -1,0 +1,15 @@
+{
+  "paginas": [
+    {
+      "url": "https://revistavincci.satc.edu.br/index.php/Revista-Vincci/article/view/281/236",
+      "status": "descartada",
+      "origem": "firecrawl",
+      "caracteres": 13,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "erro": "entity_mismatch pós-scrape: sem_mencao_a_entidade (entidade_ausente_no_conteudo)",
+      "duracao_ms": 4147
+    }
+  ],
+  "trechos": []
+}

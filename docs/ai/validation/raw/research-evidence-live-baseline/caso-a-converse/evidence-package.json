@@ -1,0 +1,199 @@
+{
+  "entidade": "Converse",
+  "objetivo": "movimentos_recentes",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Converse notícias",
+    "Converse anúncio recente",
+    "Converse novidades"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [],
+  "sources": [
+    {
+      "source_id": "src_15fa92f270",
+      "url": "https://fashionunited.com.br/tags/converse",
+      "titulo": "Notícias e arquivo sobre Converse - fashionunited.com.br",
+      "dominio": "fashionunited.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.085Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_d37b52003e",
+      "url": "https://www.portalpopcyber.com/converse/",
+      "titulo": "Converse | Últimas Notícias",
+      "dominio": "portalpopcyber.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.086Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_aab5089ef7",
+      "url": "https://capricho.abril.com.br/noticias-sobre/converse/",
+      "titulo": "Notícias sobre converse - Capricho",
+      "dominio": "capricho.abril.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.086Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_5b30b2602c",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+      "titulo": "Converse, da Nike, caminha para pior nível em 15 anos. E atrai ...",
+      "dominio": "bloomberglinea.com.br",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.086Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_7bf6c65880",
+      "url": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=Q9Q1prsJxIn3bXpsUYxtwBqWd4Nh5pUxRMGB6BCMQ65ztAJt3W4oFpM64G%2DG0TdU3kipl2dIvg%2DwNCVPGpr45KbPsyMMTkojBSt3Sk2YFy1UqMzgBvE15GYpdstWF1FXxfOLGwWQwRJldEA0dauCMrVrSw4AXKxK55MACKRTZQ8.eP2WTJ8hxh5BtQ0nYKDujw&amp;rut=f4db7bc7ee54f315c4605e9024081fd3c650c24ffc1e2883edeeb11306e49598&amp;u3=https%3A%2F%2Fwww.bing.com%2Faclick%3Fld%3De84TXI6JY7JWvDtUsG67BWdDVUCUwW0kTRdgF8HxTC7IbkoUc%2Dzj2aVOmoy7ItHqpTMBAUD%2DJarsDTq1xzmuk_3cwtFp_uHdko6yq_JkaXcW0CwhgbmT_iST48aXPoaJr5gdv_ZZCvUYX6Yxmt9KtWLBk27r9VfA6sV6kxJCCM9m6qE8ZmaSdnJmyHCe7Cldaz%2Dr8p7fi9pPLo6WOM_wsnMh81DvM%26u%3DaHR0cHMlM2ElMmYlMmZsaXN0YS5tZXJjYWRvbGl2cmUuY29tLmJyJTJmY29udmVyc2UlM2ZtYXR0X3Rvb2wlM2QzNTc3ODg5MCUyNm1hdHRfd29yZCUzZERlZmF1bHRfVVJMX01MQiUyNm1hdHRfc291cmNlJTNkYmluZyUyNm1hdHRfY2FtcGFpZ24lM2RNTEJfTUxfQklOR19BT19NTEIxNDMwLUNhbGNhZG9zJTJjJTI1MjBSb3VwYXMlMjUyMGUlMjUyMEJvbHNhc19YX0RTQV9BTExCX1RYU19BTEwlMjZtYXR0X2NhbXBhaWduX2lkJTNkNDI3MTgzNzc1JTI2bWF0dF9hZF9ncm91cCUzZERTQSUyNTIwLSUyNTIwQ2FsJWMzJWE3YWRvcyUyYyUyNTIwUm91cGFzJTI1MjBlJTI1MjBCb2xzYXMlMjZtYXR0X21hdGNoX3R5cGUlM2RiJTI2bWF0dF9uZXR3b3JrJTNkcyUyNm1hdHRfZGV2aWNlJTNkYyUyNm1hdHRfa2V5d29yZCUzZGNhbCVjMyVhN2Fkb3MlMjUyMHJvdXBhcyUyNTIwZSUyNTIwYm9sc2FzJTI2bXNjbGtpZCUzZDk3YjBhMjU0OGZiODE1NjgyNmZkYzhkNDZhNjU5ODUwJTI2dXRtX3NvdXJjZSUzZGJpbmclMjZ1dG1fbWVkaXVtJTNkY3BjJTI2dXRtX2NhbXBhaWduJTNkTUxCX01MX0JJTkdfQU9fTUxCMTQzMC1DYWxjYWRvcyUyYyUyNTIwUm91cGFzJTI1MjBlJTI1MjBCb2xzYXNfWF9EU0FfQUxMQl9UWFNfQUxMJTI2dXRtX3Rlcm0lM2RjYWwlYzMlYTdhZG9zJTI1MjByb3VwYXMlMjUyMGUlMjUyMGJvbHNhcyUyNnV0bV9jb250ZW50JTNkRFNBJTI1MjAtJTI1MjBDYWwlYzMlYTdhZG9zJTJjJTI1MjBSb3VwYXMlMjUyMGUlMjUyMEJvbHNhcw%26rlid%3D97b0a2548fb8156826fdc8d46a659850&amp;vqd=4-215042309349067707954158207064989484399&amp;iurl=%7B1%7DIG%3D5C728D56C896449C992775F7D4A27DB4%26CID%3D335D7A4CFE9266D81FCC6DFAFF5767AD%26ID%3DDevEx%2C5037.1",
+      "titulo": "Converse Anuncio - Frete Grátis - Mercado Livre",
+      "dominio": "duckduckgo.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.115Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_7704a99c10",
+      "url": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=Gg3molaJnHFWmvwA21Z_TJxDtsmAupfYGH4%2D3vCIqlzHdhh3Sb36O5eqHgA2ebIhd9hI6rTU96_ctjg0U_YKo%2Dn7njZ5PORWhmvexkVPPCgXUjgizsxcqcpf3Jr39PeKYm0Vbej2WfJaMG4aczktFWYW5fGOrgazN%2Da1LZyZZYg.WY0JtCwrEPUTudz8%2Dbh6nA&amp;rut=796a318f9946404356e31aa4ff2787582f7ce51ce018a966620940eb0d447db1&amp;u3=https%3A%2F%2Fwww.bing.com%2Faclick%3Fld%3De8pNMvlMM_NgPi%2DTnnwmzIPzVUCUw%2Ds8F_ORpo24dbAD6gx1dcix_5oKtAgepN8rebAVy_jD7YzSCDWEuOMwULy19ISQrXiX102huC1TsCeIjM95HXN4LgREVBqslUG3xPJRsfF8LqunXbkUwLgveuvmIoFCV3AbA87pxGBMVwroqA_wS3UeHShpifX3n10LPqQRaKANQoAY0iJicf1Zvj6rv9vDU%26u%3DaHR0cHMlM2ElMmYlMmZ3d3cuZWJheS5jb20lMmZzY2glMmZpLmh0bWwlM2Zfbmt3JTNkY29udmVyY2UlMjZub3JvdmVyJTNkMSUyNm1rZXZ0JTNkMSUyNm1rcmlkJTNkMjE1MjctMTc1MDcxLTkxMzQwMC0zJTI2bWtjaWQlM2QyJTI2bWtzY2lkJTNkMTAyJTI2a2V5d29yZCUzZGNvbnZlcmNlJTI2Y3JscCUzZF8lMjZNVF9JRCUzZCUyNmdlb19pZCUzZCUyNnJsc2F0YXJnZXQlM2Rrd2QtNzY5NjYyODg2NzA1MjIlM2Fsb2MtMjAlMjZhZHBvcyUzZCUyNmRldmljZSUzZGMlMjZta3R5cGUlM2QlMjZsb2MlM2QxMTYwNjglMjZwb2klM2QlMjZhYmNJZCUzZCUyNmNtcGduJTNkNDg2NzY5NTExJTI2c2l0ZWxuayUzZCUyNmFkZ3JvdXBpZCUzZDEyMzE0NTQxODY4NzE4NzglMjZuZXR3b3JrJTNkcyUyNm1hdGNodHlwZSUzZGIlMjZtc2Nsa2lkJTNkNmI5NGViOGNjYTNkMTM3YWM2MTQ4MTBjMmZlMDRjMzg%26rlid%3D6b94eb8cca3d137ac614810c2fe04c38&amp;vqd=4-263874187210335588448686807832065725581&amp;iurl=%7B1%7DIG%3D5C728D56C896449C992775F7D4A27DB4%26CID%3D335D7A4CFE9266D81FCC6DFAFF5767AD%26ID%3DDevEx%2C5041.1",
+      "titulo": "Converce - Converce On eBay",
+      "dominio": "duckduckgo.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.115Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_5a23961975",
+      "url": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "titulo": "Lançamentos | Loja Oficial da Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.115Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_426cc8e1aa",
+      "url": "https://converse.com.br/",
+      "titulo": "Converse All Star Oficial | Compre seu Tenis Original aqui",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.115Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_9089191f70",
+      "url": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=5V8QuOBhLiVyF1cBhmTEqXQ2w50S5ef3U1_LGvEVvJlgk1WiOSd%2D9kVdQXhPCeMGF6R27KaWqKuNCCLwUdeW1a44TdXR_Sy7E9WF4%2Dej5Tv4EbbIklK_TS2wahuma0_IZYv11xT8EVsRSSjByxse_rslVrbHkkw90%2Dg8UknHnIM.SaJv1sLmPMRgmU2_gaoxNg&amp;rut=f2e1ac934c307123dc441684baf2ac88e91aa1ebe3b46d20764def90f99fe572&amp;u3=https%3A%2F%2Fwww.bing.com%2Faclick%3Fld%3De8bFR0bCzeJMb72W34%2DThvTjVUCUzvG6T6od7gzjiDX8wMtlxIN3K9o7D6PTOuLJFDjTMLL_2OX8UxOPIDnxACGDJBlXWaQNkHDaHwaFQ8lYSJ7EQ0JDJxQLcjHd04WaegwiSIPx1qo8mMjU0tIvRG0iMHD%2DuH8O6s0ro%2DsBWopPKJiAp1bJVDDjuAsZ4fb_GWm6jemJaLZPcaT31ReD7Nkn48ygk%26u%3DaHR0cHMlM2ElMmYlMmZsaXN0YS5tZXJjYWRvbGl2cmUuY29tLmJyJTJmY29udmVyc2UlM2ZtYXR0X3Rvb2wlM2QyNjcxMjE4MyUyNm1hdHRfd29yZCUzZGNvbnZlcnNlJTI2bWF0dF9zb3VyY2UlM2RiaW5nJTI2bWF0dF9jYW1wYWlnbiUzZE1MQl9NTF9CSU5HX0FPX01MQjEyNzYtRXNwb3J0ZXMlMjUyMGUlMjUyMEZpdG5lc3NfWF9TRUFSQ0hfQUxMQl9UWFNfTkVXLUVFMiUyNm1hdHRfY2FtcGFpZ25faWQlM2Q2Mzg3Njk0OTAlMjZtYXR0X2FkX2dyb3VwJTNkTDItUmFwZWwlMmMlMjUyME1vbnRhbmhpc21vJTI1MjBlJTI1MjBFc2NhbGFkYV9MNC1TYXBhdGlsaGFzX05BX05BX05BX0JSLUVYJTI2bWF0dF9tYXRjaF90eXBlJTNkcCUyNm1hdHRfbmV0d29yayUzZHMlMjZtYXR0X2RldmljZSUzZGMlMjZtYXR0X2tleXdvcmQlM2Rjb252ZXJzZSUyNm1zY2xraWQlM2QyMDU3MjRkODU2MzcxODRlOWQ3NjRlNThiM2VhYTdlMSUyNnV0bV9zb3VyY2UlM2RiaW5nJTI2dXRtX21lZGl1bSUzZGNwYyUyNnV0bV9jYW1wYWlnbiUzZE1MQl9NTF9CSU5HX0FPX01MQjEyNzYtRXNwb3J0ZXMlMjUyMGUlMjUyMEZpdG5lc3NfWF9TRUFSQ0hfQUxMQl9UWFNfTkVXLUVFMiUyNnV0bV90ZXJtJTNkY29udmVyc2UlMjZ1dG1fY29udGVudCUzZEwyLVJhcGVsJTJjJTI1MjBNb250YW5oaXNtbyUyNTIwZSUyNTIwRXNjYWxhZGFfTDQtU2FwYXRpbGhhc19OQV9OQV9OQV9CUi1FWA%26rlid%3D205724d85637184e9d764e58b3eaa7e1&amp;vqd=4-295238988866606926545791200194485970343&amp;iurl=%7B1%7DIG%3D978E3645AC2449F0BCBDEE786F086DE1%26CID%3D27D9DA9D963D66191FA1CD2B9777678B%26ID%3DDevEx%2C5037.1",
+      "titulo": "Melhores Ofertas Mercado Livre - Em Oferta no Mercado Livre",
+      "dominio": "duckduckgo.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.130Z",
+      "query_origem": "Converse novidades"
+    },
+    {
+      "source_id": "src_35f552f1fd",
+      "url": "https://duckduckgo.com/y.js?ad_domain=amazon.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=dxvXe2d7l3QWFd3ALju6T6S5843idmIO4GYZFtdt35EwnoHb3CTvRNrKvL7wtsqm32Z5RxrgEhpoW8br6Grk6re9HXkUX%2D0wZiqrmLw7HZPSIKKGoZDDsJlBlko_glvNHDLHhGU9mu7vj91pjiYPZf5itH%2DX7lJE%2DcRRM8xSRl0.FVXup02gnnHoNtiySdZ8uA&amp;rut=1c39e833ae18874cd27c09daf878fcc22abc90c5abd2f214b03847c627c01ccc&amp;u3=https%3A%2F%2Fwww.bing.com%2Faclick%3Fld%3De8bffGI%2DdsXjjtyiPZM9hANzVUCUzUsomRe6xjOazlaFngfYgjVmVoht%2DylUUYCXEGXU5q1NcYFjApqyb2IEfd7reX%2D5NoXv3fXGmwhkli9q5fEml0qRSi3I8Kwq5oEQi__lZLlyRyrRNgJ16ry_0dnh%2DyhsMIm7ynytKEs2R_bAiOK6ZO12MGf8884fuZT2OO8OwMdkIrj95UO3SyHh_qMohvg0E%26u%3DaHR0cHMlM2ElMmYlMmZ3d3cuYW1hem9uLmNvbS5iciUyZnMlMmYlM2ZpZSUzZFVURjglMjZrZXl3b3JkcyUzZG5vdmlkYWRlcyUyNmluZGV4JTNkYXBzJTI2dGFnJTNkbXNuZGVza3RvcHN0YS0yMCUyNnJlZiUzZHBkX3NsXzF2NzZnejN0dmhfcCUyNmFkZ3JwaWQlM2QxMTQ3ODkwOTI4NjMxOTYyJTI2aHZhZGlkJTNkNzE3NDMzNDUwNjA3NjMlMjZodm5ldHclM2RzJTI2aHZxbXQlM2RwJTI2aHZibXQlM2RicCUyNmh2ZGV2JTNkYyUyNmh2bG9jaW50JTNkJTI2aHZsb2NwaHklM2QxMTYwNjglMjZodnRhcmdpZCUzZGt3ZC03MTc0Mzg0ODM1NTQyOCUzYWxvYy0yMCUyNmh5ZGFkY3IlM2QxNDc2MF8xMzQyNzg3OCUyNm1jaWQlM2RlY2U0YjY0MDc4YTUzY2ZjOTM0M2Q0ZmM3MWQ2ZGRmNA%26rlid%3D792866bc76fe161dd9a60c3c9323c609&amp;vqd=4-244668278953609797154925298692896711121&amp;iurl=%7B1%7DIG%3D978E3645AC2449F0BCBDEE786F086DE1%26CID%3D27D9DA9D963D66191FA1CD2B9777678B%26ID%3DDevEx%2C5042.1",
+      "titulo": "Ofertas em novidades - Amazon.com.br",
+      "dominio": "duckduckgo.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:10.130Z",
+      "query_origem": "Converse novidades"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Nenhuma fonte atingiu credibilidade alta; extração não foi executada.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 859,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 0,
+    "fontes_coletadas": 10,
+    "fontes_descartadas": 2,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

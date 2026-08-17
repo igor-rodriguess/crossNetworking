@@ -1,0 +1,88 @@
+{
+  "fonte": "raw/research-evidence-live-baseline/caso-a-converse/search-results.json",
+  "anuncios_na_baseline": 4,
+  "bloqueados_pelo_filtro_novo": 4,
+  "scrapes_evitados": 4,
+  "detalhes": [
+    {
+      "titulo": "Converse Anuncio - Frete Grátis - Mercado Livre",
+      "url_truncada": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_…",
+      "antes": {
+        "aceito_como_fonte": true,
+        "score": 58,
+        "classificacao": "media"
+      },
+      "depois": {
+        "detectado_como_anuncio": true,
+        "sinais": [
+          "redirecionador_de_anuncio",
+          "parametro_ad_domain",
+          "dominio_do_buscador_como_fonte"
+        ],
+        "classificacao": "anuncio",
+        "score": 0,
+        "scrapes_evitados": 1
+      }
+    },
+    {
+      "titulo": "Converce - Converce On eBay",
+      "url_truncada": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=Gg…",
+      "antes": {
+        "aceito_como_fonte": true,
+        "score": 58,
+        "classificacao": "media"
+      },
+      "depois": {
+        "detectado_como_anuncio": true,
+        "sinais": [
+          "redirecionador_de_anuncio",
+          "parametro_ad_domain",
+          "dominio_do_buscador_como_fonte"
+        ],
+        "classificacao": "anuncio",
+        "score": 0,
+        "scrapes_evitados": 1
+      }
+    },
+    {
+      "titulo": "Melhores Ofertas Mercado Livre - Em Oferta no Mercado Livre",
+      "url_truncada": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_…",
+      "antes": {
+        "aceito_como_fonte": true,
+        "score": 58,
+        "classificacao": "media"
+      },
+      "depois": {
+        "detectado_como_anuncio": true,
+        "sinais": [
+          "redirecionador_de_anuncio",
+          "parametro_ad_domain",
+          "dominio_do_buscador_como_fonte"
+        ],
+        "classificacao": "anuncio",
+        "score": 0,
+        "scrapes_evitados": 1
+      }
+    },
+    {
+      "titulo": "Ofertas em novidades - Amazon.com.br",
+      "url_truncada": "https://duckduckgo.com/y.js?ad_domain=amazon.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metada…",
+      "antes": {
+        "aceito_como_fonte": true,
+        "score": 58,
+        "classificacao": "media"
+      },
+      "depois": {
+        "detectado_como_anuncio": true,
+        "sinais": [
+          "redirecionador_de_anuncio",
+          "parametro_ad_domain",
+          "dominio_do_buscador_como_fonte"
+        ],
+        "classificacao": "anuncio",
+        "score": 0,
+        "scrapes_evitados": 1
+      }
+    }
+  ]
+}

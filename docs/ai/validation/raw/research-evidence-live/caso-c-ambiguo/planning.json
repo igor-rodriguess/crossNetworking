@@ -1,0 +1,10 @@
+{
+  "entidade": "Reserva",
+  "objetivo": "contexto_geral",
+  "planning_mode": "heuristica",
+  "queries": [
+    "Reserva",
+    "Reserva empresa sobre",
+    "Reserva posicionamento marca"
+  ]
+}

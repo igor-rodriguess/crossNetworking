@@ -1,0 +1,48 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Evidência insuficiente",
+  "pacote": {
+    "entidade": "Entidade Sem Cobertura",
+    "objetivo": "movimentos_recentes",
+    "status": "evidencia_insuficiente",
+    "plano": [
+      "Entidade Sem Cobertura notícias",
+      "Entidade Sem Cobertura anúncio recente",
+      "Entidade Sem Cobertura novidades",
+      "Entidade Sem Cobertura movimento estratégico"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [],
+    "sources": [],
+    "descartados": [],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Nenhum fato confirmado na categoria \"produto\".",
+        "categoria": "produto"
+      },
+      {
+        "descricao": "Nenhum fato confirmado na categoria \"parceria\".",
+        "categoria": "parceria"
+      },
+      {
+        "descricao": "Nenhuma fonte aceita foi coletada.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 0,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 0,
+      "fontes_descartadas": 0,
+      "fatos_extraidos": 0,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

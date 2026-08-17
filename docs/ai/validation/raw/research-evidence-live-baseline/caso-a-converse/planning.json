@@ -1,0 +1,10 @@
+{
+  "entidade": "Converse",
+  "objetivo": "movimentos_recentes",
+  "planning_mode": "heuristica",
+  "queries": [
+    "Converse notícias",
+    "Converse anúncio recente",
+    "Converse novidades"
+  ]
+}

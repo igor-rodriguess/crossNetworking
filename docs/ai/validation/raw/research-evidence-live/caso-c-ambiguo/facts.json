@@ -1,0 +1,59 @@
+{
+  "total": 3,
+  "fatos": [
+    {
+      "fact_id": "fact_d3d43f1c3c",
+      "claim": "Affirmative imperative tú conjugation of reservar.",
+      "entidade": "Reserva",
+      "categoria": "contexto_empresa",
+      "natureza": "fato",
+      "source_refs": [
+        "src_0d793782d2"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 47,
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "conflito": null,
+      "trecho_fonte": "Affirmative imperative tú conjugation of reservar.",
+      "url_fonte": "https://www.spanishdict.com/translate/reserva"
+    },
+    {
+      "fact_id": "fact_2b1e497b45",
+      "claim": "--- --- Compruebe si su reserva ha sido confirmada por nuestro proveedor.",
+      "entidade": "Reserva",
+      "categoria": "contexto_empresa",
+      "natureza": "fato",
+      "source_refs": [
+        "src_0d793782d2"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 47,
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "conflito": null,
+      "trecho_fonte": "--- --- Compruebe si su reserva ha sido confirmada por nuestro proveedor.",
+      "url_fonte": "https://www.spanishdict.com/translate/reserva"
+    },
+    {
+      "fact_id": "fact_48608ff559",
+      "claim": "Envía un mail a irene@yogadurga.es confirmando tu reserva y asistencia.",
+      "entidade": "Reserva",
+      "categoria": "contexto_empresa",
+      "natureza": "fato",
+      "source_refs": [
+        "src_0d793782d2"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 47,
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "conflito": null,
+      "trecho_fonte": "Envía un mail a irene@yogadurga.es confirmando tu reserva y asistencia.",
+      "url_fonte": "https://www.spanishdict.com/translate/reserva"
+    }
+  ]
+}

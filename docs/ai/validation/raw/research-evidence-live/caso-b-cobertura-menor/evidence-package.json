@@ -1,0 +1,182 @@
+{
+  "entidade": "Insider Store",
+  "objetivo": "contexto_geral",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Insider Store",
+    "Insider Store empresa sobre",
+    "Insider Store posicionamento marca"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [],
+  "sources": [
+    {
+      "source_id": "src_a0bc22fd01",
+      "url": "https://insiderstore.com/collections/women?srsltid=AfmBOorNfKqMl12C-pBvbyq1Xw7Jqf31cCgsDIOGVbBiYoztuIXGZcgc",
+      "titulo": "Women's technological clothing | Insider Store",
+      "dominio": "insiderstore.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:12.977Z",
+      "query_origem": "Insider Store"
+    },
+    {
+      "source_id": "src_16112e82c9",
+      "url": "https://insiderstore.com/?srsltid=AfmBOop1rQNn49f7Zr7KkHPBjpspZfXyaFmgFdLAA-eaKc4Ij2fV_Prp",
+      "titulo": "Insider World: Insider Store",
+      "dominio": "insiderstore.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:12.977Z",
+      "query_origem": "Insider Store"
+    },
+    {
+      "source_id": "src_b6f3f31e95",
+      "url": "https://www.insiderstore.com.br/",
+      "titulo": "Insider: Confira peças essenciais com tecnologia têxtil",
+      "dominio": "insiderstore.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:12.977Z",
+      "query_origem": "Insider Store"
+    },
+    {
+      "source_id": "src_d1a8bae5e1",
+      "url": "https://www.amazon.com/stores/Insider/page/039996FC-690E-4593-94CC-6653931683C0",
+      "titulo": "Insider",
+      "dominio": "amazon.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:12.977Z",
+      "query_origem": "Insider Store"
+    },
+    {
+      "source_id": "src_6ef050f49f",
+      "url": "https://www.instagram.com/insiderstore/?hl=en",
+      "titulo": "(@insiderstore) • Instagram photos and videos",
+      "dominio": "instagram.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:13.267Z",
+      "query_origem": "Insider Store empresa sobre"
+    },
+    {
+      "source_id": "src_18ec067618",
+      "url": "https://br.linkedin.com/company/insider-store",
+      "titulo": "Insider Store",
+      "dominio": "br.linkedin.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 88,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "HTTPS",
+        "veículo/base reconhecido"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:13.267Z",
+      "query_origem": "Insider Store empresa sobre"
+    },
+    {
+      "source_id": "src_105f32e1dd",
+      "url": "https://www.insiderstore.com.br/pages/sobre-a-insider",
+      "titulo": "Sobre a Insider",
+      "dominio": "insiderstore.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:11.928Z",
+      "query_origem": "Insider Store posicionamento marca"
+    },
+    {
+      "source_id": "src_854e78e774",
+      "url": "https://www.instagram.com/reel/DVb2ZDiEzTT/?hl=en",
+      "titulo": "A Insider não inventou nada (e é por isso que faturam R$ 400 ...",
+      "dominio": "instagram.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:11.928Z",
+      "query_origem": "Insider Store posicionamento marca"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/?srsltid=AfmBOoqFL3yOuY2xRrCKOAirtZxCo0x7oEEMYu5oD0DsSt28nU-vbY46",
+      "motivo": "duplicado",
+      "detalhe": "Mesmo conteúdo já coletado (\"Insider World: Insider Store…\") — replicação não é fonte independente."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/?srsltid=AfmBOoouwoyUx1T87cc9KY6RLI3cdbkYYzSiBUnOVFyRxNn2cDbgSG2g",
+      "motivo": "duplicado",
+      "detalhe": "Mesmo conteúdo já coletado (\"Insider World: Insider Store…\") — replicação não é fonte independente."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/insiderstore/?hl=en",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Fontes confiáveis foram coletadas (8), mas nenhum fato pôde ser extraído delas.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 14092,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 3,
+    "fontes_coletadas": 8,
+    "fontes_descartadas": 4,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

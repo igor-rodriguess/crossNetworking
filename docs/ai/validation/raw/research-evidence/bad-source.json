@@ -1,0 +1,53 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Fonte de baixa credibilidade",
+  "pacote": {
+    "entidade": "Converse",
+    "objetivo": "campanhas",
+    "status": "evidencia_insuficiente",
+    "plano": [
+      "Converse campanha",
+      "Converse ação de marketing",
+      "Converse campanha publicitária",
+      "Converse ativação"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [],
+    "sources": [],
+    "descartados": [
+      {
+        "tipo": "fonte",
+        "referencia": "https://qualquer.blogspot.com/campanha",
+        "motivo": "baixa_credibilidade",
+        "detalhe": "Score 33 (HTTPS, padrão de baixa qualidade)."
+      },
+      {
+        "tipo": "fonte",
+        "referencia": "http://sem-https.xyz/campanha",
+        "motivo": "baixa_credibilidade",
+        "detalhe": "Score 15 (sem HTTPS, padrão de baixa qualidade)."
+      }
+    ],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Nenhuma fonte aceita foi coletada.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 0,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 0,
+      "fontes_descartadas": 2,
+      "fatos_extraidos": 0,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

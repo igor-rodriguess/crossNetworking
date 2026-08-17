@@ -1,0 +1,82 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Pouca evidência",
+  "pacote": {
+    "entidade": "Marca Pouco Conhecida",
+    "objetivo": "contexto_geral",
+    "status": "sucesso",
+    "plano": [
+      "Marca Pouco Conhecida",
+      "Marca Pouco Conhecida empresa sobre",
+      "Marca Pouco Conhecida posicionamento marca",
+      "Marca Pouco Conhecida público-alvo"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [
+      {
+        "fact_id": "fact_2f179ecb5a",
+        "claim": "A empresa atua no segmento de vestuário.",
+        "entidade": "Marca Pouco Conhecida",
+        "categoria": "contexto_empresa",
+        "natureza": "fato",
+        "source_refs": [
+          "src_61d33786d8"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "fonte_unica",
+        "confianca": 53,
+        "publicado_em": null,
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": null
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "src_61d33786d8",
+        "url": "https://g1.globo.com/breve",
+        "titulo": "Página institucional",
+        "dominio": "g1.globo.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": null,
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      }
+    ],
+    "descartados": [],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Nenhum fato confirmado na categoria \"publico\".",
+        "categoria": "publico"
+      },
+      {
+        "descricao": "Nenhum fato confirmado na categoria \"ativo\".",
+        "categoria": "ativo"
+      },
+      {
+        "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 0,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 1,
+      "fontes_descartadas": 0,
+      "fatos_extraidos": 1,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

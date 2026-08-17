@@ -1,0 +1,97 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Recência",
+  "pacote": {
+    "entidade": "Converse",
+    "objetivo": "movimentos_recentes",
+    "status": "sucesso",
+    "plano": [
+      "Converse notícias",
+      "Converse anúncio recente",
+      "Converse novidades",
+      "Converse movimento estratégico"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [
+      {
+        "fact_id": "fact_07d6414e28",
+        "claim": "A marca anunciou uma ativação neste trimestre.",
+        "entidade": "Converse",
+        "categoria": "movimento_estrategico",
+        "natureza": "fato",
+        "source_refs": [
+          "src_48a420fda8"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "fonte_unica",
+        "confianca": 53,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": null
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "src_48a420fda8",
+        "url": "https://g1.globo.com/recente",
+        "titulo": "Novo anúncio da marca",
+        "dominio": "g1.globo.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      },
+      {
+        "source_id": "src_b30b72399b",
+        "url": "https://exame.com/antigo",
+        "titulo": "Retrospectiva de 2024",
+        "dominio": "exame.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2025-04-02T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      }
+    ],
+    "descartados": [
+      {
+        "tipo": "afirmacao",
+        "referencia": "A marca realizou uma campanha em 2024.",
+        "motivo": "desatualizado_para_objetivo",
+        "detalhe": "Publicado em 2025-04-02T22:05:25.844Z, fora da janela de 6 meses para \"movimentos_recentes\"."
+      }
+    ],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 0,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 2,
+      "fontes_descartadas": 0,
+      "fatos_extraidos": 1,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "utilizadas": [
+    {
+      "source_id": "src_4e733499db",
+      "url": "https://revistavincci.satc.edu.br/index.php/Revista-Vincci/article/view/281/236",
+      "titulo": "Vista do POSICIONAMENTO DA MARCA RESERVA",
+      "dominio": "revistavincci.satc.edu.br",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 90,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_institucional_gov_edu",
+        "HTTPS",
+        "domínio institucional"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:28.187Z",
+      "query_origem": "Reserva posicionamento marca"
+    }
+  ],
+  "descartadas": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://reserva.is/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.spanishdict.com/translate/reserva",
+      "motivo": "entidade_divergente",
+      "detalhe": "conteudo_lexicografico (dominio_lexicografico). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.collinsdictionary.com/us/dictionary/spanish-english/reserva",
+      "motivo": "entidade_divergente",
+      "detalhe": "conteudo_lexicografico (dominio_lexicografico). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.reddit.com/r/Spanish/comments/ichefe/reserva_vs_reservaci%C3%B3n_what_do_you_use_and_where/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://support.stripe.com/questions/reserves-frequently-asked-questions?locale=es-419",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.pnc.com/insights/es/personal-finance/save/what-is-a-nest-egg.html",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://anolla.com/es/software-de-servicios-empresariales",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.reservio.com/es/blog/consejos/reservas-en-linea-para-pequenas-empresas",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://login.semead.com.br/28semead/anais/download.php?cod_trabalho=510",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/p/DV9UDujkV-n/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.celialinsingen.com.br/single-post/2018/09/22/5-tipos-de-posicionamento-de-marca-coca-cola-seara-reserva-usaflex-dudalina",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    }
+  ]
+}

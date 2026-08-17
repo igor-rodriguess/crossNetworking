@@ -1,0 +1,164 @@
+{
+  "entidade": "Converse",
+  "objetivo": "movimentos_recentes",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Converse notícias",
+    "Converse anúncio recente",
+    "Converse novidades"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [],
+  "sources": [
+    {
+      "source_id": "src_276226d0df",
+      "url": "https://www.converse.com/",
+      "titulo": "Converse Official Site. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:19.846Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_6cd556eaf6",
+      "url": "https://www.converse.com/c/all-stars",
+      "titulo": "The Converse All Stars. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:19.846Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_4bc0dd7302",
+      "url": "https://www.converse.com/shop/collabs",
+      "titulo": "Shop Collaborations & Limited Edition Drops. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:19.846Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_05bccab5c8",
+      "url": "https://www.converse.com/shop/shoes",
+      "titulo": "Converse Shoes & Sneakers. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:20.570Z",
+      "query_origem": "Converse novidades"
+    },
+    {
+      "source_id": "src_b771b468ee",
+      "url": "https://www.converse.com/pt",
+      "titulo": "Converse All Star Official Store Portugal | Chucks | Converse ...",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T23:01:20.570Z",
+      "query_origem": "Converse novidades"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://wwd.com/tag/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.youtube.com/watch?v=JTHqmCg8EDU",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/c/all-stars",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/c/all-stars",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Fontes confiáveis foram coletadas (5), mas nenhum fato pôde ser extraído delas.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 7787,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 3,
+    "fontes_coletadas": 5,
+    "fontes_descartadas": 7,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

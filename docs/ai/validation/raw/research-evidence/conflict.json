@@ -1,0 +1,163 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Fontes conflitantes",
+  "pacote": {
+    "entidade": "Converse",
+    "objetivo": "patrocinios",
+    "status": "evidencia_insuficiente",
+    "plano": [
+      "Converse patrocínio",
+      "Converse patrocinador",
+      "Converse naming rights",
+      "Converse apoio a evento"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [
+      {
+        "fact_id": "fact_2f4f82312b",
+        "claim": "A marca confirmou o patrocínio do festival de música.",
+        "entidade": "Converse",
+        "categoria": "patrocinio",
+        "natureza": "fato",
+        "source_refs": [
+          "src_ed3c8a0749"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "conflitante",
+        "confianca": 53,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": {
+          "claim_oposta": "A marca não confirmou o patrocínio do festival de música.",
+          "source_refs_oposta": [
+            "src_a35b286b6b"
+          ]
+        }
+      },
+      {
+        "fact_id": "fact_ef02ca88b7",
+        "claim": "A marca não confirmou o patrocínio do festival de música.",
+        "entidade": "Converse",
+        "categoria": "patrocinio",
+        "natureza": "fato",
+        "source_refs": [
+          "src_a35b286b6b"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "conflitante",
+        "confianca": 38,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": {
+          "claim_oposta": "A marca confirmou o patrocínio do festival de música.",
+          "source_refs_oposta": [
+            "src_ed3c8a0749"
+          ]
+        }
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "src_ed3c8a0749",
+        "url": "https://g1.globo.com/patrocinio",
+        "titulo": "Marca confirma patrocínio do festival",
+        "dominio": "g1.globo.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      },
+      {
+        "source_id": "src_a35b286b6b",
+        "url": "https://exame.com/nega-festival",
+        "titulo": "Empresa nega envolvimento com o festival",
+        "dominio": "exame.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      }
+    ],
+    "descartados": [],
+    "conflitos": [
+      {
+        "fact_id": "fact_2f4f82312b",
+        "claim": "A marca confirmou o patrocínio do festival de música.",
+        "entidade": "Converse",
+        "categoria": "patrocinio",
+        "natureza": "fato",
+        "source_refs": [
+          "src_ed3c8a0749"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "conflitante",
+        "confianca": 53,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": {
+          "claim_oposta": "A marca não confirmou o patrocínio do festival de música.",
+          "source_refs_oposta": [
+            "src_a35b286b6b"
+          ]
+        }
+      },
+      {
+        "fact_id": "fact_ef02ca88b7",
+        "claim": "A marca não confirmou o patrocínio do festival de música.",
+        "entidade": "Converse",
+        "categoria": "patrocinio",
+        "natureza": "fato",
+        "source_refs": [
+          "src_a35b286b6b"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "conflitante",
+        "confianca": 38,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": {
+          "claim_oposta": "A marca confirmou o patrocínio do festival de música.",
+          "source_refs_oposta": [
+            "src_ed3c8a0749"
+          ]
+        }
+      }
+    ],
+    "lacunas": [
+      {
+        "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+        "categoria": null
+      },
+      {
+        "descricao": "2 afirmação(ões) em conflito entre fontes independentes — nenhuma versão foi escolhida.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 1,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 2,
+      "fontes_descartadas": 0,
+      "fatos_extraidos": 2,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

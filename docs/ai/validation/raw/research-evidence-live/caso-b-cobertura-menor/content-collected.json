@@ -1,0 +1,32 @@
+{
+  "paginas": [
+    {
+      "url": "https://insiderstore.com/collections/women?srsltid=AfmBOorNfKqMl12C-pBvbyq1Xw7Jqf31cCgsDIOGVbBiYoztuIXGZcgc",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 31541,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "duracao_ms": 5827
+    },
+    {
+      "url": "https://insiderstore.com/?srsltid=AfmBOop1rQNn49f7Zr7KkHPBjpspZfXyaFmgFdLAA-eaKc4Ij2fV_Prp",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 15599,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "duracao_ms": 4075
+    },
+    {
+      "url": "https://www.insiderstore.com.br/",
+      "status": "ok",
+      "origem": "firecrawl",
+      "caracteres": 54557,
+      "frases_candidatas": 0,
+      "fatos_extraidos": 0,
+      "duracao_ms": 1078
+    }
+  ],
+  "trechos": []
+}

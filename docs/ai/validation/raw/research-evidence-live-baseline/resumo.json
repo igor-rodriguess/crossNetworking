@@ -1,0 +1,59 @@
+{
+  "gerado_em": "2026-08-15T22:19:40.606Z",
+  "casos": [
+    {
+      "caso": "caso-a-converse",
+      "entidade": "Converse",
+      "status": "evidencia_insuficiente",
+      "queries": 3,
+      "fontes_encontradas": 12,
+      "fontes_usadas": 10,
+      "fontes_descartadas": 2,
+      "paginas_raspadas": 0,
+      "paginas_com_erro": 0,
+      "fatos": 0,
+      "corroborados": 0,
+      "fonte_unica": 0,
+      "conflitantes": 0,
+      "lacunas": 1,
+      "duracao_ms": 862,
+      "custo_usd": 0
+    },
+    {
+      "caso": "caso-b-cobertura-menor",
+      "entidade": "Insider Store",
+      "status": "evidencia_insuficiente",
+      "queries": 3,
+      "fontes_encontradas": 12,
+      "fontes_usadas": 8,
+      "fontes_descartadas": 4,
+      "paginas_raspadas": 3,
+      "paginas_com_erro": 0,
+      "fatos": 0,
+      "corroborados": 0,
+      "fonte_unica": 0,
+      "conflitantes": 0,
+      "lacunas": 1,
+      "duracao_ms": 14093,
+      "custo_usd": 0
+    },
+    {
+      "caso": "caso-c-ambiguo",
+      "entidade": "Reserva",
+      "status": "sucesso",
+      "queries": 3,
+      "fontes_encontradas": 12,
+      "fontes_usadas": 11,
+      "fontes_descartadas": 1,
+      "paginas_raspadas": 3,
+      "paginas_com_erro": 0,
+      "fatos": 3,
+      "corroborados": 0,
+      "fonte_unica": 3,
+      "conflitantes": 0,
+      "lacunas": 1,
+      "duracao_ms": 16333,
+      "custo_usd": 0
+    }
+  ]
+}

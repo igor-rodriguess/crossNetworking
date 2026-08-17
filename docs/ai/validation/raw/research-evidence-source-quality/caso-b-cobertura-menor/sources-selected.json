@@ -1,0 +1,77 @@
+{
+  "utilizadas": [],
+  "descartadas": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/collections/women?srsltid=AfmBOorNfKqMl12C-pBvbyq1Xw7Jqf31cCgsDIOGVbBiYoztuIXGZcgc",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/?srsltid=AfmBOop1rQNn49f7Zr7KkHPBjpspZfXyaFmgFdLAA-eaKc4Ij2fV_Prp",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.amazon.com/stores/Insider/page/039996FC-690E-4593-94CC-6653931683C0",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/?srsltid=AfmBOoqFL3yOuY2xRrCKOAirtZxCo0x7oEEMYu5oD0DsSt28nU-vbY46",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/insiderstore/?hl=en",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://br.linkedin.com/company/insider-store",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://insiderstore.com/?srsltid=AfmBOoouwoyUx1T87cc9KY6RLI3cdbkYYzSiBUnOVFyRxNn2cDbgSG2g",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/pages/sobre-a-insider",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/insiderstore/?hl=en",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/reel/DVb2ZDiEzTT/?hl=en",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    }
+  ]
+}

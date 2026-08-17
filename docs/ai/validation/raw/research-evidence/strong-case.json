@@ -1,0 +1,145 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Caso forte",
+  "pacote": {
+    "entidade": "Converse",
+    "objetivo": "movimentos_recentes",
+    "status": "sucesso",
+    "plano": [
+      "Converse notícias",
+      "Converse anúncio recente",
+      "Converse novidades",
+      "Converse movimento estratégico"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [
+      {
+        "fact_id": "fact_71f0751b95",
+        "claim": "A Converse anunciou uma coleção cápsula com um artista brasileiro.",
+        "entidade": "Converse",
+        "categoria": "produto",
+        "natureza": "fato",
+        "source_refs": [
+          "src_372e0c66ec",
+          "src_b1299a70a7"
+        ],
+        "dominios_independentes": 2,
+        "verificacao": "corroborada",
+        "confianca": 80,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": null
+      },
+      {
+        "fact_id": "fact_8d05fba4cb",
+        "claim": "A marca ampliou presença no varejo do Sudeste.",
+        "entidade": "Converse",
+        "categoria": "territorio",
+        "natureza": "fato",
+        "source_refs": [
+          "src_cb1b64aefa"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "fonte_unica",
+        "confianca": 53,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": null
+      },
+      {
+        "fact_id": "fact_f02b02ce47",
+        "claim": "O movimento indica uma aposta em colaborações culturais locais.",
+        "entidade": "Converse",
+        "categoria": "posicionamento",
+        "natureza": "inferencia",
+        "source_refs": [
+          "src_372e0c66ec"
+        ],
+        "dominios_independentes": 1,
+        "verificacao": "fonte_unica",
+        "confianca": 40,
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "conflito": null
+      }
+    ],
+    "sources": [
+      {
+        "source_id": "src_372e0c66ec",
+        "url": "https://www.converse.com/newsroom/capsula-br",
+        "titulo": "Converse anuncia coleção cápsula com artista brasileiro",
+        "dominio": "converse.com",
+        "tipo_fonte": "oficial",
+        "credibilidade_score": 58,
+        "credibilidade_nivel": "media",
+        "credibilidade_sinais": [
+          "HTTPS"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      },
+      {
+        "source_id": "src_b1299a70a7",
+        "url": "https://g1.globo.com/moda/capsula",
+        "titulo": "Marca de tênis lança coleção com artista nacional",
+        "dominio": "g1.globo.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      },
+      {
+        "source_id": "src_cb1b64aefa",
+        "url": "https://exame.com/negocios/converse-varejo",
+        "titulo": "Converse amplia presença no varejo do Sudeste",
+        "dominio": "exame.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      }
+    ],
+    "descartados": [
+      {
+        "tipo": "fonte",
+        "referencia": "https://qualquer.blogspot.com/tenis",
+        "motivo": "baixa_credibilidade",
+        "detalhe": "Score 33 (HTTPS, padrão de baixa qualidade)."
+      }
+    ],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Nenhum fato confirmado na categoria \"parceria\".",
+        "categoria": "parceria"
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 4,
+      "consultas": 4,
+      "buscas_web": 4,
+      "scrapes": 0,
+      "fontes_coletadas": 3,
+      "fontes_descartadas": 1,
+      "fatos_extraidos": 3,
+      "fatos_verificados": 1,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": []
+    }
+  }
+}

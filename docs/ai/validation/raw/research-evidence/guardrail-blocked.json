@@ -1,0 +1,70 @@
+{
+  "_aviso": "FIXTURES CONTROLADAS. Firecrawl desligado (AI_PAID_PROVIDERS_ENABLED=false): a extração real de fatos a partir de páginas não foi executada. Este cenário valida o mecanismo do agente, não a qualidade da pesquisa na web.",
+  "cenario": "Guardrail de busca",
+  "pacote": {
+    "entidade": "Converse",
+    "objetivo": "contexto_geral",
+    "status": "bloqueado_por_guardrail",
+    "plano": [
+      "Converse",
+      "Converse empresa sobre"
+    ],
+    "planning_mode": "heuristica",
+    "extraction_mode": "mock",
+    "facts": [],
+    "sources": [
+      {
+        "source_id": "src_aca72f75ce",
+        "url": "https://g1.globo.com/a",
+        "titulo": "Notícia",
+        "dominio": "g1.globo.com",
+        "tipo_fonte": "imprensa",
+        "credibilidade_score": 88,
+        "credibilidade_nivel": "alta",
+        "credibilidade_sinais": [
+          "HTTPS",
+          "veículo/base reconhecido"
+        ],
+        "publicado_em": "2026-07-26T22:05:25.844Z",
+        "coletado_em": "2026-08-15T22:05:25.843Z",
+        "query_origem": "consulta"
+      }
+    ],
+    "descartados": [
+      {
+        "tipo": "fonte",
+        "referencia": "Converse posicionamento marca",
+        "motivo": "limite_guardrail",
+        "detalhe": "Consulta não executada: limite de busca atingido"
+      },
+      {
+        "tipo": "fonte",
+        "referencia": "Converse público-alvo",
+        "motivo": "limite_guardrail",
+        "detalhe": "Consulta não executada: limite de busca atingido"
+      }
+    ],
+    "conflitos": [],
+    "lacunas": [
+      {
+        "descricao": "Fontes confiáveis foram coletadas (1), mas nenhum fato pôde ser extraído delas.",
+        "categoria": null
+      }
+    ],
+    "ambiguidade": null,
+    "telemetria": {
+      "duracao_ms": 0,
+      "consultas": 2,
+      "buscas_web": 2,
+      "scrapes": 0,
+      "fontes_coletadas": 1,
+      "fontes_descartadas": 2,
+      "fatos_extraidos": 0,
+      "fatos_verificados": 0,
+      "custo_estimado_usd": 0,
+      "bloqueios_guardrail": [
+        "web_search_limit"
+      ]
+    }
+  }
+}

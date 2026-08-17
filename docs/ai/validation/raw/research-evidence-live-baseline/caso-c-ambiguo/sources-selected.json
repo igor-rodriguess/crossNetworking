@@ -1,0 +1,178 @@
+{
+  "utilizadas": [
+    {
+      "source_id": "src_b4381ab9d7",
+      "url": "https://reserva.is/",
+      "titulo": "Home - RESERVA",
+      "dominio": "reserva.is",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "query_origem": "Reserva"
+    },
+    {
+      "source_id": "src_0d793782d2",
+      "url": "https://www.spanishdict.com/translate/reserva",
+      "titulo": "Reserva | Spanish to English Translation",
+      "dominio": "spanishdict.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "query_origem": "Reserva"
+    },
+    {
+      "source_id": "src_574e16efcb",
+      "url": "https://www.collinsdictionary.com/us/dictionary/spanish-english/reserva",
+      "titulo": "Translate \"RESERVA\" from Spanish into English",
+      "dominio": "collinsdictionary.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.100Z",
+      "query_origem": "Reserva"
+    },
+    {
+      "source_id": "src_d01757dfba",
+      "url": "https://support.stripe.com/questions/reserves-frequently-asked-questions?locale=es-419",
+      "titulo": "Reservas: preguntas frecuentes",
+      "dominio": "support.stripe.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.161Z",
+      "query_origem": "Reserva empresa sobre"
+    },
+    {
+      "source_id": "src_79e4c14345",
+      "url": "https://www.pnc.com/insights/es/personal-finance/save/what-is-a-nest-egg.html",
+      "titulo": "¿Qué es una reserva?",
+      "dominio": "pnc.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.161Z",
+      "query_origem": "Reserva empresa sobre"
+    },
+    {
+      "source_id": "src_39db3c0989",
+      "url": "https://anolla.com/es/software-de-servicios-empresariales",
+      "titulo": "Software de reservas para negocios",
+      "dominio": "anolla.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.161Z",
+      "query_origem": "Reserva empresa sobre"
+    },
+    {
+      "source_id": "src_2ffd1a9924",
+      "url": "https://www.reservio.com/es/blog/consejos/reservas-en-linea-para-pequenas-empresas",
+      "titulo": "Reservas online para pequeñas empresas",
+      "dominio": "reservio.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:26.161Z",
+      "query_origem": "Reserva empresa sobre"
+    },
+    {
+      "source_id": "src_4e733499db",
+      "url": "https://revistavincci.satc.edu.br/index.php/Revista-Vincci/article/view/281/236",
+      "titulo": "Vista do POSICIONAMENTO DA MARCA RESERVA",
+      "dominio": "revistavincci.satc.edu.br",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 73,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "HTTPS",
+        "domínio institucional"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:25.597Z",
+      "query_origem": "Reserva posicionamento marca"
+    },
+    {
+      "source_id": "src_ce40d73379",
+      "url": "https://login.semead.com.br/28semead/anais/download.php?cod_trabalho=510",
+      "titulo": "o desafio de branding da Reserva após as recentes ...",
+      "dominio": "login.semead.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:25.597Z",
+      "query_origem": "Reserva posicionamento marca"
+    },
+    {
+      "source_id": "src_837dc0e92e",
+      "url": "https://www.instagram.com/p/DV9UDujkV-n/",
+      "titulo": "A @reserva fez um anuncio um pouco controverso ...",
+      "dominio": "instagram.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:25.597Z",
+      "query_origem": "Reserva posicionamento marca"
+    },
+    {
+      "source_id": "src_2d4a2994ff",
+      "url": "https://www.celialinsingen.com.br/single-post/2018/09/22/5-tipos-de-posicionamento-de-marca-coca-cola-seara-reserva-usaflex-dudalina",
+      "titulo": "5 tipos de Posicionamento de marca: Coca-cola, Seara ...",
+      "dominio": "celialinsingen.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 58,
+      "credibilidade_nivel": "media",
+      "credibilidade_sinais": [
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-15T22:19:25.597Z",
+      "query_origem": "Reserva posicionamento marca"
+    }
+  ],
+  "descartadas": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.reddit.com/r/Spanish/comments/ichefe/reserva_vs_reservaci%C3%B3n_what_do_you_use_and_where/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "Score 33 (HTTPS, padrão de baixa qualidade)."
+    }
+  ]
+}

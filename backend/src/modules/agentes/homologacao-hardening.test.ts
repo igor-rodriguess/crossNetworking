@@ -209,7 +209,15 @@ describe("Homologação · Fact Verifier nos três desfechos", () => {
     expect(saida.verificacoes[2].status).toBe("nao_confirmada");
     expect(saida.verificacoes[2].fontes_independentes).toBe(0);
 
-    expect(saida.resumo).toEqual({ corroborada: 1, fonte_unica: 1, nao_confirmada: 1 });
+    // `conflitante` entrou no resumo na Sprint AI-02: duas fontes que se
+    // contradizem deixaram de contar como corroboração. Nenhuma afirmação
+    // deste cenário é contraditória, então o contador fica em zero.
+    expect(saida.resumo).toEqual({
+      corroborada: 1,
+      fonte_unica: 1,
+      nao_confirmada: 1,
+      conflitante: 0,
+    });
   });
 });
 

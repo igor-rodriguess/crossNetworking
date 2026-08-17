@@ -162,6 +162,10 @@ export const afirmacaoSchema = z.object({
   texto: z.string().min(1),
   // Fontes (domínios/urls) que sustentam a afirmação.
   fontes: z.array(z.string().min(1)).min(1),
+  // Marcada por quem monta a afirmação quando há fonte independente afirmando
+  // o OPOSTO. O verificador não interpreta texto; só decide o status a partir
+  // deste sinal e da contagem de domínios.
+  contradita: z.boolean().optional(),
 });
 
 export const verificarFatosSchema = z
@@ -173,7 +177,16 @@ export const verificarFatosSchema = z
   });
 export type VerificarFatosInput = z.infer<typeof verificarFatosSchema>;
 
-export const statusVerificacao = z.enum(["corroborada", "nao_confirmada", "fonte_unica"]);
+// `conflitante` acrescentado na Sprint AI-02: duas fontes independentes que se
+// contradizem NÃO são corroboração. Antes, o verificador só contava domínios
+// distintos — duas fontes afirmando o oposto elevavam a afirmação a
+// "corroborada", que é o erro mais perigoso possível numa camada de evidência.
+export const statusVerificacao = z.enum([
+  "corroborada",
+  "nao_confirmada",
+  "fonte_unica",
+  "conflitante",
+]);
 export type StatusVerificacao = z.infer<typeof statusVerificacao>;
 
 export const afirmacaoVerificadaSchema = z.object({
@@ -191,6 +204,8 @@ export const verificacaoSaidaSchema = z.object({
     corroborada: z.number().int(),
     nao_confirmada: z.number().int(),
     fonte_unica: z.number().int(),
+    // Default 0 mantém compatibilidade com saídas gravadas antes da AI-02.
+    conflitante: z.number().int().default(0),
   }),
   verificacoes: z.array(afirmacaoVerificadaSchema),
 });

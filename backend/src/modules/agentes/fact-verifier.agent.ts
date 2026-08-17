@@ -30,7 +30,21 @@ function dominioDe(fonte: string): string {
   return f.replace(/^www\./, "").split("/")[0];
 }
 
-function classificar(dominiosDistintos: number): { status: StatusVerificacao; observacao: string } {
+function classificar(
+  dominiosDistintos: number,
+  contradita = false
+): { status: StatusVerificacao; observacao: string } {
+  // Contradição vence contagem: duas fontes independentes que se opõem NÃO
+  // corroboram. Sem esta porta, o desacordo entre veículos confiáveis viraria
+  // "corroborada" — o erro mais perigoso numa camada de evidência.
+  if (contradita) {
+    return {
+      status: "conflitante",
+      observacao:
+        "Fontes independentes divergem sobre esta afirmação. Nenhuma versão foi escolhida — " +
+        "a decisão é humana.",
+    };
+  }
   if (dominiosDistintos >= 2) {
     return {
       status: "corroborada",
@@ -54,7 +68,10 @@ export interface ResultadoVerificacaoAgente {
 export function verificarFatos(input: VerificarFatosInput): ResultadoVerificacaoAgente {
   const verificacoes = input.afirmacoes.map((af) => {
     const dominios = new Set(af.fontes.map(dominioDe).filter(Boolean));
-    const { status, observacao } = classificar(dominios.size);
+    // `contradita` é informada por quem monta a afirmação (o agente detecta a
+    // contradição ao agrupar fatos opostos sobre o mesmo sujeito). O verificador
+    // não interpreta texto — só decide o status.
+    const { status, observacao } = classificar(dominios.size, af.contradita ?? false);
     return {
       texto: af.texto,
       status,
@@ -68,6 +85,7 @@ export function verificarFatos(input: VerificarFatosInput): ResultadoVerificacao
     corroborada: verificacoes.filter((v) => v.status === "corroborada").length,
     nao_confirmada: verificacoes.filter((v) => v.status === "nao_confirmada").length,
     fonte_unica: verificacoes.filter((v) => v.status === "fonte_unica").length,
+    conflitante: verificacoes.filter((v) => v.status === "conflitante").length,
   };
 
   const saida = verificacaoSaidaSchema.parse({ total: verificacoes.length, resumo, verificacoes });

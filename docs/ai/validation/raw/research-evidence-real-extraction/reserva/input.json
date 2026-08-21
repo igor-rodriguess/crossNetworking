@@ -1,0 +1,13 @@
+{
+  "entidade": "Reserva",
+  "objetivo": "contexto_geral",
+  "limites": {
+    "custoMaximoUsd": 0.5,
+    "maxBuscasWeb": 3,
+    "maxScrapes": 3,
+    "maxChamadasLlm": 3,
+    "maxCandidatosReasoning": 5,
+    "maxTentativasPorEtapa": 1,
+    "operacoesLlmPermitidas": {}
+  }
+}

@@ -1,0 +1,256 @@
+{
+  "entidade": "Converse",
+  "objetivo": "movimentos_recentes",
+  "status": "sucesso",
+  "plano": [
+    "Converse notícias",
+    "Converse anúncio recente",
+    "Converse novidades"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [
+    {
+      "fact_id": "fact_7ca7f01a7c",
+      "claim": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "entidade": "Converse",
+      "categoria": "expansao",
+      "natureza": "fato",
+      "source_refs": [
+        "src_15fa92f270"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 50,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_873bc862c5",
+      "claim": "A Converse enfrenta queda nas vendas",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_98884c28c9",
+      "claim": "A Converse representa menos de 3% da receita da Nike",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_c49cd8fe07",
+      "claim": "A Converse reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_f434061742",
+      "claim": "A Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "conflito": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src_15fa92f270",
+      "url": "https://fashionunited.com.br/tags/converse",
+      "titulo": "Notícias e arquivo sobre Converse - fashionunited.com.br",
+      "dominio": "fashionunited.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 75,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_especializada",
+        "veiculo_setorial_relevante",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_5b30b2602c",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+      "titulo": "Converse, da Nike, caminha para pior nível em 15 anos. E atrai ...",
+      "dominio": "bloomberglinea.com.br",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 85,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_reconhecida",
+        "veiculo_de_imprensa_reconhecido",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.444Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_5a23961975",
+      "url": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "titulo": "Lançamentos | Loja Oficial da Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.441Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_426cc8e1aa",
+      "url": "https://converse.com.br/",
+      "titulo": "Converse All Star Oficial | Compre seu Tenis Original aqui",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.442Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_865b17dace",
+      "url": "https://www.converse.com/pt/products/all/all-new-arrivals",
+      "titulo": "All New Arrivals - Converse",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.442Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_276226d0df",
+      "url": "https://www.converse.com/",
+      "titulo": "Converse Official Site. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:14:43.442Z",
+      "query_origem": "Converse anúncio recente"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.portalpopcyber.com/converse/",
+      "motivo": "entidade_divergente",
+      "detalhe": "conteudo_lexicografico (termo_lexicografico:tradução). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://capricho.abril.com.br/noticias-sobre/converse/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=C",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=o0tINyogXng2",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 332084,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 2,
+    "fontes_coletadas": 6,
+    "fontes_descartadas": 6,
+    "fatos_extraidos": 5,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

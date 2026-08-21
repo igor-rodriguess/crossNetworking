@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://fashionunited.com.br/tags/converse",
+    "status": "ok",
+    "caracteres": 12593,
+    "enviados_llm": 4074,
+    "claims_brutos": 1,
+    "claims_aceitos": 1,
+    "duracao_scrape_ms": 2711,
+    "duracao_llm_ms": 148001,
+    "publicado_em": null,
+    "origem_data": "desconhecida"
+  },
+  {
+    "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+    "status": "ok",
+    "caracteres": 7213,
+    "enviados_llm": 4669,
+    "claims_brutos": 4,
+    "claims_aceitos": 4,
+    "duracao_scrape_ms": 3228,
+    "duracao_llm_ms": 177232,
+    "publicado_em": null,
+    "origem_data": "desconhecida"
+  }
+]

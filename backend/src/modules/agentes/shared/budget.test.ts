@@ -27,9 +27,16 @@ function limites(over: Partial<LimitesOrcamento> = {}): Partial<LimitesOrcamento
     maxTentativasPorEtapa: 2,
     providersPagosHabilitados: true,
     modoEstrito: true,
+    // Allowlist de operações (AI-02.3). Os cenários abaixo exercitam orçamento
+    // e kill switch, então declaram uma operação autorizada; a allowlist em si
+    // tem seus próprios testes mais adiante.
+    operacoesLlmPermitidas: new Set(["fact_extraction"]),
     ...over,
   };
 }
+
+/** Operação autorizada — declarada por toda chamada de LLM destes cenários. */
+const OP = "fact_extraction";
 
 // 1M entrada + 1M saída em gpt-4o-mini = 0.15 + 0.60 = 0.75 USD
 const UMA_CHAMADA_CARA = { entrada: 1_000_000, saida: 1_000_000 };
@@ -38,7 +45,7 @@ describe("A · execução abaixo do orçamento é permitida", () => {
   it("autoriza e debita o consumo real", () => {
     const o = new OrcamentoExecucao(limites());
 
-    const auth = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
     expect(auth.permitido).toBe(true);
     expect(auth.custoProjetado).toBeCloseTo(0.75, 6);
     expect(auth.custoAtual).toBe(0);
@@ -55,11 +62,12 @@ describe("B · operação que ultrapassaria o limite é bloqueada ANTES da chama
     const o = new OrcamentoExecucao(limites());
 
     // Primeira: 0.75 de 1.00 — passa.
-    expect(o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA }).permitido).toBe(true);
+    expect(o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA }).permitido).toBe(true);
     o.registrarConsumoLlm("gpt-4o-mini", UMA_CHAMADA_CARA);
 
     // Segunda: 0.75 + 0.75 = 1.50 > 1.00 — bloqueada.
     const auth = o.autorizarLlm({
+      operacao: OP,
       modelo: "gpt-4o-mini",
       tokens: UMA_CHAMADA_CARA,
       agente: "crossability_reasoning",
@@ -86,11 +94,11 @@ describe("B · operação que ultrapassaria o limite é bloqueada ANTES da chama
     const barato = { entrada: 1000, saida: 100 };
 
     for (let i = 0; i < 2; i++) {
-      expect(o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: barato }).permitido).toBe(true);
+      expect(o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: barato }).permitido).toBe(true);
       o.registrarConsumoLlm("gpt-4o-mini", barato);
     }
 
-    const auth = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: barato });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: barato });
     expect(auth.permitido).toBe(false);
     expect(auth.motivo).toBe("llm_call_limit");
   });
@@ -100,7 +108,7 @@ describe("C · modelo com custo desconhecido é bloqueado em modo estrito", () =
   it("nega e NÃO trata null como gratuito", () => {
     const o = new OrcamentoExecucao(limites({ modoEstrito: true }));
 
-    const auth = o.autorizarLlm({ modelo: "modelo-que-nao-existe", tokens: UMA_CHAMADA_CARA });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "modelo-que-nao-existe", tokens: UMA_CHAMADA_CARA });
 
     expect(auth.permitido).toBe(false);
     expect(auth.motivo).toBe("cost_unknown");
@@ -111,7 +119,7 @@ describe("C · modelo com custo desconhecido é bloqueado em modo estrito", () =
   it("permite fora do modo estrito, sem registrar bloqueio", () => {
     const o = new OrcamentoExecucao(limites({ modoEstrito: false }));
 
-    const auth = o.autorizarLlm({ modelo: "modelo-que-nao-existe", tokens: UMA_CHAMADA_CARA });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "modelo-que-nao-existe", tokens: UMA_CHAMADA_CARA });
 
     expect(auth.permitido).toBe(true);
     expect(auth.custoProjetado).toBeNull();
@@ -123,7 +131,7 @@ describe("D · provider local é permitido com custo zero", () => {
   it("autoriza mesmo com orçamento esgotado e ainda conta a chamada", () => {
     const o = new OrcamentoExecucao(limites({ custoMaximoUsd: 0 }));
 
-    const auth = o.autorizarLlm({ modelo: "qwen3:4b", tokens: UMA_CHAMADA_CARA, local: true });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "qwen3:4b", tokens: UMA_CHAMADA_CARA, local: true });
 
     expect(auth.permitido).toBe(true);
     expect(auth.custoProjetado).toBe(0);
@@ -137,8 +145,8 @@ describe("D · provider local é permitido com custo zero", () => {
   it("respeita o kill switch apenas para provider pago", () => {
     const o = new OrcamentoExecucao(limites({ providersPagosHabilitados: false }));
 
-    expect(o.autorizarLlm({ modelo: "qwen3:4b", tokens: { entrada: 10, saida: 10 }, local: true }).permitido).toBe(true);
-    expect(o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: { entrada: 10, saida: 10 } }).permitido).toBe(false);
+    expect(o.autorizarLlm({ operacao: OP, modelo: "qwen3:4b", tokens: { entrada: 10, saida: 10 }, local: true }).permitido).toBe(true);
+    expect(o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: { entrada: 10, saida: 10 } }).permitido).toBe(false);
   });
 });
 
@@ -219,7 +227,7 @@ describe("H · retry de erro temporário dentro do limite é permitido", () => {
 describe("I · retry NÃO acontece após budget_blocked", () => {
   it("erro de orçamento nunca é repetido", () => {
     const o = new OrcamentoExecucao(limites({ custoMaximoUsd: 0.1 }));
-    const auth = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
+    const auth = o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
     expect(auth.permitido).toBe(false);
 
     const erro = new OrcamentoExcedidoError(auth);
@@ -244,7 +252,7 @@ describe("J · kill switch impossibilita chamada paga", () => {
       limites({ providersPagosHabilitados: false, custoMaximoUsd: 9999 })
     );
 
-    const llm = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: { entrada: 10, saida: 10 } });
+    const llm = o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: { entrada: 10, saida: 10 } });
     expect(llm.permitido).toBe(false);
     expect(llm.motivo).toBe("paid_providers_disabled");
 
@@ -269,7 +277,7 @@ describe("L · API key presente NÃO libera provider pago com kill switch deslig
       limites({ providersPagosHabilitados: false, custoMaximoUsd: 9999, maxChamadasLlm: 999 })
     );
 
-    const llm = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
+    const llm = o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
     expect(llm.permitido).toBe(false);
     expect(llm.motivo).toBe("paid_providers_disabled");
 
@@ -291,7 +299,7 @@ describe("L · API key presente NÃO libera provider pago com kill switch deslig
     for (const ferramenta of ["firecrawl_search", "firecrawl_scrape", "embeddings"] as const) {
       expect(o.autorizarFerramenta(ferramenta).motivo).toBe("paid_providers_disabled");
     }
-    expect(o.autorizarLlm({ modelo: "qwen3:4b", tokens: UMA_CHAMADA_CARA, local: true }).permitido).toBe(true);
+    expect(o.autorizarLlm({ operacao: OP, modelo: "qwen3:4b", tokens: UMA_CHAMADA_CARA, local: true }).permitido).toBe(true);
   });
 });
 
@@ -310,6 +318,7 @@ describe("Contexto estruturado da decisão", () => {
     o.limitarCandidatos(["a", "b", "c", "d", "e"]);
 
     o.autorizarLlm({
+      operacao: OP,
       modelo: "gpt-4o-mini",
       tokens: UMA_CHAMADA_CARA,
       agente: "crossability_reasoning",
@@ -341,6 +350,73 @@ describe("Contexto estruturado da decisão", () => {
   });
 });
 
+describe("M · allowlist de operações de LLM", () => {
+  it("nega operação fora da allowlist, mesmo com orçamento e switch liberados", () => {
+    const o = new OrcamentoExecucao(
+      limites({
+        custoMaximoUsd: 9999,
+        providersPagosHabilitados: true,
+        operacoesLlmPermitidas: new Set(["fact_extraction"]),
+      })
+    );
+
+    const auth = o.autorizarLlm({
+      operacao: "crossability_reasoning",
+      modelo: "gpt-4o-mini",
+      tokens: UMA_CHAMADA_CARA,
+    });
+
+    expect(auth.permitido).toBe(false);
+    expect(auth.motivo).toBe("operation_not_allowed");
+    expect(o.custoAtual).toBe(0);
+  });
+
+  it("nega operação NÃO DECLARADA — o que não se declara não se autoriza", () => {
+    const o = new OrcamentoExecucao(limites({ custoMaximoUsd: 9999 }));
+    const auth = o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
+
+    expect(auth.permitido).toBe(false);
+    expect(auth.motivo).toBe("operation_not_allowed");
+    expect(auth.detalhe).toContain("não declarada");
+  });
+
+  it("a allowlist vale também para provedor local", () => {
+    // Ligar o LLM local para uma finalidade não pode liberar inferência no
+    // pipeline inteiro — o custo é zero, mas a latência e o escopo não são.
+    const o = new OrcamentoExecucao(limites());
+    const auth = o.autorizarLlm({
+      operacao: "planning",
+      modelo: "qwen3:4b",
+      tokens: UMA_CHAMADA_CARA,
+      local: true,
+    });
+
+    expect(auth.permitido).toBe(false);
+    expect(auth.motivo).toBe("operation_not_allowed");
+  });
+
+  it("allowlist vazia bloqueia tudo", () => {
+    const o = new OrcamentoExecucao(limites({ operacoesLlmPermitidas: new Set<string>() }));
+    const auth = o.autorizarLlm({
+      operacao: "fact_extraction",
+      modelo: "gpt-4o-mini",
+      tokens: UMA_CHAMADA_CARA,
+    });
+
+    expect(auth.permitido).toBe(false);
+    expect(auth.motivo).toBe("operation_not_allowed");
+    expect(auth.detalhe).toContain("(nenhuma)");
+  });
+
+  it("autoriza a operação que está na lista", () => {
+    const o = new OrcamentoExecucao(limites());
+    expect(
+      o.autorizarLlm({ operacao: "fact_extraction", modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA })
+        .permitido
+    ).toBe(true);
+  });
+});
+
 describe("Observabilidade do guardrail", () => {
   it("resume consumo, limites e bloqueios para a telemetria", () => {
     const o = new OrcamentoExecucao(limites());
@@ -358,7 +434,7 @@ describe("Observabilidade do guardrail", () => {
 
   it("preserva o motivo do PRIMEIRO bloqueio como principal", () => {
     const o = new OrcamentoExecucao(limites({ custoMaximoUsd: 0.01, maxBuscasWeb: 0 }));
-    o.autorizarLlm({ modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
+    o.autorizarLlm({ operacao: OP, modelo: "gpt-4o-mini", tokens: UMA_CHAMADA_CARA });
     o.autorizarFerramenta("web_search");
 
     expect(o.historicoBloqueios).toHaveLength(2);

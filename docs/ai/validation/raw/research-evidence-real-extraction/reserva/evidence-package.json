@@ -1,0 +1,108 @@
+{
+  "entidade": "Reserva",
+  "objetivo": "contexto_geral",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Reserva",
+    "Reserva empresa sobre",
+    "Reserva posicionamento marca"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [],
+  "sources": [],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.reservacoffee.com/?srsltid=AfmBOoqltQE3gJXQlKnG6koyPI-AWip5F2L0Fie9h3llZeSH9bTK3adf",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.usereserva.com/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/reservacoffee/?hl=en",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.bodegasmontecillo.com/en/news/what-is-a-reserva-wine-according-to-the-d-o-ca-rioja/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://onreserva.com/es_ES",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://support.stripe.com/questions/reserves-frequently-asked-questions?locale=es-419",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.banreservas.com/empresarial/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://support.google.com/reserve/answer/9172607?hl=es-US",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/p/DWBtloPDW6B/?hl=en",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://login.semead.com.br/28semead/anais/download.php?cod_trabalho=510",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://lsbranding.com.br/brand-like-reserva/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.celialinsingen.com.br/single-post/2018/09/22/5-tipos-de-posicionamento-de-marca-coca-cola-seara-reserva-usaflex-dudalina",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Nenhuma fonte aceita foi coletada.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 2899,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 0,
+    "fontes_coletadas": 0,
+    "fontes_descartadas": 12,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

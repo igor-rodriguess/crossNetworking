@@ -1,0 +1,28 @@
+{
+  "llm_calls": 0,
+  "chamadas": [],
+  "duracao_total_ms": 888,
+  "orcamento": {
+    "custo_realizado_usd": 0,
+    "chamadas_llm": 0,
+    "uso_ferramentas": {
+      "web_search": 3
+    },
+    "bloqueios": 0,
+    "motivo_principal": null,
+    "limites": {
+      "custoMaximoUsd": 0.5,
+      "maxChamadasLlm": 3,
+      "maxBuscasWeb": 3,
+      "maxScrapes": 3,
+      "maxCandidatosReasoning": 5,
+      "maxTentativasPorEtapa": 1,
+      "providersPagosHabilitados": true,
+      "modoEstrito": true,
+      "operacoesLlmPermitidas": {}
+    }
+  },
+  "custo_total_usd": 0,
+  "provider": "ollama_local",
+  "llm_paga_utilizada": false
+}

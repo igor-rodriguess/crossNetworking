@@ -111,6 +111,18 @@ const schema = z.object({
     }
     return v;
   }, z.boolean().default(true)),
+
+  // Operações autorizadas a consumir LLM. Segunda trava, independente do kill
+  // switch: mesmo com provider habilitado, só o que estiver nesta lista pode
+  // gerar chamada. Impede que ligar o provider para UMA finalidade libere
+  // inferência em Planning, Crossability e nos demais agentes.
+  //
+  // Lista separada por vírgula; vazio = nenhuma operação autorizada.
+  // Default `fact_extraction`: é a única operação que hoje precisa de LLM.
+  AI_ALLOWED_LLM_OPERATIONS: z.preprocess(
+    (v) => (typeof v === "string" ? v : "fact_extraction"),
+    z.string().default("fact_extraction")
+  ),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -225,6 +237,12 @@ export const env = {
   maxScrapesPerRun: data.AI_MAX_SCRAPES_PER_RUN,
   maxReasoningCandidates: data.AI_MAX_REASONING_CANDIDATES,
   maxRetriesPerStep: data.AI_MAX_RETRIES_PER_STEP,
+  /** Operações autorizadas a consumir LLM (allowlist). */
+  allowedLlmOperations: new Set(
+    data.AI_ALLOWED_LLM_OPERATIONS.split(",")
+      .map((o) => o.trim().toLowerCase())
+      .filter(Boolean)
+  ),
 
   isTest,
   isProd,

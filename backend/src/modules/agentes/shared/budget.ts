@@ -29,7 +29,10 @@ export type MotivoBloqueio =
   | "llm_call_limit"
   | "web_search_limit"
   | "scrape_limit"
-  | "paid_providers_disabled";
+  | "paid_providers_disabled"
+  // Operação fora da allowlist. Independente do kill switch: mesmo com
+  // provider habilitado, só o que está autorizado pode chamar LLM.
+  | "operation_not_allowed";
 
 /** Ferramentas externas sujeitas a limite. Espelha cross_ai.uso_ferramenta. */
 export type FerramentaLimitada = "web_search" | "firecrawl_search" | "firecrawl_scrape" | "embeddings";
@@ -43,6 +46,8 @@ export interface LimitesOrcamento {
   maxTentativasPorEtapa: number;
   providersPagosHabilitados: boolean;
   modoEstrito: boolean;
+  /** Operações autorizadas a consumir LLM. Vazio = nenhuma. */
+  operacoesLlmPermitidas: Set<string>;
 }
 
 /** Limites vindos da configuração; sobrescritíveis em teste. */
@@ -56,6 +61,7 @@ export function limitesPadrao(): LimitesOrcamento {
     maxTentativasPorEtapa: env.maxRetriesPerStep,
     providersPagosHabilitados: env.paidProvidersEnabled,
     modoEstrito: env.strictCostMode,
+    operacoesLlmPermitidas: env.allowedLlmOperations,
   };
 }
 
@@ -81,6 +87,11 @@ export interface OperacaoLlm {
   local?: boolean;
   agente?: string;
   etapa?: string;
+  /**
+   * Nome da operação, conferido contra a allowlist. Ausente = não declarada,
+   * e o que não se declara não é autorizado.
+   */
+  operacao?: string;
 }
 
 /**
@@ -215,6 +226,28 @@ export class OrcamentoExecucao {
    */
   autorizarLlm(op: OperacaoLlm): Autorizacao {
     const local = op.local ?? false;
+
+    // 0. Allowlist de operações. Vem ANTES do kill switch e vale inclusive
+    //    para provedor local: ligar o LLM para uma finalidade não pode liberar
+    //    inferência no pipeline inteiro. Operação não declarada é negada — o
+    //    que não se declara não se autoriza.
+    const operacao = (op.operacao ?? "").trim().toLowerCase();
+    if (!operacao || !this.limites.operacoesLlmPermitidas.has(operacao)) {
+      const permitidas = [...this.limites.operacoesLlmPermitidas].join(", ") || "(nenhuma)";
+      return this.negar({
+        motivo: "operation_not_allowed",
+        detalhe:
+          `Operação "${op.operacao ?? "(não declarada)"}" não está autorizada a usar LLM. ` +
+          `Autorizadas: ${permitidas}. Ajuste AI_ALLOWED_LLM_OPERATIONS.`,
+        agente: op.agente,
+        etapa: op.etapa,
+        modelo: op.modelo ?? null,
+        tipoOperacao: "llm",
+        custoAtual: this.custoAtual,
+        custoProjetado: null,
+        limite: 0,
+      });
+    }
 
     // 1. Kill switch — só afeta operação paga; local segue livre.
     if (!local && !this.limites.providersPagosHabilitados) {

@@ -1,0 +1,108 @@
+{
+  "entidade": "Insider Store",
+  "objetivo": "contexto_geral",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Insider Store",
+    "Insider Store empresa sobre",
+    "Insider Store posicionamento marca"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [],
+  "sources": [],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://blog.insiderstore.com.br/insider-loja-fisica/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.facebook.com/insiderstore/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://carreira.inhire.com.br/carreiras-insider-store/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://suporte.insiderstore.com.br/hc/pt-br/articles/9732392193428-A-Insider-Informa%C3%A7%C3%B5es-sobre-a-Empresa",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/pages/sobre-a-insider",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.insiderstore.com.br/pages/insider-business",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Insider",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://carreira.inhire.com.br/carreiras-insider-store/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://v4company.com/blog/cases-de-marketing/estrategia-marketing-insider-case-sucesso",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://exame.com/negocios/insider-abre-loja-fisica-apos-criar-imperio-de-r-600-milhoes-com-venda-de-camiseta-pela-internet/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.linkedin.com/posts/rafaecom_com-um-posicionamento-de-marca-s%C3%B3lido-e-um-activity-7371894040142835712-qNZq",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Nenhuma fonte aceita foi coletada.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 860,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 0,
+    "fontes_coletadas": 0,
+    "fontes_descartadas": 12,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

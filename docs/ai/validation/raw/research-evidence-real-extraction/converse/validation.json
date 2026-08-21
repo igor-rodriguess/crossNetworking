@@ -1,0 +1,53 @@
+{
+  "total_claims": 5,
+  "aceitos": 5,
+  "rejeitados": 0,
+  "por_motivo": {},
+  "claims": [
+    {
+      "claim": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "tipo": "fato",
+      "supporting_quote": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "categoria": "expansao",
+      "aceito": true,
+      "quote_confirmada": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "url": "https://fashionunited.com.br/tags/converse"
+    },
+    {
+      "claim": "A Converse enfrenta queda nas vendas",
+      "tipo": "fato",
+      "supporting_quote": "Converse enfrenta queda nas vendas(Fonte: Bloomberg)",
+      "categoria": "produto",
+      "aceito": true,
+      "quote_confirmada": "Converse enfrenta queda nas vendas(Fonte: Bloomberg)",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/"
+    },
+    {
+      "claim": "A Converse representa menos de 3% da receita da Nike",
+      "tipo": "fato",
+      "supporting_quote": "A Converse, que representa menos de 3% da receita da Nike, tem pesado na retomada do crescimento.",
+      "categoria": "produto",
+      "aceito": true,
+      "quote_confirmada": "A Converse, que representa menos de 3% da receita da Nike, tem pesado na retomada do crescimento.",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/"
+    },
+    {
+      "claim": "A Converse reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal",
+      "tipo": "fato",
+      "supporting_quote": "Como resposta, a empresa reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal, além de ajustes na equipe e na estrutura organizacional da marca.",
+      "categoria": "produto",
+      "aceito": true,
+      "quote_confirmada": "Como resposta, a empresa reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal, além de ajustes na equipe e na estrutura organizacional da marca.",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/"
+    },
+    {
+      "claim": "A Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander",
+      "tipo": "fato",
+      "supporting_quote": "Mais recentemente, a Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander.",
+      "categoria": "produto",
+      "aceito": true,
+      "quote_confirmada": "Mais recentemente, a Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander.",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "gerado_em": "2026-08-21T23:20:18.541Z",
+  "casos": [
+    {
+      "caso": "converse",
+      "status": "sucesso",
+      "fontes_aceitas": 6,
+      "llm_calls": 2,
+      "claims_produzidos": 5,
+      "claims_aceitos": 5,
+      "rejeitados": 0,
+      "fatos_finais": 5,
+      "corroborados": 0,
+      "lacunas": 1,
+      "duracao_ms": 332112,
+      "custo_usd": 0
+    },
+    {
+      "caso": "insider",
+      "status": "evidencia_insuficiente",
+      "fontes_aceitas": 0,
+      "llm_calls": 0,
+      "claims_produzidos": 0,
+      "claims_aceitos": 0,
+      "rejeitados": 0,
+      "fatos_finais": 0,
+      "corroborados": 0,
+      "lacunas": 1,
+      "duracao_ms": 888,
+      "custo_usd": 0
+    },
+    {
+      "caso": "reserva",
+      "status": "evidencia_insuficiente",
+      "fontes_aceitas": 0,
+      "llm_calls": 0,
+      "claims_produzidos": 0,
+      "claims_aceitos": 0,
+      "rejeitados": 0,
+      "fatos_finais": 0,
+      "corroborados": 0,
+      "lacunas": 1,
+      "duracao_ms": 2906,
+      "custo_usd": 0
+    }
+  ]
+}

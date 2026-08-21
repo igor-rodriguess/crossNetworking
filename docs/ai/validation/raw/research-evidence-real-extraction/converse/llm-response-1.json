@@ -1,0 +1,31 @@
+{
+  "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+  "bruto": {
+    "facts": [
+      {
+        "claim": "A Converse enfrenta queda nas vendas",
+        "categoria": "produto",
+        "tipo": "fato",
+        "supporting_quote": "Converse enfrenta queda nas vendas(Fonte: Bloomberg)"
+      },
+      {
+        "claim": "A Converse representa menos de 3% da receita da Nike",
+        "categoria": "produto",
+        "tipo": "fato",
+        "supporting_quote": "A Converse, que representa menos de 3% da receita da Nike, tem pesado na retomada do crescimento."
+      },
+      {
+        "claim": "A Converse reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal",
+        "categoria": "produto",
+        "tipo": "fato",
+        "supporting_quote": "Como resposta, a empresa reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal, além de ajustes na equipe e na estrutura organizacional da marca."
+      },
+      {
+        "claim": "A Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander",
+        "categoria": "produto",
+        "tipo": "fato",
+        "supporting_quote": "Mais recentemente, a Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander."
+      }
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+﻿VALIDAÇÃO REAL DO REASONING — Ollama local
+Execução: 2026-09-11T22:12:56.247Z
+──────────────────────────────────────────────────────────────────────────────
+provedor:            ollama
+modelo:              qwen3:4b
+kill switch (pagos): desligado
+operações liberadas: fact_extraction, crossability_reasoning
+aiMock:              false
+──────────────────────────────────────────────────────────────────────────────
+
+duração total: 389.2s
+chamadas de LLM: 6
+custo estimado:  US$ 0
+contexto:        17922 caracteres
+
+──────────────────────────────────────────────────────────────────────────────
+DIMENSÕES
+──────────────────────────────────────────────────────────────────────────────
+
+· PUBLICOS
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não foi recuperada para a dimensão Públicos. Portanto, não há base para avaliar a ativação cultural com público jovem.
+    ? Metodologia Cross não disponível para a dimensão Públicos
+
+· TERRITORIOS
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não fornece informações para analisar a dimensão Territórios. Os fatos disponíveis (E1, E4, E7) não indicam como a marca ativa cultura com público jovem em termos de territórios específicos. A dimensã
+    ? Não há metodologia Cross para a dimensão Territórios
+    ? Fatos não indicam relação entre territórios e ativação cultural com público jovem
+
+· ATIVOS
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não foi recuperada para a dimensão 'Ativos', portanto não há base para avaliar a ativação cultural com público jovem. Os fatos disponíveis (E5, E6) descrevem atividades de lojas-conceito e linhas de a
+    + Mantém programa de lojas-conceito em shoppings premium (E5).
+    + Linha de alfaiataria e casual masculino (E6).
+    ? Nenhuma metodologia Cross disponível para a dimensão Ativos
+    ? Fatos não mencionam ativação cultural ou público jovem
+
+· SINERGIAS
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não foi recuperada para a dimensão 'Sinergias'. Portanto, não há base para avaliar a ativação cultural com público jovem.
+    ? Metodologia Cross não disponível para a dimensão 'Sinergias'
+
+· FIT_ESTRATEGICO
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não foi recuperada para a dimensão Fit Estratégico, portanto não há base para avaliar a ativação cultural com público jovem. Os fatos disponíveis indicam que a marca é brasileira, fundada em 1992, atu
+    + Marca Alfa Vestuário é uma marca brasileira de vestuário fundada em 1992 com atuação nacional.
+    + Lançou campanha de verão com foco em público jovem urbano.
+    ? Não há metodologia Cross para a dimensão Fit Estratégico, portanto não é possível avaliar a ativação cultural com público jovem.
+
+· MOMENTO
+  status:     conhecimento_insuficiente
+  assessment: indeterminado
+  confidence: 25
+  evidência:  suficiente   conhecimento: insuficiente
+  leitura:    A metodologia Cross não foi recuperada para a dimensão Momento, portanto não há base para avaliar a ativação cultural com público jovem. Os fatos disponíveis (E7 e E6) indicam uma campanha de verão focada em público jove
+    + Lançou campanha de verão com foco em público jovem urbano
+    + Linha de alfaiataria e casual masculino
+    ? Nenhuma metodologia Cross disponível para a dimensão Momento
+    ? Falta de informações sobre ativação cultural específica no perfil da entidade
+
+──────────────────────────────────────────────────────────────────────────────
+SÍNTESE: Nenhuma das seis dimensões reuniu sustentação factual e metodológica ao mesmo tempo. Sem metodologia Cross recuperada em: Públicos, Territórios, Ativos, Sinergias, Fit Estratégico, Momento. Fit avaliado para o objetivo declarado: "ativação cultural com público jovem".
+confiança global: 0
+
+──────────────────────────────────────────────────────────────────────────────
+INTEGRIDADE
+──────────────────────────────────────────────────────────────────────────────
+claims rejeitados por referência inválida: 3
+  - [sem_sustentacao] Não há metodologia Cross disponível para a dimensão Públicos
+  - [sem_sustentacao] A metodologia Cross não está disponível para a dimensão Territórios
+  - [sem_sustentacao] Não há metodologia Cross disponível para a dimensão 'Sinergias' no bloco METODOLOGIA CROSS
+lacunas de conhecimento: 6
+  - Públicos: nenhuma metodologia Cross validada foi recuperada; a interpretação desta dimensão está sem sustentação metodológica.
+  - Territórios: nenhuma metodologia Cross validada foi recuperada; a interpretação desta dimensão está sem sustentação metodológica.
+  - Ativos: nenhuma metodologia Cross validada foi recuperada; a interpretação desta dimensão está sem sustentação metodológica.
+  - Sinergias: nenhuma metodologia Cross validada foi recuperada; a interpretação desta dimensão está sem sustentação metodológica.
+
+Transação revertida — nada persistido.

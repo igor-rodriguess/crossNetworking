@@ -29,9 +29,81 @@ function separarResponsavel(texto?: string): { nome: string; cargo?: string } | 
   return { nome, cargo: resto.join(' · ') || undefined };
 }
 
-function CardPerfilEstrategico({ parte, aoAtualizar }: { parte: Parte; aoAtualizar: () => Promise<void> }) {
+// ─── Lacunas do Crossability ─────────────────────────────────────────────────
+//
+// Público, territórios e ativos são as três dimensões que o Crossability usa
+// para avaliar encaixe entre marcas. A pesquisa automática traz parte delas,
+// mas o que a Cross apura em reunião não está publicado em lugar nenhum.
+//
+// Este aviso existe porque o formulário não sinalizava nada: quem preenchia
+// não tinha como saber que estes campos pesam mais que os outros.
+type DimensaoCrossability = { chave: string; rotulo: string; preenchido: boolean };
+
+function lacunasCrossability(parte: Parte): DimensaoCrossability[] {
+  return [
+    { chave: 'publico', rotulo: 'Público-alvo', preenchido: Boolean(parte.publico?.trim()) },
+    { chave: 'territorio', rotulo: 'Territórios', preenchido: Boolean(parte.territorio?.trim()) },
+    { chave: 'ativos', rotulo: 'Ativos', preenchido: parte.ativos.length > 0 },
+  ];
+}
+
+function AvisoCrossability({ parte, aoPreencher }: { parte: Parte; aoPreencher: () => void }) {
+  const dimensoes = lacunasCrossability(parte);
+  const faltando = dimensoes.filter((d) => !d.preenchido);
+  if (faltando.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-accent/40 bg-accent-soft/25 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-ink">
+            {faltando.length === 3
+              ? 'Esta marca ainda não pode ser avaliada em cruzamentos'
+              : `Faltam ${faltando.length} de 3 dimensões para o Crossability`}
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-stone">
+            O Crossability compara marcas por público, território e ativos. A pesquisa automática
+            cobre parte disso — o que vem das suas reuniões com o cliente só pode ser registrado aqui.
+          </p>
+        </div>
+        <span className="shrink-0 font-mono text-xs text-accent-deep">
+          {dimensoes.length - faltando.length}/3
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {dimensoes.map((d) => (
+          <span
+            key={d.chave}
+            className={`rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.08em] ${
+              d.preenchido
+                ? 'bg-status-possoft text-status-pos'
+                : 'border border-dashed border-accent/50 text-accent-deep'
+            }`}
+          >
+            {d.preenchido ? '✓ ' : '— '}
+            {d.rotulo}
+          </span>
+        ))}
+      </div>
+      <button type="button" onClick={aoPreencher} className="mt-3 text-xs font-bold text-accent-deep hover:underline">
+        Preencher o que falta →
+      </button>
+    </div>
+  );
+}
+
+function CardPerfilEstrategico({
+  parte,
+  aoAtualizar,
+  editando,
+  setEditando,
+}: {
+  parte: Parte;
+  aoAtualizar: () => Promise<void>;
+  editando: boolean;
+  setEditando: (v: boolean) => void;
+}) {
   const { toast } = useToast();
-  const [editando, setEditando] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [confirmarPromocao, setConfirmarPromocao] = useState(false);
   const [resumo, setResumo] = useState('');
@@ -82,6 +154,14 @@ function CardPerfilEstrategico({ parte, aoAtualizar }: { parte: Parte; aoAtualiz
     preencherComParte();
     setEditando(true);
   }
+
+  // A edição também pode ser aberta de fora (pelo aviso de lacunas do
+  // Crossability). Preencher no efeito garante que o formulário carregue os
+  // valores atuais qualquer que seja o gatilho — abrir vazio apagaria dados.
+  useEffect(() => {
+    if (editando) preencherComParte();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editando, parte]);
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
@@ -260,7 +340,7 @@ function CardAtivos({ parteId, ativos }: { parteId: string; ativos: { nome: stri
       ) : (
         <div className="rounded-xl border border-dashed border-mist bg-off/70 p-4">
           <p className="text-sm font-semibold text-ink">Nenhum ativo cadastrado</p>
-          <p className="mt-1 text-xs leading-relaxed text-stone">Cadastre propriedades, canais, eventos ou espaços que esta marca pode levar para uma parceria.</p>
+          <p className="mt-1 text-xs leading-relaxed text-stone">Cadastre propriedades, canais, eventos, programas próprios ou espaços que esta marca pode levar para uma parceria. É o que o Crossability usa para encontrar encaixe — e raramente está publicado na web.</p>
           <button type="button" onClick={() => setAberto(true)} className="mt-3 text-xs font-bold text-accent-deep hover:underline">Adicionar primeiro ativo →</button>
         </div>
       )}
@@ -451,6 +531,8 @@ export function ParteDetalhe() {
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [confirmarArquivar, setConfirmarArquivar] = useState(false);
   const [marcasDoGrupo, setMarcasDoGrupo] = useState<partesApi.MarcaDoGrupo[]>([]);
+  // Elevado ao pai: o aviso de lacunas do Crossability também abre este editor.
+  const [editandoPerfil, setEditandoPerfil] = useState(false);
 
   const parte = useStore((s) => s.partes.find((p) => p.id === parteId));
   const parcerias = useStore((s) => s.parcerias);
@@ -643,7 +725,14 @@ export function ParteDetalhe() {
 
       {marcasDoGrupo.length === 0 && (
       <div className="space-y-5">
-          <CardPerfilEstrategico parte={parte} aoAtualizar={() => carregarParte(parte.id)} />
+          <AvisoCrossability parte={parte} aoPreencher={() => setEditandoPerfil(true)} />
+
+          <CardPerfilEstrategico
+            parte={parte}
+            aoAtualizar={() => carregarParte(parte.id)}
+            editando={editandoPerfil}
+            setEditando={setEditandoPerfil}
+          />
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.85fr)]">
             <div className="order-2 lg:order-1">

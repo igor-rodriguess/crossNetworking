@@ -1,0 +1,732 @@
+{
+  "direcao": "cliente_para_parceiro",
+  "origem": {
+    "parte_id": "d7d4598d-f0f8-47a2-9713-a9b881b767bd",
+    "nome": "Cliente Alfa",
+    "vinculo": "vinculada",
+    "requer_resolucao_humana": false,
+    "papeis": [
+      "cliente"
+    ]
+  },
+  "objetivo": "encontrar marcas para ativação cultural conjunta",
+  "universo": {
+    "total_no_pool_sql": 9,
+    "considerados": 7,
+    "pontuados": 5,
+    "shortlist": 5
+  },
+  "shortlist": [
+    {
+      "parte_id": "496eb617-2e6a-40b1-9984-5c21d4e38a78",
+      "nome": "Marca Aderente",
+      "papeis": [
+        "parceiro"
+      ],
+      "tipo": "organizacao",
+      "eh_cliente_cross": false,
+      "elegibilidade": "elegivel",
+      "pre_match_score": 66.67,
+      "componentes": [
+        {
+          "tipo": "publico",
+          "peso": 0.25,
+          "valor": 1,
+          "contribuicao": 0.25
+        },
+        {
+          "tipo": "territorio",
+          "peso": 0.25,
+          "valor": 1,
+          "contribuicao": 0.25
+        },
+        {
+          "tipo": "ativo",
+          "peso": 0.2,
+          "valor": 0,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "geografico",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "segmento",
+          "peso": 0.1,
+          "valor": 1,
+          "contribuicao": 0.1
+        },
+        {
+          "tipo": "relacionamento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        }
+      ],
+      "sinais": [
+        {
+          "tipo": "publico",
+          "forca": "forte",
+          "valor": 1,
+          "descricao": "Públicos: 2 em comum (Cultura de rua, Jovens urbanos).",
+          "origem_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "candidato_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "proveniencia": "cross_intelligence.parte_publico(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "territorio",
+          "forca": "forte",
+          "valor": 1,
+          "descricao": "Territórios: 2 em comum (Moda, Música).",
+          "origem_refs": [
+            "Moda",
+            "Música"
+          ],
+          "candidato_refs": [
+            "Moda",
+            "Música"
+          ],
+          "proveniencia": "cross_intelligence.parte_territorio(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "ativo",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Ativos: nenhum item em comum entre os cadastrados.",
+          "origem_refs": [
+            "Programa de criadores"
+          ],
+          "candidato_refs": [
+            "Festival próprio"
+          ],
+          "proveniencia": "cross_intelligence.ativo(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "geografico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Praças: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_praca(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "segmento",
+          "forca": "forte",
+          "valor": 1,
+          "descricao": "Segmento: ambos em \"Vestuário\".",
+          "origem_refs": [
+            "Vestuário"
+          ],
+          "candidato_refs": [
+            "Vestuário"
+          ],
+          "proveniencia": "cross_core.organizacao(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78).segmento_principal",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "relacionamento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Nenhum relacionamento conhecido na base.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_projects.candidatura_parceiro(parte_id=496eb617-2e6a-40b1-9984-5c21d4e38a78)",
+          "nivel_validacao": "estrutural"
+        }
+      ],
+      "informacao_faltante": [
+        "geografico: sem dados cadastrados em um dos lados."
+      ],
+      "status_perfil": "completo",
+      "necessita_enriquecimento": false,
+      "relacionamento": "sem_relacionamento_conhecido",
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "parte_id": "9421a692-99a4-4e9d-9fd0-60bc0a40c672",
+      "nome": "Marca Parcial",
+      "papeis": [],
+      "tipo": "organizacao",
+      "eh_cliente_cross": false,
+      "elegibilidade": "elegivel",
+      "pre_match_score": 41.67,
+      "componentes": [
+        {
+          "tipo": "publico",
+          "peso": 0.25,
+          "valor": 0.5,
+          "contribuicao": 0.125
+        },
+        {
+          "tipo": "territorio",
+          "peso": 0.25,
+          "valor": 0.5,
+          "contribuicao": 0.125
+        },
+        {
+          "tipo": "ativo",
+          "peso": 0.2,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "geografico",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "segmento",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "relacionamento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        }
+      ],
+      "sinais": [
+        {
+          "tipo": "publico",
+          "forca": "forte",
+          "valor": 0.5,
+          "descricao": "Públicos: 1 em comum (Jovens urbanos).",
+          "origem_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "candidato_refs": [
+            "Jovens urbanos"
+          ],
+          "proveniencia": "cross_intelligence.parte_publico(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "territorio",
+          "forca": "forte",
+          "valor": 0.5,
+          "descricao": "Territórios: 1 em comum (Moda).",
+          "origem_refs": [
+            "Moda",
+            "Música"
+          ],
+          "candidato_refs": [
+            "Moda"
+          ],
+          "proveniencia": "cross_intelligence.parte_territorio(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "ativo",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Ativos: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Programa de criadores"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.ativo(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "geografico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Praças: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_praca(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "segmento",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Segmento: não avaliável — segmento ausente em um dos lados.",
+          "origem_refs": [
+            "Vestuário"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_core.organizacao(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672).segmento_principal",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "relacionamento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Nenhum relacionamento conhecido na base.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_projects.candidatura_parceiro(parte_id=9421a692-99a4-4e9d-9fd0-60bc0a40c672)",
+          "nivel_validacao": "estrutural"
+        }
+      ],
+      "informacao_faltante": [
+        "ativo: sem dados cadastrados em um dos lados.",
+        "geografico: sem dados cadastrados em um dos lados.",
+        "segmento: sem dados cadastrados em um dos lados."
+      ],
+      "status_perfil": "parcial",
+      "necessita_enriquecimento": true,
+      "relacionamento": "sem_relacionamento_conhecido",
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "parte_id": "c1a1740c-8bcb-4521-a241-b90698972c79",
+      "nome": "Beta Marca Dois",
+      "papeis": [],
+      "tipo": "organizacao",
+      "eh_cliente_cross": false,
+      "elegibilidade": "elegivel",
+      "pre_match_score": 35.71,
+      "componentes": [
+        {
+          "tipo": "publico",
+          "peso": 0.25,
+          "valor": 0.5,
+          "contribuicao": 0.125
+        },
+        {
+          "tipo": "territorio",
+          "peso": 0.25,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "ativo",
+          "peso": 0.2,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "geografico",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "segmento",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "relacionamento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        }
+      ],
+      "sinais": [
+        {
+          "tipo": "publico",
+          "forca": "forte",
+          "valor": 0.5,
+          "descricao": "Públicos: 1 em comum (Jovens urbanos).",
+          "origem_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "candidato_refs": [
+            "Jovens urbanos"
+          ],
+          "proveniencia": "cross_intelligence.parte_publico(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "territorio",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Territórios: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Moda",
+            "Música"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_territorio(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "ativo",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Ativos: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Programa de criadores"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.ativo(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "geografico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Praças: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_praca(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "segmento",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Segmento: não avaliável — segmento ausente em um dos lados.",
+          "origem_refs": [
+            "Vestuário"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_core.organizacao(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79).segmento_principal",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "relacionamento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Nenhum relacionamento conhecido na base.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_projects.candidatura_parceiro(parte_id=c1a1740c-8bcb-4521-a241-b90698972c79)",
+          "nivel_validacao": "estrutural"
+        }
+      ],
+      "informacao_faltante": [
+        "territorio: sem dados cadastrados em um dos lados.",
+        "ativo: sem dados cadastrados em um dos lados.",
+        "geografico: sem dados cadastrados em um dos lados.",
+        "segmento: sem dados cadastrados em um dos lados."
+      ],
+      "status_perfil": "parcial",
+      "necessita_enriquecimento": true,
+      "relacionamento": "sem_relacionamento_conhecido",
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "parte_id": "fd77c69b-4f21-4639-95cc-0d4150d53e0a",
+      "nome": "Marca Distante",
+      "papeis": [],
+      "tipo": "organizacao",
+      "eh_cliente_cross": false,
+      "elegibilidade": "elegivel",
+      "pre_match_score": 0,
+      "componentes": [
+        {
+          "tipo": "publico",
+          "peso": 0.25,
+          "valor": 0,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "territorio",
+          "peso": 0.25,
+          "valor": 0,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "ativo",
+          "peso": 0.2,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "geografico",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "segmento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "relacionamento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        }
+      ],
+      "sinais": [
+        {
+          "tipo": "publico",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Públicos: nenhum item em comum entre os cadastrados.",
+          "origem_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "candidato_refs": [
+            "Executivos"
+          ],
+          "proveniencia": "cross_intelligence.parte_publico(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "territorio",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Territórios: nenhum item em comum entre os cadastrados.",
+          "origem_refs": [
+            "Moda",
+            "Música"
+          ],
+          "candidato_refs": [
+            "Tecnologia"
+          ],
+          "proveniencia": "cross_intelligence.parte_territorio(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "ativo",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Ativos: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Programa de criadores"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.ativo(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "geografico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Praças: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_praca(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "segmento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Segmento: \"Vestuário\" vs \"Software\".",
+          "origem_refs": [
+            "Vestuário"
+          ],
+          "candidato_refs": [
+            "Software"
+          ],
+          "proveniencia": "cross_core.organizacao(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a).segmento_principal",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "relacionamento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Nenhum relacionamento conhecido na base.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_projects.candidatura_parceiro(parte_id=fd77c69b-4f21-4639-95cc-0d4150d53e0a)",
+          "nivel_validacao": "estrutural"
+        }
+      ],
+      "informacao_faltante": [
+        "ativo: sem dados cadastrados em um dos lados.",
+        "geografico: sem dados cadastrados em um dos lados."
+      ],
+      "status_perfil": "parcial",
+      "necessita_enriquecimento": true,
+      "relacionamento": "sem_relacionamento_conhecido",
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "parte_id": "e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0",
+      "nome": "Marca Sem Perfil",
+      "papeis": [],
+      "tipo": "organizacao",
+      "eh_cliente_cross": false,
+      "elegibilidade": "elegivel_com_ressalva",
+      "pre_match_score": 0,
+      "componentes": [
+        {
+          "tipo": "publico",
+          "peso": 0.25,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "territorio",
+          "peso": 0.25,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "ativo",
+          "peso": 0.2,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "geografico",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "segmento",
+          "peso": 0.1,
+          "valor": null,
+          "contribuicao": 0
+        },
+        {
+          "tipo": "relacionamento",
+          "peso": 0.1,
+          "valor": 0,
+          "contribuicao": 0
+        }
+      ],
+      "sinais": [
+        {
+          "tipo": "publico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Públicos: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Cultura de rua",
+            "Jovens urbanos"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_publico(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "territorio",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Territórios: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Moda",
+            "Música"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_territorio(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "ativo",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Ativos: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [
+            "Programa de criadores"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.ativo(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "geografico",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Praças: não avaliável — um dos lados não possui dados cadastrados.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_intelligence.parte_praca(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0)",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "segmento",
+          "forca": "desconhecido",
+          "valor": null,
+          "descricao": "Segmento: não avaliável — segmento ausente em um dos lados.",
+          "origem_refs": [
+            "Vestuário"
+          ],
+          "candidato_refs": [],
+          "proveniencia": "cross_core.organizacao(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0).segmento_principal",
+          "nivel_validacao": "estrutural"
+        },
+        {
+          "tipo": "relacionamento",
+          "forca": "nenhum",
+          "valor": 0,
+          "descricao": "Nenhum relacionamento conhecido na base.",
+          "origem_refs": [],
+          "candidato_refs": [],
+          "proveniencia": "cross_projects.candidatura_parceiro(parte_id=e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0)",
+          "nivel_validacao": "estrutural"
+        }
+      ],
+      "informacao_faltante": [
+        "publico: sem dados cadastrados em um dos lados.",
+        "territorio: sem dados cadastrados em um dos lados.",
+        "ativo: sem dados cadastrados em um dos lados.",
+        "geografico: sem dados cadastrados em um dos lados.",
+        "segmento: sem dados cadastrados em um dos lados."
+      ],
+      "status_perfil": "ausente",
+      "necessita_enriquecimento": true,
+      "relacionamento": "sem_relacionamento_conhecido",
+      "nivel_validacao": "estrutural"
+    }
+  ],
+  "excluidos": [
+    {
+      "parte_id": "d7d4598d-f0f8-47a2-9713-a9b881b767bd",
+      "nome": "Cliente Alfa",
+      "motivo": "auto_match",
+      "etapa": "sql",
+      "detalhe": "A entidade de origem não pode ser candidata de si mesma."
+    },
+    {
+      "parte_id": "90b18e25-9558-49f6-862a-1fb0210a0d8f",
+      "nome": "(excluído pelo chamador)",
+      "motivo": "excluido_explicitamente",
+      "etapa": "sql",
+      "detalhe": "Informado em `excluidos` na requisição."
+    },
+    {
+      "parte_id": "a7b02bb0-1941-465d-8964-13109d33660c",
+      "nome": "Beta Marca Um",
+      "motivo": "duplicado",
+      "etapa": "deduplicacao",
+      "detalhe": "Mesma entidade consolidada de \"Beta Marca Dois\" (grupo de marca)."
+    },
+    {
+      "parte_id": "f1479d49-f61b-4d1b-b286-abccf8b8f65d",
+      "nome": "Grupo Beta",
+      "motivo": "duplicado",
+      "etapa": "deduplicacao",
+      "detalhe": "Mesma entidade consolidada de \"Beta Marca Dois\" (grupo de marca)."
+    }
+  ],
+  "nao_resolvidos": [
+    {
+      "parte_id": "e0efe8bc-52cb-4b5f-a1f4-5ed991a9e7d0",
+      "nome": "Marca Sem Perfil",
+      "motivo": "Sem perfil estratégico e sem dimensões cadastradas; requer enriquecimento."
+    }
+  ],
+  "nivel_validacao": "estrutural",
+  "validacao_semantica": "pendente_embedding_real",
+  "telemetria": {
+    "duracao_ms": 43,
+    "duracao_sql_ms": 3,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "pesos_versao": "retrieval-v1"
+  }
+}

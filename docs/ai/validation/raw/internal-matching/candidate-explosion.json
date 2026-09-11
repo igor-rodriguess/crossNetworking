@@ -1,0 +1,17 @@
+{
+  "pool": {
+    "total_no_pool_sql": 511,
+    "considerados": 50,
+    "pontuados": 48,
+    "shortlist": 5
+  },
+  "telemetria": {
+    "duracao_ms": 26,
+    "duracao_sql_ms": 21,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "pesos_versao": "retrieval-v1"
+  },
+  "duracao_medida_ms": 26
+}

@@ -71,6 +71,33 @@ interface Cenario {
   frenteId: string; usuarioId: string;
 }
 
+/**
+ * Público, território e ativo em comum entre origem e candidato.
+ *
+ * Sem isso o candidato é uma Parte vazia, e a recomendação sai sempre como
+ * `requer_enriquecimento` — o que mediria a pobreza do fixture, não o
+ * comportamento do Orchestrator.
+ */
+async function dadosInternos(client: PoolClient, partes: string[], sufixo: string) {
+  const pub = await client.query<{ id: string }>(
+    `INSERT INTO cross_intelligence.publico (nome, faixa_etaria, ativo)
+     VALUES ($1,'18-24',true) RETURNING id`, [`Jovens ${sufixo}`]);
+  const ter = await client.query<{ id: string }>(
+    `INSERT INTO cross_intelligence.territorio (codigo, nome, ativo)
+     VALUES ($1,$2,true) RETURNING id`, [`T-${sufixo}`, `Sudeste ${sufixo}`]);
+  for (const parteId of partes) {
+    await client.query(
+      `INSERT INTO cross_intelligence.parte_publico (parte_id, publico_id, relevancia)
+       VALUES ($1,$2,'alta')`, [parteId, pub.rows[0].id]);
+    await client.query(
+      `INSERT INTO cross_intelligence.parte_territorio (parte_id, territorio_id, relevancia)
+       VALUES ($1,$2,'alta')`, [parteId, ter.rows[0].id]);
+    await client.query(
+      `INSERT INTO cross_intelligence.ativo (parte_id, nome, categoria)
+       VALUES ($1,$2,'programa')`, [parteId, `Programa ${sufixo}`]);
+  }
+}
+
 async function montarCenario(client: PoolClient, sufixo: string): Promise<Cenario> {
   const st = await client.query<{ id: string }>(
     `SELECT id FROM cross_core.status_parte ORDER BY ordem LIMIT 1`);
@@ -103,9 +130,12 @@ async function montarCenario(client: PoolClient, sufixo: string): Promise<Cenari
        (projeto_id, nome, objetivo, data_abertura, status_frente_id)
      VALUES ($1,$2,$3,CURRENT_DATE,$4) RETURNING id`,
     [projeto.rows[0].id, `Frente ${sufixo}`, "Objetivo", sfr.rows[0].id]);
+  const parceiroParteId = await criarParte(`Parceiro ${sufixo}`);
+  await dadosInternos(client, [cliParte, parceiroParteId], sufixo);
+
   return {
     clienteParteId: cliParte,
-    parceiroParteId: await criarParte(`Parceiro ${sufixo}`),
+    parceiroParteId,
     frenteId: frente.rows[0].id,
     usuarioId: usuario.rows[0].id,
   };
@@ -166,6 +196,33 @@ async function main() {
     console.log(`executados=${j1.telemetria.steps_executados}  reutilizados=${j1.telemetria.steps_reutilizados}  pulados=${j1.telemetria.steps_pulados}`);
     console.log(`research evitados=${j1.telemetria.research_evitados}  entity intelligence evitados=${j1.telemetria.entity_intelligence_evitados}`);
     console.log(`llm=${j1.telemetria.llm_calls}  web=${j1.telemetria.web_search_calls}  firecrawl=${j1.telemetria.firecrawl_calls}  custo=US$ ${j1.telemetria.custo_estimado_usd}`);
+
+    bloco("QUALIDADE DA RECOMENDAÇÃO · o que o front receberia");
+    const { rows: rec } = await client.query<{
+      status: string; nivel_sustentacao: string; confianca: number;
+      hipotese_oportunidade: string | null; proximo_passo: string;
+      perfil_candidato_versao: number | null; proposta: Record<string, unknown>;
+    }>(
+      `SELECT status, nivel_sustentacao, confianca, hipotese_oportunidade,
+              proximo_passo, perfil_candidato_versao, proposta
+         FROM cross_ai.recomendacao WHERE id = $1`,
+      [j1.refs.recomendacao_id]
+    );
+    const prop = rec[0].proposta as {
+      evidencias_suporte: unknown[]; racional: string[];
+      questoes_abertas: string[]; riscos: unknown[];
+    };
+    console.log(`status:              ${rec[0].status}`);
+    console.log(`nível de sustentação: ${rec[0].nivel_sustentacao}`);
+    console.log(`confiança:           ${rec[0].confianca}`);
+    console.log(`próximo passo:       ${rec[0].proximo_passo}`);
+    console.log(`perfil do candidato: v${rec[0].perfil_candidato_versao ?? "ausente"}`);
+    console.log(`evidências de suporte: ${prop.evidencias_suporte.length}`);
+    console.log(`riscos declarados:     ${prop.riscos.length}`);
+    console.log(`questões abertas:      ${prop.questoes_abertas.length}`);
+    console.log("");
+    console.log("hipótese:");
+    console.log(`  ${rec[0].hipotese_oportunidade ?? "(nenhuma — sustentação insuficiente)"}`);
 
     bloco("HUMAN GATE · a jornada parou de verdade");
     const semDecisao = await retomarJourney(client, j1.journey_id);

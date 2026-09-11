@@ -1,5 +1,5 @@
 ﻿CROSS ORCHESTRATOR — SHOWCASE E2E-01
-Execução: 2026-09-02T02:06:16.450Z
+Execução: 2026-09-11T21:53:19.008Z
 Modo estrutural · IA paga = 0 · Web ao vivo = DESLIGADA
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -35,6 +35,21 @@ recomendação:  criada
 executados=3  reutilizados=1  pulados=1
 research evitados=1  entity intelligence evitados=1
 llm=0  web=0  firecrawl=0  custo=US$ 0
+
+──────────────────────────────────────────────────────────────────────────────
+QUALIDADE DA RECOMENDAÇÃO · o que o front receberia
+──────────────────────────────────────────────────────────────────────────────
+status:              pronta_para_revisao
+nível de sustentação: sustentacao_parcial
+confiança:           60
+próximo passo:       validar_com_time_cross
+perfil do candidato: v1
+evidências de suporte: 3
+riscos declarados:     1
+questões abertas:      3
+
+hipótese:
+  Existe uma hipótese de conexão entre Cliente j1 e Parceiro j1 no contexto de "ativação cultural", sustentada por convergência em público, território de atuação, ativos. A hipótese requer validação humana e não constitui avaliação de encaixe comercial.
 
 ──────────────────────────────────────────────────────────────────────────────
 HUMAN GATE · a jornada parou de verdade

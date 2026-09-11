@@ -1,0 +1,113 @@
+﻿CROSS ORCHESTRATOR — SHOWCASE E2E-01
+Execução: 2026-09-02T02:06:16.450Z
+Modo estrutural · IA paga = 0 · Web ao vivo = DESLIGADA
+
+──────────────────────────────────────────────────────────────────────────────
+PLANO DETERMINÍSTICO · mesma entrada, duas vezes
+──────────────────────────────────────────────────────────────────────────────
+planos idênticos: true
+chamadas externas estimadas: 0
+
+   1. research             pular            Perfil consolidado disponível; Evidence bruta não é necessária.
+   2. entity_intelligence  reutilizar       Perfil v1 com 2 dia(s).
+   3. crossability         executar         Sem análise Crossability válida para o contexto.
+   4. matching             executar         Matching é sempre executado por direção (cliente_para_parceiro); resultado de outra direção não é reaproveitável.
+   5. recommendation       executar         Recommendation depende do par source+candidato desta jornada.
+   6. human_review         aguardar_humano  Human Gate: a jornada para até decisão humana.
+   7. promotion            aguardar_humano  Promoção exige ação humana explícita (AI-07B).
+   8. paper                aguardar_humano  Paper segue fluxo humano existente.
+   9. score_card           aguardar_humano  Score Card exige Paper aprovado (RN022).
+
+──────────────────────────────────────────────────────────────────────────────
+JORNADA 1 · cliente → parceiro
+──────────────────────────────────────────────────────────────────────────────
+status:        aguardando_revisao_humana
+motivo:        Aguardando decisão humana sobre a hipótese.
+recomendação:  criada
+
+  –  1. research             pulada               Perfil consolidado disponível; Evidence bruta não é necessária.
+  ♻  2. entity_intelligence  reutilizada          Perfil v1 com 2 dia(s).
+  ✓  3. crossability         concluida            Sem análise Crossability válida para o contexto.
+  ✓  4. matching             concluida            Matching é sempre executado por direção (cliente_para_parceiro); resultado de outra direção não é reaproveitável.
+  ✓  5. recommendation       concluida            Recommendation depende do par source+candidato desta jornada.
+  ⏸  6. human_review         aguardando_humano    Human Gate: a jornada para até decisão humana.
+
+executados=3  reutilizados=1  pulados=1
+research evitados=1  entity intelligence evitados=1
+llm=0  web=0  firecrawl=0  custo=US$ 0
+
+──────────────────────────────────────────────────────────────────────────────
+HUMAN GATE · a jornada parou de verdade
+──────────────────────────────────────────────────────────────────────────────
+resume sem decisão → aguardando_revisao_humana
+candidatura criada: nenhuma
+após aprovação  → aguardando_promocao
+candidatura criada: nenhuma  ← aprovação NÃO promove
+após promoção   → oportunidade_criada
+candidatura: criada
+etapas reexecutadas no resume: 0 (antes=6, depois=6)
+
+──────────────────────────────────────────────────────────────────────────────
+JORNADA 2 · parceiro → cliente
+──────────────────────────────────────────────────────────────────────────────
+status:  aguardando_revisao_humana
+direção do matching: parceiro_para_cliente
+
+  –  1. research             pulada               Perfil consolidado disponível; Evidence bruta não é necessária.
+  ♻  2. entity_intelligence  reutilizada          Perfil v1 com 1 dia(s).
+  ✓  3. crossability         concluida            Sem análise Crossability válida para o contexto.
+  ✓  4. matching             concluida            Matching é sempre executado por direção (parceiro_para_cliente); resultado de outra direção não é reaproveitável.
+  ✓  5. recommendation       concluida            Recommendation depende do par source+candidato desta jornada.
+  ⏸  6. human_review         aguardando_humano    Human Gate: a jornada para até decisão humana.
+
+──────────────────────────────────────────────────────────────────────────────
+JORNADA 3 · prospecção do zero (origem não vinculada)
+──────────────────────────────────────────────────────────────────────────────
+status:            aguardando_revisao_humana
+origem:            nao_vinculada
+trigger:           monitoring_alert (não-humano)
+partes antes/depois: 6 / 6  ← nenhuma Parte criada
+bloqueios do plano: Entidade de origem não vinculada a uma Parte: promoção operacional bloqueada até resolução humana.
+alerta de monitoring como contexto: alerta-showcase
+
+──────────────────────────────────────────────────────────────────────────────
+FAIL-SAFE FACTUAL · entidade sem fatos
+──────────────────────────────────────────────────────────────────────────────
+status: evidencia_insuficiente  (≠ falha: true)
+motivo: Nenhum fato disponível sobre a entidade de origem.
+recomendações antes/depois: 3 / 3
+
+  –  1. research             pulada               Perfil consolidado disponível; Evidence bruta não é necessária.
+  ♻  2. entity_intelligence  reutilizada          Perfil v1 com 1 dia(s).
+  ⛔  3. crossability         bloqueada            Perfil sem fatos: nenhuma inteligência pode ser sustentada.
+  ⛔  4. matching             bloqueada            Perfil sem fatos: nenhuma inteligência pode ser sustentada.
+  ⛔  5. recommendation       bloqueada            Perfil sem fatos: nenhuma inteligência pode ser sustentada.
+
+──────────────────────────────────────────────────────────────────────────────
+ECONOMIA · reuso vs. pipeline ingênuo
+──────────────────────────────────────────────────────────────────────────────
+sem artefatos  → status=aguardando_revisao_humana
+                 executados=5 reutilizados=0 pulados=0
+com artefatos  → status=aguardando_revisao_humana
+                 executados=2 reutilizados=2 pulados=1
+research evitados:            1
+entity intelligence evitados: 1
+crossability evitados:        1
+
+──────────────────────────────────────────────────────────────────────────────
+EFEITO OPERACIONAL AUTOMÁTICO
+──────────────────────────────────────────────────────────────────────────────
+oportunidades criadas pela IA: 0
+projetos criados:              0
+parcerias criadas:             0
+reuniões criadas:              0
+avanços de funil:              0
+papers aprovados por IA:       0
+
+nível de validação:   estrutural_e2e
+validação IA real:    pendente
+validação web viva:   pendente
+
+──────────────────────────────────────────────────────────────────────────────
+Transação revertida — o showcase não deixa resíduo no banco.
+──────────────────────────────────────────────────────────────────────────────

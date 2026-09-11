@@ -1,0 +1,44 @@
+{
+  "ciclo1": [
+    {
+      "id": "4b52ab9b-4097-4512-ad7b-ee6c10aad434",
+      "alvo_id": "c5c93f93-25c2-4ce7-8fdc-fbf9e198cba3",
+      "parte_id": "e369be8e-3466-4e8a-a848-b6eb0c989101",
+      "tipo": "big_moment_novo",
+      "severidade": "alta",
+      "titulo": "O artista anunciou turnê nacional em 20/11/2026.",
+      "resumo": "tour · announced · janela pre_event.",
+      "evidence_refs": [
+        "EV-1"
+      ],
+      "big_moment_refs": [
+        "5e6f9edd81a4573cb2aa4decd6a47dc1"
+      ],
+      "deduplication_key": "5e6f9edd81a4573cb2aa4decd6a47dc1:novo",
+      "correlation_key": "c1442ef97cd366545dfb9f29",
+      "status": "novo",
+      "detectado_em": "2026-08-29T21:51:40.562Z"
+    }
+  ],
+  "ciclo2": [
+    {
+      "id": "51c8dedb-ab8b-41dc-8c54-f88c6ea047ae",
+      "alvo_id": "c5c93f93-25c2-4ce7-8fdc-fbf9e198cba3",
+      "parte_id": "e369be8e-3466-4e8a-a848-b6eb0c989101",
+      "tipo": "big_moment_cancelado",
+      "severidade": "alta",
+      "titulo": "Evento cancelado: A turnê nacional foi cancelada pela produção em 20/11/2026.",
+      "resumo": "Evento correlato a um já conhecido aparece agora como cancelado.",
+      "evidence_refs": [
+        "EV-2"
+      ],
+      "big_moment_refs": [
+        "83ee43adbc0d7437671dc8660595bc1a"
+      ],
+      "deduplication_key": "83ee43adbc0d7437671dc8660595bc1a:cancelled",
+      "correlation_key": "c1442ef97cd366545dfb9f29",
+      "status": "novo",
+      "detectado_em": "2026-08-29T21:51:40.562Z"
+    }
+  ]
+}

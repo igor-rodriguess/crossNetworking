@@ -1,0 +1,89 @@
+{
+  "runs": [
+    {
+      "alvo_id": "e39167be-08f2-4834-9412-f2ea12109bc6",
+      "parte_id": "02f92522-ed0a-4c26-9176-6e6cfde5f650",
+      "entidade": "Marca Ok 2",
+      "status": "sucesso",
+      "delta": "big_moment_novo",
+      "motivo_pulo": null,
+      "evidencias_antes": 0,
+      "evidencias_depois": 1,
+      "evidencias_novas": 1,
+      "big_moment_executado": true,
+      "alertas": [
+        {
+          "id": "a561ff6b-67f1-427f-8568-00bd8d4adf02",
+          "alvo_id": "e39167be-08f2-4834-9412-f2ea12109bc6",
+          "parte_id": "02f92522-ed0a-4c26-9176-6e6cfde5f650",
+          "tipo": "big_moment_novo",
+          "severidade": "alta",
+          "titulo": "O artista anunciou turnê nacional em 20/11/2026.",
+          "resumo": "tour · announced · janela pre_event.",
+          "evidence_refs": [
+            "EV-2"
+          ],
+          "big_moment_refs": [
+            "086b3a95dbf34145c75a04f01362cf58"
+          ],
+          "deduplication_key": "086b3a95dbf34145c75a04f01362cf58:novo",
+          "correlation_key": "dd0a5778d713e4b184a28c7e",
+          "status": "novo",
+          "detectado_em": "2026-08-29T21:51:40.586Z"
+        }
+      ],
+      "proxima_verificacao_em": "2026-06-22T12:00:00.000Z",
+      "erro": null
+    },
+    {
+      "alvo_id": "8e718503-a1d9-4dda-8898-b4ae3c3a79ad",
+      "parte_id": "6a71d84f-a4c2-49c3-8cfa-d29e9b310bf2",
+      "entidade": "Marca Ok 1",
+      "status": "sucesso",
+      "delta": "big_moment_novo",
+      "motivo_pulo": null,
+      "evidencias_antes": 0,
+      "evidencias_depois": 1,
+      "evidencias_novas": 1,
+      "big_moment_executado": true,
+      "alertas": [
+        {
+          "id": "d1bac416-5e7e-48c5-90ab-dfa0f443e6c9",
+          "alvo_id": "8e718503-a1d9-4dda-8898-b4ae3c3a79ad",
+          "parte_id": "6a71d84f-a4c2-49c3-8cfa-d29e9b310bf2",
+          "tipo": "big_moment_novo",
+          "severidade": "alta",
+          "titulo": "O artista anunciou turnê nacional em 20/11/2026.",
+          "resumo": "tour · announced · janela pre_event.",
+          "evidence_refs": [
+            "EV-1"
+          ],
+          "big_moment_refs": [
+            "a4a18240d95a274176436939db7d713c"
+          ],
+          "deduplication_key": "a4a18240d95a274176436939db7d713c:novo",
+          "correlation_key": "86475d386a4051ef2ac94d4e",
+          "status": "novo",
+          "detectado_em": "2026-08-29T21:51:40.586Z"
+        }
+      ],
+      "proxima_verificacao_em": "2026-06-22T12:00:00.000Z",
+      "erro": null
+    },
+    {
+      "alvo_id": "eaa68f00-cf2f-4a95-b4c7-a5614f3ae0b0",
+      "parte_id": "6a91677c-df16-4bf6-be77-8ddfc141e2f8",
+      "entidade": "Marca Falha",
+      "status": "falha",
+      "delta": "falha_de_pesquisa",
+      "motivo_pulo": null,
+      "evidencias_antes": 0,
+      "evidencias_depois": 0,
+      "evidencias_novas": 0,
+      "big_moment_executado": false,
+      "alertas": [],
+      "proxima_verificacao_em": "2026-06-29T12:00:00.000Z",
+      "erro": "Fonte indisponível para Marca Falha"
+    }
+  ]
+}

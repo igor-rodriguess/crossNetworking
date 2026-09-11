@@ -1,0 +1,8 @@
+{
+  "workerB": 0,
+  "diagnostico": {
+    "motivo": "reservado_por_outro_worker",
+    "detalhe": "Reservado por worker-A até 2026-06-15T12:05:00.000Z."
+  },
+  "workerC": 1
+}

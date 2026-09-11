@@ -1,0 +1,75 @@
+[
+  {
+    "id": "BM-145fd42d",
+    "entidade": "E",
+    "parte_id": null,
+    "event_type": "geographic_expansion",
+    "titulo": "A marca anunciou expansão para o segundo semestre.",
+    "resumo_factual": "A marca anunciou expansão para o segundo semestre.",
+    "temporal_status": "announced",
+    "expressao_temporal": "segundo semestre",
+    "anunciado_em": "2026-06-01",
+    "inicia_em": null,
+    "termina_em": null,
+    "ocorreu_em": null,
+    "primeiro_visto_em": "2026-06-15T12:00:00.000Z",
+    "ultimo_visto_em": "2026-06-15T12:00:00.000Z",
+    "janela_oportunidade": "unknown",
+    "evidence_refs": [
+      "EV-U"
+    ],
+    "forca_verificacao": "fonte_unica",
+    "dominios_independentes": 1,
+    "prioridade_score": 65.5,
+    "componentes_relevancia": [
+      {
+        "componente": "relevancia_temporal",
+        "peso": 0.3,
+        "valor": 0.5,
+        "contribuicao": 0.15,
+        "justificativa": "Janela unknown, status announced."
+      },
+      {
+        "componente": "qualidade_evidencia",
+        "peso": 0.25,
+        "valor": 0.5,
+        "contribuicao": 0.125,
+        "justificativa": "Verificação fonte_unica, 1 domínio(s) independente(s)."
+      },
+      {
+        "componente": "magnitude",
+        "peso": 0.2,
+        "valor": 0.85,
+        "contribuicao": 0.17,
+        "justificativa": "Magnitude derivada do tipo de evento."
+      },
+      {
+        "componente": "frescor",
+        "peso": 0.15,
+        "valor": 1,
+        "contribuicao": 0.15,
+        "justificativa": "Publicado há 15 dia(s)."
+      },
+      {
+        "componente": "relevancia_entidade",
+        "peso": 0.1,
+        "valor": 0.6,
+        "contribuicao": 0.06,
+        "justificativa": "Entidade externa não vinculada."
+      }
+    ],
+    "crossability_activation_candidates": [],
+    "riscos": [
+      "Anúncio, não ocorrência confirmada."
+    ],
+    "conflitos": [],
+    "lacunas": [
+      "Data não normalizável: \"segundo semestre\".",
+      "Sustentado por fonte única."
+    ],
+    "situacao": "novo",
+    "event_fingerprint": "145fd42d4d4577d1ba3645a07d7d22ae",
+    "versao": 1,
+    "nivel_validacao": "estrutural"
+  }
+]

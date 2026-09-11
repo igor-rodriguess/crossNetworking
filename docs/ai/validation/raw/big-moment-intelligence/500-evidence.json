@@ -1,0 +1,21 @@
+{
+  "duracao_ms": 2,
+  "evidence_recebida": 500,
+  "evidence_considerada": 100,
+  "evidence_descartada": 400,
+  "grupos_de_evento": 1,
+  "momentos_novos": 1,
+  "momentos_atualizados": 0,
+  "nao_momentos": 400,
+  "llm_calls": 0,
+  "embedding_calls": 0,
+  "custo_estimado_usd": 0,
+  "oportunidades_criadas": 0,
+  "recomendacoes_criadas": 0,
+  "matching_disparado": 0,
+  "perfis_alterados": 0,
+  "score_cards_alterados": 0,
+  "cross_knowledge_escrito": 0,
+  "cross_memory_promovido": 0,
+  "avisos": []
+}

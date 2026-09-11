@@ -1,0 +1,107 @@
+{
+  "entidade": "Marca Exemplo",
+  "parte_id": "parte-marca",
+  "analisado_em": "2026-06-15T12:00:00.000Z",
+  "moments": [
+    {
+      "id": "BM-da40970b",
+      "entidade": "Marca Exemplo",
+      "parte_id": "parte-marca",
+      "event_type": "collection_launch",
+      "titulo": "A marca lançou nova coleção de inverno para o público jovem.",
+      "resumo_factual": "A marca lançou nova coleção de inverno para o público jovem.",
+      "temporal_status": "unknown",
+      "expressao_temporal": null,
+      "anunciado_em": null,
+      "inicia_em": null,
+      "termina_em": null,
+      "ocorreu_em": null,
+      "primeiro_visto_em": "2026-06-15T12:00:00.000Z",
+      "ultimo_visto_em": "2026-06-15T12:00:00.000Z",
+      "janela_oportunidade": "unknown",
+      "evidence_refs": [
+        "EV-02"
+      ],
+      "forca_verificacao": "fonte_unica",
+      "dominios_independentes": 1,
+      "prioridade_score": 67.5,
+      "componentes_relevancia": [
+        {
+          "componente": "relevancia_temporal",
+          "peso": 0.3,
+          "valor": 0.5,
+          "contribuicao": 0.15,
+          "justificativa": "Janela unknown, status unknown."
+        },
+        {
+          "componente": "qualidade_evidencia",
+          "peso": 0.25,
+          "valor": 0.5,
+          "contribuicao": 0.125,
+          "justificativa": "Verificação fonte_unica, 1 domínio(s) independente(s)."
+        },
+        {
+          "componente": "magnitude",
+          "peso": 0.2,
+          "valor": 0.75,
+          "contribuicao": 0.15,
+          "justificativa": "Magnitude derivada do tipo de evento."
+        },
+        {
+          "componente": "frescor",
+          "peso": 0.15,
+          "valor": 1,
+          "contribuicao": 0.15,
+          "justificativa": "Publicado há 15 dia(s)."
+        },
+        {
+          "componente": "relevancia_entidade",
+          "peso": 0.1,
+          "valor": 1,
+          "contribuicao": 0.1,
+          "justificativa": "Entidade vinculada a uma Parte da base."
+        }
+      ],
+      "crossability_activation_candidates": [],
+      "riscos": [],
+      "conflitos": [],
+      "lacunas": [
+        "Nenhuma data do evento identificada.",
+        "Sustentado por fonte única."
+      ],
+      "situacao": "novo",
+      "event_fingerprint": "da40970bb4fce704f29649f4c95ad462",
+      "versao": 1,
+      "nivel_validacao": "estrutural"
+    }
+  ],
+  "non_moments": [],
+  "duplicate_evidence": [],
+  "unresolved_signals": [],
+  "entity_intelligence_update_candidates": [],
+  "classifier_mode": "deterministico",
+  "classifier_versao": "deterministico-v1",
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente",
+  "telemetria": {
+    "duracao_ms": 1,
+    "evidence_recebida": 1,
+    "evidence_considerada": 1,
+    "evidence_descartada": 0,
+    "grupos_de_evento": 1,
+    "momentos_novos": 1,
+    "momentos_atualizados": 0,
+    "nao_momentos": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "recomendacoes_criadas": 0,
+    "matching_disparado": 0,
+    "perfis_alterados": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "entidade": "Artista Exemplo",
+  "parte_id": null,
+  "analisado_em": "2026-06-15T12:00:00.000Z",
+  "moments": [
+    {
+      "id": "BM-86239a88",
+      "entidade": "Artista Exemplo",
+      "parte_id": null,
+      "event_type": "tour",
+      "titulo": "O artista anunciou turnê nacional em 20/11/2026.",
+      "resumo_factual": "O artista anunciou turnê nacional em 20/11/2026. · O artista anunciou turnê nacional em 20/11/2026. · O artista anunciou turnê nacional em 20/11/2026.",
+      "temporal_status": "announced",
+      "expressao_temporal": "20/11/2026",
+      "anunciado_em": "2026-06-01",
+      "inicia_em": "2026-11-20",
+      "termina_em": null,
+      "ocorreu_em": null,
+      "primeiro_visto_em": "2026-06-15T12:00:00.000Z",
+      "ultimo_visto_em": "2026-06-15T12:00:00.000Z",
+      "janela_oportunidade": "pre_event",
+      "evidence_refs": [
+        "EV-21",
+        "EV-22",
+        "EV-23"
+      ],
+      "forca_verificacao": "corroborada",
+      "dominios_independentes": 3,
+      "prioridade_score": 91,
+      "componentes_relevancia": [
+        {
+          "componente": "relevancia_temporal",
+          "peso": 0.3,
+          "valor": 0.9,
+          "contribuicao": 0.27,
+          "justificativa": "Janela pre_event, status announced."
+        },
+        {
+          "componente": "qualidade_evidencia",
+          "peso": 0.25,
+          "valor": 1,
+          "contribuicao": 0.25,
+          "justificativa": "Verificação corroborada, 3 domínio(s) independente(s)."
+        },
+        {
+          "componente": "magnitude",
+          "peso": 0.2,
+          "valor": 0.9,
+          "contribuicao": 0.18,
+          "justificativa": "Magnitude derivada do tipo de evento."
+        },
+        {
+          "componente": "frescor",
+          "peso": 0.15,
+          "valor": 1,
+          "contribuicao": 0.15,
+          "justificativa": "Publicado há 15 dia(s)."
+        },
+        {
+          "componente": "relevancia_entidade",
+          "peso": 0.1,
+          "valor": 0.6,
+          "contribuicao": 0.06,
+          "justificativa": "Entidade externa não vinculada."
+        }
+      ],
+      "crossability_activation_candidates": [],
+      "riscos": [
+        "Anúncio, não ocorrência confirmada."
+      ],
+      "conflitos": [],
+      "lacunas": [],
+      "situacao": "novo",
+      "event_fingerprint": "86239a8866e72bb0add07b365a1a150d",
+      "versao": 1,
+      "nivel_validacao": "estrutural"
+    }
+  ],
+  "non_moments": [],
+  "duplicate_evidence": [
+    {
+      "evidence_ref": "EV-22",
+      "agrupado_em": "86239a8866e72bb0add07b365a1a150d"
+    },
+    {
+      "evidence_ref": "EV-23",
+      "agrupado_em": "86239a8866e72bb0add07b365a1a150d"
+    }
+  ],
+  "unresolved_signals": [],
+  "entity_intelligence_update_candidates": [],
+  "classifier_mode": "deterministico",
+  "classifier_versao": "deterministico-v1",
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente",
+  "telemetria": {
+    "duracao_ms": 1,
+    "evidence_recebida": 3,
+    "evidence_considerada": 3,
+    "evidence_descartada": 0,
+    "grupos_de_evento": 1,
+    "momentos_novos": 1,
+    "momentos_atualizados": 0,
+    "nao_momentos": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "recomendacoes_criadas": 0,
+    "matching_disparado": 0,
+    "perfis_alterados": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  }
+}

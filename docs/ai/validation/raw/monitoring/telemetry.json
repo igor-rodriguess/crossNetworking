@@ -1,0 +1,23 @@
+{
+  "duracao_ms": 23,
+  "research_calls": 25,
+  "research_evitados": 475,
+  "big_moment_calls": 0,
+  "big_moment_evitados": 25,
+  "web_search_calls": 0,
+  "firecrawl_calls": 0,
+  "llm_calls": 0,
+  "embedding_calls": 0,
+  "custo_estimado_usd": 0,
+  "crossability_runs": 0,
+  "matching_runs": 0,
+  "recommendations_criadas": 0,
+  "entity_intelligence_writes": 0,
+  "oportunidades_criadas": 0,
+  "score_cards_alterados": 0,
+  "cross_knowledge_writes": 0,
+  "cross_memory_promocoes": 0,
+  "avisos": [
+    "475 alvo(s) vencido(s) ficaram para o próximo ciclo (teto de 25)."
+  ]
+}

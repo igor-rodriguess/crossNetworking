@@ -1,0 +1,20 @@
+[
+  {
+    "evidence_ref": "EV-11",
+    "claim": "A marca atualizou sua política de privacidade.",
+    "motivo": "conteudo_rotineiro",
+    "detalhe": "Conteúdo operacional de rotina; não caracteriza acontecimento."
+  },
+  {
+    "evidence_ref": "EV-12",
+    "claim": "A marca tem termos de uso publicados no site.",
+    "motivo": "conteudo_rotineiro",
+    "detalhe": "Conteúdo operacional de rotina; não caracteriza acontecimento."
+  },
+  {
+    "evidence_ref": "EV-13",
+    "claim": "A marca é simplesmente revolucionária e incrível.",
+    "motivo": "baixa_relevancia_temporal",
+    "detalhe": "Nenhum tipo de evento reconhecido no fato."
+  }
+]

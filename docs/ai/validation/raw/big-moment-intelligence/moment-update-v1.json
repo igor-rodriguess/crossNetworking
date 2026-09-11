@@ -1,0 +1,72 @@
+{
+  "id": "BM-287396f2",
+  "entidade": "Artista Versao",
+  "parte_id": null,
+  "event_type": "tour",
+  "titulo": "O artista anunciou turnê em 20/11/2026.",
+  "resumo_factual": "O artista anunciou turnê em 20/11/2026.",
+  "temporal_status": "announced",
+  "expressao_temporal": "20/11/2026",
+  "anunciado_em": "2026-06-01",
+  "inicia_em": "2026-11-20",
+  "termina_em": null,
+  "ocorreu_em": null,
+  "primeiro_visto_em": "2026-06-15T12:00:00.000Z",
+  "ultimo_visto_em": "2026-06-15T12:00:00.000Z",
+  "janela_oportunidade": "pre_event",
+  "evidence_refs": [
+    "EV-V1"
+  ],
+  "forca_verificacao": "fonte_unica",
+  "dominios_independentes": 1,
+  "prioridade_score": 78.5,
+  "componentes_relevancia": [
+    {
+      "componente": "relevancia_temporal",
+      "peso": 0.3,
+      "valor": 0.9,
+      "contribuicao": 0.27,
+      "justificativa": "Janela pre_event, status announced."
+    },
+    {
+      "componente": "qualidade_evidencia",
+      "peso": 0.25,
+      "valor": 0.5,
+      "contribuicao": 0.125,
+      "justificativa": "Verificação fonte_unica, 1 domínio(s) independente(s)."
+    },
+    {
+      "componente": "magnitude",
+      "peso": 0.2,
+      "valor": 0.9,
+      "contribuicao": 0.18,
+      "justificativa": "Magnitude derivada do tipo de evento."
+    },
+    {
+      "componente": "frescor",
+      "peso": 0.15,
+      "valor": 1,
+      "contribuicao": 0.15,
+      "justificativa": "Publicado há 15 dia(s)."
+    },
+    {
+      "componente": "relevancia_entidade",
+      "peso": 0.1,
+      "valor": 0.6,
+      "contribuicao": 0.06,
+      "justificativa": "Entidade externa não vinculada."
+    }
+  ],
+  "crossability_activation_candidates": [],
+  "riscos": [
+    "Anúncio, não ocorrência confirmada."
+  ],
+  "conflitos": [],
+  "lacunas": [
+    "Sustentado por fonte única."
+  ],
+  "situacao": "novo",
+  "event_fingerprint": "287396f29b703f37a95e138fb8533b42",
+  "versao": 1,
+  "nivel_validacao": "estrutural"
+}

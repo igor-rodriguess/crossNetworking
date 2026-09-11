@@ -1,0 +1,42 @@
+{
+  "entidade": "Marca Exemplo",
+  "parte_id": null,
+  "analisado_em": "2026-06-15T12:00:00.000Z",
+  "moments": [],
+  "non_moments": [],
+  "duplicate_evidence": [],
+  "unresolved_signals": [
+    {
+      "origem": "meeting_claim",
+      "texto": "Vamos abrir 20 lojas no próximo semestre.",
+      "status": "unverified_internal_signal",
+      "referencia": "ITEM-004"
+    }
+  ],
+  "entity_intelligence_update_candidates": [],
+  "classifier_mode": "deterministico",
+  "classifier_versao": "deterministico-v1",
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente",
+  "telemetria": {
+    "duracao_ms": 0,
+    "evidence_recebida": 0,
+    "evidence_considerada": 0,
+    "evidence_descartada": 0,
+    "grupos_de_evento": 0,
+    "momentos_novos": 0,
+    "momentos_atualizados": 0,
+    "nao_momentos": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "recomendacoes_criadas": 0,
+    "matching_disparado": 0,
+    "perfis_alterados": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  }
+}

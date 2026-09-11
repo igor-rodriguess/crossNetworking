@@ -1,0 +1,20 @@
+{
+  "id": "89702c20-0c46-4e2f-9a9b-3898ee5c04ec",
+  "alvo_id": "1aca1725-c784-4a22-a920-96455653bd7b",
+  "parte_id": "34ea5eaa-22a8-46fb-8074-8a6592056cf1",
+  "tipo": "possivel_conflito_de_evento",
+  "severidade": "media",
+  "titulo": "Possível conflito de evento: O artista anunciou turnê nacional em 15/10/2026.",
+  "resumo": "Evento com identidade distinta mas assunto correlato a um já conhecido — possivelmente o mesmo evento com data alterada. Nenhuma fusão foi feita.",
+  "evidence_refs": [
+    "EV-2"
+  ],
+  "big_moment_refs": [
+    "f14a140e5dc008477f9803bb21ac59b9",
+    "bf12477dac12291f191fccb3ee1e35aa"
+  ],
+  "deduplication_key": "f14a140e5dc008477f9803bb21ac59b9:conflito",
+  "correlation_key": "c73f9f6d7df8ea1caa1b74db",
+  "status": "novo",
+  "detectado_em": "2026-08-29T21:51:40.574Z"
+}

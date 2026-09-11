@@ -1,0 +1,22 @@
+{
+  "versoes": [
+    {
+      "versao": 1,
+      "temporal_status": "announced",
+      "motivo_mudanca": "Momento identificado pela primeira vez.",
+      "criado_em": "2026-08-29T21:15:37.922Z"
+    },
+    {
+      "versao": 2,
+      "temporal_status": "announced",
+      "motivo_mudanca": "1 nova(s) evidência(s).",
+      "criado_em": "2026-08-29T21:15:37.922Z"
+    },
+    {
+      "versao": 3,
+      "temporal_status": "cancelled",
+      "motivo_mudanca": "Status mudou de announced para cancelled.",
+      "criado_em": "2026-08-29T21:15:37.922Z"
+    }
+  ]
+}

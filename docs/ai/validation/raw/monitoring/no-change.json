@@ -1,0 +1,11 @@
+{
+  "ciclo1": {
+    "delta": "big_moment_novo",
+    "big_moment": true
+  },
+  "ciclo2": {
+    "delta": "sem_mudanca",
+    "big_moment": false,
+    "evitados": 1
+  }
+}

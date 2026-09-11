@@ -1,0 +1,72 @@
+[
+  {
+    "url": "https://www.cesrei.edu.br/repositorio/2021/09/02/responsabilidade-socioambiental-como-estrategia-de-marca-analise-da-acao-global-converse-city-forest/",
+    "status": "ok",
+    "objetivo": "publico_alvo",
+    "caracteres": 3033,
+    "claims": 6,
+    "aceitos": 6,
+    "duracao_llm_ms": 136197,
+    "tokens": {
+      "entrada": 1444,
+      "saida": 512,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://www.meioemensagem.com.br/comunicacao/converse-reforca-presenca-da-marca-na-cultura-e-na-musica",
+    "status": "erro",
+    "erro": "Não foi possível contatar o provedor de extração."
+  },
+  {
+    "url": "https://www.converse.com/",
+    "status": "ok",
+    "objetivo": "ativos_marca",
+    "caracteres": 111619,
+    "claims": 0,
+    "aceitos": 0,
+    "duracao_llm_ms": 180025
+  },
+  {
+    "url": "https://www.converse.com/c/all-stars",
+    "status": "ok",
+    "objetivo": "ativos_marca",
+    "caracteres": 17482,
+    "claims": 2,
+    "aceitos": 2,
+    "duracao_llm_ms": 138914,
+    "tokens": {
+      "entrada": 1986,
+      "saida": 201,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://www.converse.com/",
+    "status": "ok",
+    "objetivo": "movimentos_recentes",
+    "caracteres": 111619,
+    "claims": 0,
+    "aceitos": 0,
+    "duracao_llm_ms": 124624,
+    "tokens": {
+      "entrada": 1876,
+      "saida": 464,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://www.converse.com/shop/collabs",
+    "status": "ok",
+    "objetivo": "movimentos_recentes",
+    "caracteres": 91547,
+    "claims": 4,
+    "aceitos": 4,
+    "duracao_llm_ms": 146063,
+    "tokens": {
+      "entrada": 2043,
+      "saida": 292,
+      "cache": 0
+    }
+  }
+]

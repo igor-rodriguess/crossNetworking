@@ -1,0 +1,148 @@
+{
+  "identidade": {
+    "nome": "Marca Cliente Exemplo",
+    "aliases": [],
+    "dominio_oficial": null,
+    "tipo": "organizacao",
+    "parte_id": "00000000-0000-0000-0000-0000000000b1",
+    "vinculo": "vinculada",
+    "requer_resolucao_humana": false,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": true,
+    "papeis": [
+      {
+        "valor": "cliente",
+        "proveniencia": {
+          "origem": "interno",
+          "registro_interno": "parte_papel(parte_id=00000000-0000-0000-0000-0000000000b1)",
+          "evidence_refs": [],
+          "source_refs": []
+        },
+        "verificacao": null,
+        "confianca": null,
+        "publicado_em": null
+      },
+      {
+        "valor": "parceiro",
+        "proveniencia": {
+          "origem": "interno",
+          "registro_interno": "parte_papel(parte_id=00000000-0000-0000-0000-0000000000b1)",
+          "evidence_refs": [],
+          "source_refs": []
+        },
+        "verificacao": null,
+        "confianca": null,
+        "publicado_em": null
+      }
+    ],
+    "oportunidades": [
+      {
+        "valor": "Frente COLLABS · MODA — em negociação",
+        "proveniencia": {
+          "origem": "interno",
+          "registro_interno": "candidatura_parceiro.id=op-exemplo-1",
+          "evidence_refs": [],
+          "source_refs": []
+        },
+        "verificacao": null,
+        "confianca": null,
+        "publicado_em": null
+      }
+    ],
+    "parcerias": [],
+    "projetos": [
+      {
+        "valor": "Plataforma Verão 2026",
+        "proveniencia": {
+          "origem": "interno",
+          "registro_interno": "projeto.id=prj-exemplo-1",
+          "evidence_refs": [],
+          "source_refs": []
+        },
+        "verificacao": null,
+        "confianca": null,
+        "publicado_em": null
+      }
+    ]
+  },
+  "contexto_empresa": [],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [],
+  "relacionamentos": [],
+  "movimentos": [
+    {
+      "valor": "A Marca Cliente Exemplo inaugurou uma loja em Salvador.",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_ex_1"
+        ],
+        "source_refs": [
+          "src_exemplo"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 50,
+      "publicado_em": "2026-06-15T00:00:00Z"
+    }
+  ],
+  "timeline": [
+    {
+      "data": "2026-06-15T00:00:00Z",
+      "descricao": "A Marca Cliente Exemplo inaugurou uma loja em Salvador.",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_ex_1"
+        ],
+        "source_refs": [
+          "src_exemplo"
+        ]
+      }
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-21T23:43:05.130Z",
+    "evidencia_mais_recente_em": "2026-06-15T00:00:00Z",
+    "atualizacao_interna_mais_recente_em": "2026-08-21T23:43:05.130Z"
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "5931e0d38c48d5dacfcd06d30d71dcd43d29260cafd9635bdbe0f459e062ab05",
+  "telemetria": {
+    "duracao_ms": 2,
+    "registros_internos_considerados": 5,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

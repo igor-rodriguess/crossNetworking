@@ -1,0 +1,147 @@
+{
+  "identidade": {
+    "nome": "Converse",
+    "aliases": [],
+    "dominio_oficial": "converse.com",
+    "tipo": null,
+    "parte_id": null,
+    "vinculo": "nao_vinculada",
+    "requer_resolucao_humana": true,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": false,
+    "papeis": [],
+    "oportunidades": [],
+    "parcerias": [],
+    "projetos": []
+  },
+  "contexto_empresa": [],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [
+    {
+      "valor": "A Converse enfrenta queda nas vendas",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_873bc862c5"
+        ],
+        "source_refs": [
+          "src_5b30b2602c"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null
+    },
+    {
+      "valor": "A Converse representa menos de 3% da receita da Nike",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_98884c28c9"
+        ],
+        "source_refs": [
+          "src_5b30b2602c"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null
+    },
+    {
+      "valor": "A Converse reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_c49cd8fe07"
+        ],
+        "source_refs": [
+          "src_5b30b2602c"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null
+    },
+    {
+      "valor": "A Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_f434061742"
+        ],
+        "source_refs": [
+          "src_5b30b2602c"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null
+    }
+  ],
+  "relacionamentos": [],
+  "movimentos": [
+    {
+      "valor": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_7ca7f01a7c"
+        ],
+        "source_refs": [
+          "src_15fa92f270"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 50,
+      "publicado_em": null
+    }
+  ],
+  "timeline": [],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-21T23:43:05.136Z",
+    "evidencia_mais_recente_em": "2026-08-21T23:14:43.444Z",
+    "atualizacao_interna_mais_recente_em": null
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "eb288dab9116846c8e28ba2ea052a7f5000e05bca6cfa6a8e404b280ac8a2a30",
+  "telemetria": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 5,
+    "fatos_consolidados": 5,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

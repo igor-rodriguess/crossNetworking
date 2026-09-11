@@ -1,0 +1,48 @@
+[
+  {
+    "objetivo": "publico_alvo",
+    "status": "evidencia_insuficiente",
+    "fontes_aceitas": 2,
+    "paginas_ok": 2,
+    "fatos": 0,
+    "llm_calls": 2,
+    "categorias": []
+  },
+  {
+    "objetivo": "territorios_atuacao",
+    "status": "sucesso",
+    "fontes_aceitas": 6,
+    "paginas_ok": 2,
+    "fatos": 1,
+    "llm_calls": 2,
+    "categorias": [
+      "territorio"
+    ]
+  },
+  {
+    "objetivo": "ativos_marca",
+    "status": "sucesso",
+    "fontes_aceitas": 3,
+    "paginas_ok": 2,
+    "fatos": 7,
+    "llm_calls": 2,
+    "categorias": [
+      "produto",
+      "campanha",
+      "outro",
+      "territorio"
+    ]
+  },
+  {
+    "objetivo": "movimentos_recentes",
+    "status": "sucesso",
+    "fontes_aceitas": 5,
+    "paginas_ok": 2,
+    "fatos": 5,
+    "llm_calls": 2,
+    "categorias": [
+      "expansao",
+      "produto"
+    ]
+  }
+]

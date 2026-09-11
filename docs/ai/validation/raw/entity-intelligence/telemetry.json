@@ -1,0 +1,48 @@
+{
+  "caso_a": {
+    "duracao_ms": 3,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 5,
+    "fatos_consolidados": 5,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  },
+  "caso_b": {
+    "duracao_ms": 2,
+    "registros_internos_considerados": 5,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  },
+  "caso_c": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  },
+  "caso_d": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 1,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  },
+  "llm_calls_total": 0,
+  "custo_total_usd": 0
+}

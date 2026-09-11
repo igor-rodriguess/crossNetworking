@@ -1,0 +1,69 @@
+{
+  "identidade": {
+    "nome": "Converse",
+    "aliases": [],
+    "dominio_oficial": "converse.com",
+    "tipo": null,
+    "parte_id": null,
+    "vinculo": "nao_vinculada",
+    "requer_resolucao_humana": true,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": false,
+    "papeis": [],
+    "oportunidades": [],
+    "parcerias": [],
+    "projetos": []
+  },
+  "contexto_empresa": [],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [],
+  "relacionamentos": [],
+  "movimentos": [],
+  "timeline": [],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Fontes confiáveis foram coletadas (3), mas nenhum fato pôde ser extraído delas."
+    },
+    {
+      "campo": "geral",
+      "descricao": "Nenhuma fonte aceita foi coletada."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-22T00:40:29.950Z",
+    "evidencia_mais_recente_em": null,
+    "atualizacao_interna_mais_recente_em": null
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "010465dc6a437550a23a11898751564035c636bce29f3930985ca0f07e4492e0",
+  "telemetria": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 0,
+    "fatos_consolidados": 0,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 5,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

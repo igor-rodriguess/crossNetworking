@@ -1,0 +1,18 @@
+{
+  "hash_v1": "eb288dab9116846c8e28ba2ea052a7f5000e05bca6cfa6a8e404b280ac8a2a30",
+  "hash_v2": "a4b1051ca3324f20a6044e2e1df115fb457864ca060a26197096976c3d5d8d5f",
+  "idempotencia_mesmos_inputs": true,
+  "versao_v1": 1,
+  "versao_v2": 2,
+  "diff": {
+    "adicionados": [
+      "relacionamentos: A Converse anunciou uma colaboração com um artista brasileiro."
+    ],
+    "atualizados": [],
+    "inalterados": 5,
+    "conflitantes": [],
+    "ausentes_nao_removidos": []
+  },
+  "fatos_v1_preservados_na_v2": 1,
+  "total_fatos_v1": 1
+}

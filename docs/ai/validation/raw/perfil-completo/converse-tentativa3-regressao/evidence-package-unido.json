@@ -1,0 +1,199 @@
+{
+  "entidade": "Converse",
+  "objetivo": "contexto_geral",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Converse estratégia de marca análise consumidor",
+    "Converse quem consome a marca pesquisa perfil",
+    "Converse posicionamento geração público entrevista",
+    "Converse case marketing target",
+    "Converse subcultura cena juventude",
+    "Converse tribo urbana identidade consumidor reportagem"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "mock",
+  "facts": [],
+  "sources": [
+    {
+      "source_id": "src_6a7613a556",
+      "url": "https://www.cesrei.edu.br/repositorio/2021/09/02/responsabilidade-socioambiental-como-estrategia-de-marca-analise-da-acao-global-converse-city-forest/",
+      "titulo": "Responsabilidade socioambiental como estratégia de marca: análise da ...",
+      "dominio": "cesrei.edu.br",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 90,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_institucional_gov_edu",
+        "HTTPS",
+        "domínio institucional"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:40:29.669Z",
+      "query_origem": "Converse estratégia de marca análise consumidor"
+    },
+    {
+      "source_id": "src_641ee4d94f",
+      "url": "https://www.meioemensagem.com.br/comunicacao/converse-reforca-presenca-da-marca-na-cultura-e-na-musica",
+      "titulo": "Converse reforça presença da marca na cultura e na música",
+      "dominio": "meioemensagem.com.br",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 75,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_especializada",
+        "veiculo_setorial_relevante",
+        "HTTPS",
+        "veículo/base reconhecido"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:40:29.494Z",
+      "query_origem": "Converse posicionamento geração público entrevista"
+    },
+    {
+      "source_id": "src_426cc8e1aa",
+      "url": "https://converse.com.br/",
+      "titulo": "Converse All Star Oficial | Compre seu Tenis Original aqui",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:40:29.495Z",
+      "query_origem": "Converse subcultura cena juventude"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao-de-produto-e-marca/converse-trabalho/115356313",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://dspace.mackenzie.br/items/2c2a58f4-21b4-4ffe-9096-fe9b644bdc5e",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/352353438/4-Analise-SWOT-All-Star-Viva-o-Classico-Final",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://nexummarketing.com.br/cocriacao-e-redes-sociais-a-estrategia-por-tras-da-converse-no-brasil/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.glassdoor.com.br/Entrevista/Converse-Perguntas-entrevista-E3754.htm",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 25 (nao_editorial_por_natureza)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.youtube.com/@converseglobal",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://businessmodelanalyst.com/converse-marketing-strategy/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.projectpractical.com/converse-marketing-strategy/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.latterly.org/converse-marketing-strategy/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.marketing91.com/marketing-strategy-of-converse/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://thebrandhopper.com/brand/converse-marketing-strategy/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 54 (https, tld_com_barreira_de_registro, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://modadesubculturas.blogspot.com/2014/11/a-trajetoria-da-converse-nas-subculturas.html",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 20 (padrao_de_baixa_autoridade)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pepsic.bvsalud.org/pdf/epos/v7n2/09.pdf",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://1library.org/article/subculturas-cenas-e-club-cultures-notas-te%C3%B3ricas-e.zkk7mjmz",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/438728957/Subculturas-juvenis",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Fontes confiáveis foram coletadas (3), mas nenhum fato pôde ser extraído delas.",
+      "categoria": null
+    },
+    {
+      "descricao": "Nenhuma fonte aceita foi coletada.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 1067,
+    "consultas": 6,
+    "buscas_web": 6,
+    "scrapes": 0,
+    "fontes_coletadas": 3,
+    "fontes_descartadas": 17,
+    "fatos_extraidos": 0,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

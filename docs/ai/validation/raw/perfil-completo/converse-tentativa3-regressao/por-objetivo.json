@@ -1,0 +1,38 @@
+[
+  {
+    "objetivo": "publico_alvo",
+    "status": "evidencia_insuficiente",
+    "fontes_aceitas": 3,
+    "paginas_ok": 0,
+    "fatos": 0,
+    "llm_calls": 0,
+    "categorias": []
+  },
+  {
+    "objetivo": "territorios_atuacao",
+    "status": "evidencia_insuficiente",
+    "fontes_aceitas": 0,
+    "paginas_ok": 0,
+    "fatos": 0,
+    "llm_calls": 0,
+    "categorias": []
+  },
+  {
+    "objetivo": "ativos_marca",
+    "status": "evidencia_insuficiente",
+    "fontes_aceitas": 0,
+    "paginas_ok": 0,
+    "fatos": 0,
+    "llm_calls": 0,
+    "categorias": []
+  },
+  {
+    "objetivo": "movimentos_recentes",
+    "status": "evidencia_insuficiente",
+    "fontes_aceitas": 0,
+    "paginas_ok": 0,
+    "fatos": 0,
+    "llm_calls": 0,
+    "categorias": []
+  }
+]

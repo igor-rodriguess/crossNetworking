@@ -1,0 +1,13 @@
+{
+  "entidade": "Converse",
+  "evidence_package": {
+    "status": "sucesso",
+    "facts": 5,
+    "sources": 6,
+    "lacunas": 1
+  },
+  "internos": {
+    "parte_id": null,
+    "eh_cliente_cross": false
+  }
+}

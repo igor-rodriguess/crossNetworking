@@ -1,0 +1,614 @@
+{
+  "entidade": "Converse",
+  "objetivo": "contexto_geral",
+  "status": "evidencia_insuficiente",
+  "plano": [
+    "Converse público-alvo",
+    "Converse consumidor perfil",
+    "Converse para quem é a marca"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [
+    {
+      "fact_id": "fact_7e2e7c5d17",
+      "claim": "Converse tem lojas em São Paulo",
+      "entidade": "Converse",
+      "categoria": "territorio",
+      "natureza": "fato",
+      "source_refs": [
+        "src_fdcdf146b7"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:30.066Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_92f5c95d9a",
+      "claim": "Converse tem uma loja online",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_f8bc6a2b87",
+      "claim": "Converse tem uma campanha de lançamento de produtos",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_70d97ca895",
+      "claim": "Converse tem uma campanha de Run Star Hike",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_86aeb67f6b",
+      "claim": "Converse tem uma campanha de produtos florais",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_beaaabc1f6",
+      "claim": "Converse tem uma campanha de Chuck Reset",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_2867ff8a83",
+      "claim": "Converse tem termos de uso e política de privacidade",
+      "entidade": "Converse",
+      "categoria": "outro",
+      "natureza": "fato",
+      "source_refs": [
+        "src_426cc8e1aa"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:02:48.407Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_7ca7f01a7c",
+      "claim": "Converse inicia reestruturação e demissões em meio à queda nas vendas",
+      "entidade": "Converse",
+      "categoria": "expansao",
+      "natureza": "fato",
+      "source_refs": [
+        "src_15fa92f270"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 50,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_873bc862c5",
+      "claim": "A Converse enfrenta queda nas vendas",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_98884c28c9",
+      "claim": "A Converse representa menos de 3% da receita da Nike",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_c49cd8fe07",
+      "claim": "A Converse reduziu investimentos, incluindo corte de 44% em marketing no segundo trimestre fiscal",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_f434061742",
+      "claim": "A Converse tem buscado retomar espaço no basquete profissional, com o lançamento de novos modelos em parceria com o jogador Shai Gilgeous-Alexander",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_5b30b2602c"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 52,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "conflito": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src_426cc8e1aa",
+      "url": "https://converse.com.br/",
+      "titulo": "Converse All Star Oficial | Compre seu Tenis Original aqui",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:53:31.924Z",
+      "query_origem": "Converse consumidor perfil"
+    },
+    {
+      "source_id": "src_3839478e4b",
+      "url": "https://converse.com.br/nossa-historia",
+      "titulo": "Nossa História | Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:53:31.937Z",
+      "query_origem": "Converse para quem é a marca"
+    },
+    {
+      "source_id": "src_fdcdf146b7",
+      "url": "https://converse.com.br/todas-lojas",
+      "titulo": "Lojas Oficiais da Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:30.066Z",
+      "query_origem": "Converse onde atua lojas"
+    },
+    {
+      "source_id": "src_148a66bdda",
+      "url": "https://converse.com.br/retail-stores",
+      "titulo": "Retail Stores - Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:30.066Z",
+      "query_origem": "Converse onde atua lojas"
+    },
+    {
+      "source_id": "src_369b714a89",
+      "url": "https://exame.com/casual/converse-inaugura-primeira-loja-no-brasil-e-av-paulista-se-torna-ponto-de-encontro-de-sneakerheads/",
+      "titulo": "Converse inaugura primeira loja no Brasil e Av. Paulista se ... - Exame",
+      "dominio": "exame.com",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 85,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_reconhecida",
+        "veiculo_de_imprensa_reconhecido",
+        "HTTPS",
+        "veículo/base reconhecido"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:30.195Z",
+      "query_origem": "Converse presença no Brasil"
+    },
+    {
+      "source_id": "src_3434e9ee3c",
+      "url": "https://careers.converse.com/who-we-are",
+      "titulo": "WHO WE ARE - Who We Are",
+      "dominio": "careers.converse.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:31.993Z",
+      "query_origem": "Converse mercados atuação"
+    },
+    {
+      "source_id": "src_6cd556eaf6",
+      "url": "https://www.converse.com/c/all-stars",
+      "titulo": "The Converse All Stars. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-21T23:59:31.993Z",
+      "query_origem": "Converse mercados atuação"
+    },
+    {
+      "source_id": "src_15fa92f270",
+      "url": "https://fashionunited.com.br/tags/converse",
+      "titulo": "Notícias e arquivo sobre Converse - fashionunited.com.br",
+      "dominio": "fashionunited.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 75,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_especializada",
+        "veiculo_setorial_relevante",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_5b30b2602c",
+      "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+      "titulo": "Converse, da Nike, caminha para pior nível em 15 anos. E atrai ...",
+      "dominio": "bloomberglinea.com.br",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 85,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_reconhecida",
+        "veiculo_de_imprensa_reconhecido",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.918Z",
+      "query_origem": "Converse notícias"
+    },
+    {
+      "source_id": "src_5a23961975",
+      "url": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "titulo": "Lançamentos | Loja Oficial da Converse",
+      "dominio": "converse.com.br",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.911Z",
+      "query_origem": "Converse anúncio recente"
+    },
+    {
+      "source_id": "src_865b17dace",
+      "url": "https://www.converse.com/pt/products/all/all-new-arrivals",
+      "titulo": "All New Arrivals - Converse",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:05:36.911Z",
+      "query_origem": "Converse anúncio recente"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://nandebotanica.com.br/como-fazer-pesquisa-de-mercado-e-definir-o-publico-alvo-para-perfumes-contratipo/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converseglobal.com.br/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://modafeminina.biz/lifestyle/converse-lideranca-mercado",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://es.scribd.com/document/323630140/Converse-Consumer-Behavior-Final",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/284197952/Perfil-Del-Consumidor",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/es-mx/document/universidad-iberoamericana-mexico/mercadotecnia-de-grupos-especificos/caso-1-converse/83196299",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=dzjelbchuibo",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/nossa-historia-old",
+      "motivo": "duplicado",
+      "detalhe": "Mesmo conteúdo já coletado (\"Nossa História | Converse…\") — replicação não é fonte independente."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=aZ60f91d%2DX",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://munddi.com/calcados-bolsas-e-acessorios/calcados?marca=converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=G",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.juridicofashion.com/post/converse-lan%C3%A7a-t%C3%AAnis-100-brasileiro-a-rela%C3%A7%C3%A3o-entre-design-produ%C3%A7%C3%A3o-e-direito-da-moda",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/p/DTlaxR8D2rH/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://thebrandhopper.com/brand/converse-marketing-strategy/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.tiktok.com/@ninipocai/video/7657199899393477906",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://focusgn.com/brasil/universo-dos-esports-operadora-de-apostas-anuncia-patrocinio-a-loud-e-streamer-coringa-como-embaixador",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.visa.com.br/sobre-a-visa/noticias-visa/nova-sala-de-imprensa/team-liquid-visa-patrocinio-valorant-brasil.html",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://x.com/_KarinaBrasil/status/2070974076676370807",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=q",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.blip.ai/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=c%2Dg88ptHQ_",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao-de-produto-e-marca/converse-trabalho/115356313",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.portalpopcyber.com/converse/",
+      "motivo": "entidade_divergente",
+      "detalhe": "conteudo_lexicografico (termo_lexicografico:tradução). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://capricho.abril.com.br/noticias-sobre/converse/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=4",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=ebay.com&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=ZiRklaU4YhQ6",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://duckduckgo.com/y.js?ad_domain=mercadolivre.com.br&amp;ad_provider=bingv7aa&amp;ad_type=txad&amp;click_metadata=e",
+      "motivo": "anuncio",
+      "detalhe": "Resultado patrocinado (redirecionador_de_anuncio, parametro_ad_domain, dominio_do_buscador_como_fonte). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/todos-lancamentos-c/lancamentos-c",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converse.com.br/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Fontes confiáveis foram coletadas (2), mas nenhum fato pôde ser extraído delas.",
+      "categoria": null
+    },
+    {
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 356261,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 2,
+    "fontes_coletadas": 11,
+    "fontes_descartadas": 10,
+    "fatos_extraidos": 12,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

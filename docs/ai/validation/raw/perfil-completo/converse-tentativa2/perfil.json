@@ -1,0 +1,263 @@
+{
+  "identidade": {
+    "nome": "Converse",
+    "aliases": [],
+    "dominio_oficial": "converse.com",
+    "tipo": null,
+    "parte_id": null,
+    "vinculo": "nao_vinculada",
+    "requer_resolucao_humana": true,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": false,
+    "papeis": [],
+    "oportunidades": [],
+    "parcerias": [],
+    "projetos": []
+  },
+  "contexto_empresa": [],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [
+    {
+      "valor": "Os murais da ação global Converse City Forest utilizaram tinta fotocatalítica",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_edf2e4394c"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "A tinta fotocatalítica utilizada na ação global Converse City Forest realiza a mesma atividade que uma árvore, absorvendo CO2 e liberando gases menos nocivos ao meio ambiente",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_22b77c0b05"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse has a collection of summer white shoes",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_dba3b29e86"
+        ],
+        "source_refs": [
+          "src_4bc0dd7302"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse offers custom shoes",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_dd82df2692"
+        ],
+        "source_refs": [
+          "src_4bc0dd7302"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse has a color collection",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_68a4fe65c6"
+        ],
+        "source_refs": [
+          "src_4bc0dd7302"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse has a platform shoe collection",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_24c2fe0c72"
+        ],
+        "source_refs": [
+          "src_4bc0dd7302"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    }
+  ],
+  "relacionamentos": [],
+  "movimentos": [
+    {
+      "valor": "A marca Converse implementou a ação global Converse City Forest",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_adb37a8aa4"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "A ação global Converse City Forest foi realizada com apoio de artistas da comunidade global Converse",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_00092e4973"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "A ação global Converse City Forest envolveu a criação de murais em várias cidades do mundo",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_64fd9aa65b"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "A marca Converse propõe engajamento da visibilidade dos jovens da sua comunidade",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_5a0416359b"
+        ],
+        "source_refs": [
+          "src_6a7613a556"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse All Stars is a program to support the world's best emerging creators",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_364ec0591a"
+        ],
+        "source_refs": [
+          "src_6cd556eaf6"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    },
+    {
+      "valor": "Converse All Stars gain access to a global network of like-minded talent, the opportunity to collaborate and create with Converse, and a platform to have their work seen by the world",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_b13aa52bad"
+        ],
+        "source_refs": [
+          "src_6cd556eaf6"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null
+    }
+  ],
+  "timeline": [],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes."
+    },
+    {
+      "campo": "geral",
+      "descricao": "Nenhuma fonte aceita foi coletada."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-22T00:25:12.132Z",
+    "evidencia_mais_recente_em": "2026-08-22T00:20:39.247Z",
+    "atualizacao_interna_mais_recente_em": null
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "81390f3e797ed9c32697e3c8aef681bca772a671032321d733d9e57bb9c58eb4",
+  "telemetria": {
+    "duracao_ms": 16,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 12,
+    "fatos_consolidados": 12,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 5,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

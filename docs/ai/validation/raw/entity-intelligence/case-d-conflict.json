@@ -1,0 +1,94 @@
+{
+  "identidade": {
+    "nome": "Marca Exemplo",
+    "aliases": [],
+    "dominio_oficial": null,
+    "tipo": null,
+    "parte_id": null,
+    "vinculo": "nao_vinculada",
+    "requer_resolucao_humana": true,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": false,
+    "papeis": [],
+    "oportunidades": [],
+    "parcerias": [],
+    "projetos": []
+  },
+  "contexto_empresa": [],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [],
+  "relacionamentos": [
+    {
+      "valor": "A marca confirmou o patrocínio do festival de música.",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_conf_a"
+        ],
+        "source_refs": [
+          "src_g1"
+        ]
+      },
+      "verificacao": "conflitante",
+      "confianca": 30,
+      "publicado_em": null
+    }
+  ],
+  "movimentos": [],
+  "timeline": [],
+  "conflitos": [
+    {
+      "claim_a": "A marca confirmou o patrocínio do festival de música.",
+      "fontes_a": [
+        "src_g1"
+      ],
+      "claim_b": "A marca não confirmou o patrocínio do festival de música.",
+      "fontes_b": [
+        "src_exame"
+      ],
+      "observacao": "Fontes independentes divergem. Nenhuma versão foi escolhida."
+    }
+  ],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-21T23:43:05.135Z",
+    "evidencia_mais_recente_em": "2026-08-21T23:43:05.135Z",
+    "atualizacao_interna_mais_recente_em": null
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "f39543d03ca3391a6c2a83fd27311aa8f8d3bba9e06396c5e228c12c4866e376",
+  "telemetria": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 1,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "identidade": {
+    "nome": "Empresa Externa Sem Cadastro",
+    "aliases": [],
+    "dominio_oficial": null,
+    "tipo": null,
+    "parte_id": null,
+    "vinculo": "nao_vinculada",
+    "requer_resolucao_humana": true,
+    "candidatas": []
+  },
+  "relacao_interna": {
+    "eh_cliente_cross": false,
+    "papeis": [],
+    "oportunidades": [],
+    "parcerias": [],
+    "projetos": []
+  },
+  "contexto_empresa": [
+    {
+      "valor": "A Empresa Externa Sem Cadastro atua no varejo de moda.",
+      "proveniencia": {
+        "origem": "externo",
+        "registro_interno": null,
+        "evidence_refs": [
+          "fact_ext_1"
+        ],
+        "source_refs": [
+          "src_ext"
+        ]
+      },
+      "verificacao": "fonte_unica",
+      "confianca": 45,
+      "publicado_em": null
+    }
+  ],
+  "posicionamento": [],
+  "publicos": [],
+  "territorios": [],
+  "ativos": [],
+  "produtos": [],
+  "relacionamentos": [],
+  "movimentos": [],
+  "timeline": [],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "campo": "geral",
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes."
+    },
+    {
+      "campo": "publicos",
+      "descricao": "Nenhum fato confirmado sobre público."
+    },
+    {
+      "campo": "territorios",
+      "descricao": "Nenhum fato confirmado sobre territórios."
+    },
+    {
+      "campo": "ativos",
+      "descricao": "Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "frescor": {
+    "perfil_gerado_em": "2026-08-21T23:43:05.134Z",
+    "evidencia_mais_recente_em": "2026-08-21T23:43:05.134Z",
+    "atualizacao_interna_mais_recente_em": null
+  },
+  "versao_perfil": 1,
+  "hash_entrada": "c5c0782d548bd37ce618f869d4e9fa842a62bb5c5d3ccea28d16884e2782e4d2",
+  "telemetria": {
+    "duracao_ms": 0,
+    "registros_internos_considerados": 0,
+    "fatos_considerados": 1,
+    "fatos_consolidados": 1,
+    "duplicatas_mescladas": 0,
+    "conflitos": 0,
+    "lacunas": 4,
+    "llm_calls": 0,
+    "custo_estimado_usd": 0
+  }
+}

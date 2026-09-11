@@ -1,0 +1,10 @@
+{
+  "objetivos_executados": 4,
+  "llm_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "duracao_total_ms": 1358,
+  "custo_total_usd": 0,
+  "provider": "ollama_local",
+  "llm_paga_utilizada": false
+}

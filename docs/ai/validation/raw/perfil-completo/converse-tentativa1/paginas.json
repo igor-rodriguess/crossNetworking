@@ -1,0 +1,109 @@
+[
+  {
+    "url": "https://converse.com.br/",
+    "status": "ok",
+    "objetivo": "publico_alvo",
+    "caracteres": 2343,
+    "claims": 6,
+    "aceitos": 0,
+    "duracao_llm_ms": 162333,
+    "tokens": {
+      "entrada": 1357,
+      "saida": 388,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://converse.com.br/nossa-historia",
+    "status": "ok",
+    "objetivo": "publico_alvo",
+    "caracteres": 6709,
+    "claims": 0,
+    "aceitos": 0,
+    "duracao_llm_ms": 183234
+  },
+  {
+    "url": "https://converse.com.br/todas-lojas",
+    "status": "ok",
+    "objetivo": "territorios_atuacao",
+    "caracteres": 3426,
+    "claims": 6,
+    "aceitos": 1,
+    "duracao_llm_ms": 141731,
+    "tokens": {
+      "entrada": 2098,
+      "saida": 300,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://converse.com.br/retail-stores",
+    "status": "ok",
+    "objetivo": "territorios_atuacao",
+    "caracteres": 782,
+    "claims": 1,
+    "aceitos": 0,
+    "duracao_llm_ms": 36668,
+    "tokens": {
+      "entrada": 837,
+      "saida": 165,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://converse.com.br/",
+    "status": "ok",
+    "objetivo": "ativos_marca",
+    "caracteres": 2343,
+    "claims": 6,
+    "aceitos": 6,
+    "duracao_llm_ms": 94230,
+    "tokens": {
+      "entrada": 1357,
+      "saida": 369,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://converse.com.br/todas-lojas",
+    "status": "ok",
+    "objetivo": "ativos_marca",
+    "caracteres": 3426,
+    "claims": 6,
+    "aceitos": 1,
+    "duracao_llm_ms": 72127,
+    "tokens": {
+      "entrada": 2098,
+      "saida": 300,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://fashionunited.com.br/tags/converse",
+    "status": "ok",
+    "objetivo": "movimentos_recentes",
+    "caracteres": 12593,
+    "claims": 1,
+    "aceitos": 1,
+    "duracao_llm_ms": 78683,
+    "tokens": {
+      "entrada": 2411,
+      "saida": 83,
+      "cache": 0
+    }
+  },
+  {
+    "url": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+    "status": "ok",
+    "objetivo": "movimentos_recentes",
+    "caracteres": 7213,
+    "claims": 4,
+    "aceitos": 4,
+    "duracao_llm_ms": 118125,
+    "tokens": {
+      "entrada": 2147,
+      "saida": 355,
+      "cache": 0
+    }
+  }
+]

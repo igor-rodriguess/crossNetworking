@@ -1,0 +1,596 @@
+{
+  "entidade": "Converse",
+  "objetivo": "contexto_geral",
+  "status": "sucesso",
+  "plano": [
+    "Converse estratégia de marca análise consumidor",
+    "Converse quem consome a marca pesquisa perfil",
+    "Converse posicionamento geração público entrevista"
+  ],
+  "planning_mode": "heuristica",
+  "extraction_mode": "firecrawl",
+  "facts": [
+    {
+      "fact_id": "fact_adb37a8aa4",
+      "claim": "A marca Converse implementou a ação global Converse City Forest",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_00092e4973",
+      "claim": "A ação global Converse City Forest foi realizada com apoio de artistas da comunidade global Converse",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_64fd9aa65b",
+      "claim": "A ação global Converse City Forest envolveu a criação de murais em várias cidades do mundo",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_edf2e4394c",
+      "claim": "Os murais da ação global Converse City Forest utilizaram tinta fotocatalítica",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_22b77c0b05",
+      "claim": "A tinta fotocatalítica utilizada na ação global Converse City Forest realiza a mesma atividade que uma árvore, absorvendo CO2 e liberando gases menos nocivos ao meio ambiente",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_5a0416359b",
+      "claim": "A marca Converse propõe engajamento da visibilidade dos jovens da sua comunidade",
+      "entidade": "Converse",
+      "categoria": "campanha",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6a7613a556"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 53,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_364ec0591a",
+      "claim": "Converse All Stars is a program to support the world's best emerging creators",
+      "entidade": "Converse",
+      "categoria": "movimento_estrategico",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6cd556eaf6"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:08.631Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_b13aa52bad",
+      "claim": "Converse All Stars gain access to a global network of like-minded talent, the opportunity to collaborate and create with Converse, and a platform to have their work seen by the world",
+      "entidade": "Converse",
+      "categoria": "movimento_estrategico",
+      "natureza": "fato",
+      "source_refs": [
+        "src_6cd556eaf6"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:08.631Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_dba3b29e86",
+      "claim": "Converse has a collection of summer white shoes",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_4bc0dd7302"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:20:39.247Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_dd82df2692",
+      "claim": "Converse offers custom shoes",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_4bc0dd7302"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:20:39.247Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_68a4fe65c6",
+      "claim": "Converse has a color collection",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_4bc0dd7302"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:20:39.247Z",
+      "conflito": null
+    },
+    {
+      "fact_id": "fact_24c2fe0c72",
+      "claim": "Converse has a platform shoe collection",
+      "entidade": "Converse",
+      "categoria": "produto",
+      "natureza": "fato",
+      "source_refs": [
+        "src_4bc0dd7302"
+      ],
+      "dominios_independentes": 1,
+      "verificacao": "fonte_unica",
+      "confianca": 54,
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:20:39.247Z",
+      "conflito": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src_6a7613a556",
+      "url": "https://www.cesrei.edu.br/repositorio/2021/09/02/responsabilidade-socioambiental-como-estrategia-de-marca-analise-da-acao-global-converse-city-forest/",
+      "titulo": "Responsabilidade socioambiental como estratégia de marca: análise da ...",
+      "dominio": "cesrei.edu.br",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 90,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_institucional_gov_edu",
+        "HTTPS",
+        "domínio institucional"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.954Z",
+      "query_origem": "Converse estratégia de marca análise consumidor"
+    },
+    {
+      "source_id": "src_641ee4d94f",
+      "url": "https://www.meioemensagem.com.br/comunicacao/converse-reforca-presenca-da-marca-na-cultura-e-na-musica",
+      "titulo": "Converse reforça presença da marca na cultura e na música",
+      "dominio": "meioemensagem.com.br",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 75,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_especializada",
+        "veiculo_setorial_relevante",
+        "HTTPS",
+        "veículo/base reconhecido"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:12:29.955Z",
+      "query_origem": "Converse posicionamento geração público entrevista"
+    },
+    {
+      "source_id": "src_276226d0df",
+      "url": "https://www.converse.com/",
+      "titulo": "Converse Official Site. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:08.631Z",
+      "query_origem": "Converse embaixadores patrocínios da marca"
+    },
+    {
+      "source_id": "src_6cd556eaf6",
+      "url": "https://www.converse.com/c/all-stars",
+      "titulo": "The Converse All Stars. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:08.631Z",
+      "query_origem": "Converse embaixadores patrocínios da marca"
+    },
+    {
+      "source_id": "src_3434e9ee3c",
+      "url": "https://careers.converse.com/who-we-are",
+      "titulo": "WHO WE ARE - Who We Are",
+      "dominio": "careers.converse.com",
+      "tipo_fonte": "desconhecido",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:08.631Z",
+      "query_origem": "Converse embaixadores patrocínios da marca"
+    },
+    {
+      "source_id": "src_d9a257ed11",
+      "url": "https://exame.com/casual/colaboracoes-entre-marcas-e-artistas-confira-5-lancamentos-de-sneakers-em-setembro/",
+      "titulo": "Colaborações entre marcas e artistas: confira 5 ...",
+      "dominio": "exame.com",
+      "tipo_fonte": "imprensa",
+      "credibilidade_score": 85,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:imprensa_reconhecida",
+        "veiculo_de_imprensa_reconhecido",
+        "HTTPS",
+        "veículo/base reconhecido"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:15:09.372Z",
+      "query_origem": "Converse colaborações artistas parcerias"
+    },
+    {
+      "source_id": "src_4bc0dd7302",
+      "url": "https://www.converse.com/shop/collabs",
+      "titulo": "Shop Collaborations & Limited Edition Drops. Converse.com",
+      "dominio": "converse.com",
+      "tipo_fonte": "oficial",
+      "credibilidade_score": 95,
+      "credibilidade_nivel": "alta",
+      "credibilidade_sinais": [
+        "classificacao:oficial",
+        "dominio_oficial_da_entidade",
+        "HTTPS"
+      ],
+      "publicado_em": null,
+      "coletado_em": "2026-08-22T00:20:39.247Z",
+      "query_origem": "Converse notícias"
+    }
+  ],
+  "descartados": [
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao-de-produto-e-marca/converse-trabalho/115356313",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://dspace.mackenzie.br/items/2c2a58f4-21b4-4ffe-9096-fe9b644bdc5e",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://dspace.mackenzie.br/items/2c2a58f4-21b4-4ffe-9096-fe9b644bdc5e",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao-de-produto-e-marca/converse-trabalho/115356313",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/712351927/Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://nexummarketing.com.br/cocriacao-e-redes-sociais-a-estrategia-por-tras-da-converse-no-brasil/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.glassdoor.com.br/Entrevista/Converse-Perguntas-entrevista-E3754.htm",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao-de-produto-e-marca/converse-trabalho/115356313",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/952161411/Historico-da-Empresa-Converse",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.bloomberglinea.com.br/negocios/converse-da-nike-caminha-para-pior-nivel-em-15-anos-e-atrai-interesse-da-authentic/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.scribd.com/document/352353438/4-Analise-SWOT-All-Star-Viva-o-Classico-Final",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.otempo.com.br/politica/judiciario/2026/8/12/operacao-mira-rede-clandestina-de-fabricacao-e-distribuicao-de-anabolizantes-com-influencers",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://exame.com/inteligencia-artificial/chatgpt-expande-operacao-no-brasil-e-mira-empresas-para-crescer/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://g1.globo.com/fantastico/noticia/2026/08/16/policia-desarticula-esquema-de-anabolizantes-falsificados-com-ramificacoes-no-brasil-e-paraguai.ghtml",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.brasil247.com/brasil/moraes-cita-repasse-de-r-100-mil-em-operacao-da-pf-que-teve-jornalista-como-alvo/comment-page-1/",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converseglobal.com.br/quem-somos/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://converseglobal.com.br/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.antenadosnatvestreaming.com/2026/08/bilibili-expansao-global-concorrente-youtube.html",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_mencao_a_entidade (entidade_nao_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.aceleravarejo.com.br/home-destaque/authentic-brands-converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/be/landing-all-stars",
+      "motivo": "duplicado",
+      "detalhe": "Mesmo conteúdo já coletado (\"The Converse All Stars. Converse.com…\") — replicação não é fonte independente."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.farfetch.com/br/style-guide/trends-subcultures/as-melhores-colaboraces-de-tenis-converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/c/all-stars",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://careers.converse.com/who-we-are",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.webartigos.com/artigos/as-marcas-e-seu-significado-um-estudo-da-marca-converse-all-star/36789",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://dspace.mackenzie.br/items/2c2a58f4-21b4-4ffe-9096-fe9b644bdc5e",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://wwd.com/tag/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/c/all-stars",
+      "motivo": "duplicado",
+      "detalhe": "Domínio \"converse.com\" já contribuiu com 2 fonte(s); vaga reservada para outra origem."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.youtube.com/watch?v=JTHqmCg8EDU",
+      "motivo": "entidade_divergente",
+      "detalhe": "sem_contexto_organizacional (entidade_mencionada). Não foi raspado."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/c/all-stars",
+      "motivo": "duplicado",
+      "detalhe": "Domínio \"converse.com\" já contribuiu com 2 fonte(s); vaga reservada para outra origem."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/shop/shoes",
+      "motivo": "duplicado",
+      "detalhe": "Domínio \"converse.com\" já contribuiu com 2 fonte(s); vaga reservada para outra origem."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/",
+      "motivo": "duplicado",
+      "detalhe": "URL já coletada nesta execução."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.instagram.com/converse/",
+      "motivo": "baixa_credibilidade",
+      "detalhe": "baixa_autoridade · score 50 (https, dominio_nao_reconhecido)."
+    },
+    {
+      "tipo": "fonte",
+      "referencia": "https://www.converse.com/pt",
+      "motivo": "duplicado",
+      "detalhe": "Domínio \"converse.com\" já contribuiu com 2 fonte(s); vaga reservada para outra origem."
+    }
+  ],
+  "conflitos": [],
+  "lacunas": [
+    {
+      "descricao": "Nenhum fato foi corroborado por duas fontes independentes.",
+      "categoria": null
+    },
+    {
+      "descricao": "Nenhuma fonte aceita foi coletada.",
+      "categoria": null
+    }
+  ],
+  "ambiguidade": null,
+  "telemetria": {
+    "duracao_ms": 157044,
+    "consultas": 3,
+    "buscas_web": 3,
+    "scrapes": 1,
+    "fontes_coletadas": 7,
+    "fontes_descartadas": 10,
+    "fatos_extraidos": 12,
+    "fatos_verificados": 0,
+    "custo_estimado_usd": 0,
+    "bloqueios_guardrail": []
+  }
+}

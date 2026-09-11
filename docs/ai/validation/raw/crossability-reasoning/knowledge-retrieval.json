@@ -1,0 +1,146 @@
+[
+  {
+    "dimensao": "publicos",
+    "retrieval": {
+      "consulta": "Crossability públicos sobreposição de audiência entre marcas",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "c54240f6-a984-43ab-bb0d-c095293ed107",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2 › Públicos",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.451
+      }
+    ]
+  },
+  {
+    "dimensao": "territorios",
+    "retrieval": {
+      "consulta": "Crossability territórios de atuação sobreposição e complementaridade",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "117ebfc7-7c61-4139-a7cf-2b57992c5797",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2 › Territórios",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.41
+      }
+    ]
+  },
+  {
+    "dimensao": "ativos",
+    "retrieval": {
+      "consulta": "Crossability ativos de marca complementaridade e valor estratégico",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "3bc03dd3-3d46-4fce-84b0-306bb0276ac9",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2 › Ativos",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.38
+      }
+    ]
+  },
+  {
+    "dimensao": "sinergias",
+    "retrieval": {
+      "consulta": "Crossability sinergias entre marcas ganhos mútuos",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "d9a29fe9-a697-4ee7-8497-d11eae28e054",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.355
+      }
+    ]
+  },
+  {
+    "dimensao": "fit_estrategico",
+    "retrieval": {
+      "consulta": "Crossability fit estratégico alinhamento de posicionamento e objetivos",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "a8380d4d-4178-4632-ab09-8e3717e12f02",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2 › Fit estratégico",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.38
+      }
+    ]
+  },
+  {
+    "dimensao": "momento",
+    "retrieval": {
+      "consulta": "Crossability momento janela de oportunidade timing de abordagem",
+      "top_k": 3,
+      "limiar": 0.35,
+      "considerados": 7,
+      "entregues": 1,
+      "descartados": 6
+    },
+    "knowledge_refs": [
+      {
+        "ref": "K1",
+        "chunk_id": "440f1eb8-7bc7-46a4-bb85-d99cb56dfc39",
+        "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+        "codigo": "metodologia-crossability",
+        "documento": "Metodologia Crossability",
+        "secao": "Metodologia Crossability — v2 › Momento",
+        "versao": 2,
+        "escopo": "global",
+        "relevancia": 0.452
+      }
+    ]
+  }
+]

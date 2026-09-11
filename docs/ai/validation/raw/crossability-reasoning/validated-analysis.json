@@ -1,0 +1,401 @@
+{
+  "entidade": "Converse",
+  "contexto": {
+    "objetivo": "identificar potencial de ativação cultural conjunta com marcas de música e moda",
+    "cliente_cross_id": null,
+    "contexto_ausente": false
+  },
+  "methodology_version": [
+    {
+      "codigo": "metodologia-crossability",
+      "documento": "Metodologia Crossability",
+      "versao": 2
+    }
+  ],
+  "dimensions": [
+    {
+      "dimensao": "publicos",
+      "assessment": "media",
+      "reasoning": "O perfil traz um sinal direto de público: a marca declara engajar jovens da sua comunidade, e o programa All Stars é dirigido a criadores emergentes. Pela metodologia, isso caracteriza um público identificável, mas a leitura de sobreposição depende de conhecer o público da outra parte, que não está nesta análise.",
+      "supporting_points": [
+        {
+          "texto": "A marca declara engajar jovens da sua própria comunidade.",
+          "evidence_refs": [
+            "E2"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        },
+        {
+          "texto": "A comunidade global de artistas participou da ação, o que delimita um público criativo.",
+          "evidence_refs": [
+            "E1"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "counterpoints": [
+        {
+          "texto": "Nenhum dado demográfico verificável foi coletado: faixa etária, renda e região seguem desconhecidas, então a sobreposição não é mensurável.",
+          "evidence_refs": [
+            "E2"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "gaps": [
+        "Não há dado demográfico estruturado sobre o público.",
+        "O público da contraparte não faz parte desta análise."
+      ],
+      "confidence": 45,
+      "status": "suportado",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "c54240f6-a984-43ab-bb0d-c095293ed107",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.451
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability públicos sobreposição de audiência entre marcas",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    },
+    {
+      "dimensao": "territorios",
+      "assessment": "baixa",
+      "reasoning": "Os fatos disponíveis descrevem uma ação global e murais em várias cidades. Pela metodologia, escopo de campanha não é território de atuação: uma ação pontual não prova presença estruturada. Não há evidência de praças ou mercados onde a marca opera de forma continuada.",
+      "supporting_points": [
+        {
+          "texto": "Há registro de uma ação global com murais em várias cidades do mundo.",
+          "evidence_refs": [
+            "E12"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "counterpoints": [
+        {
+          "texto": "A metodologia separa escopo de campanha de território de atuação; o fato disponível é escopo de campanha, não presença estruturada.",
+          "evidence_refs": [
+            "E12"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "gaps": [
+        "Nenhum território geográfico ou simbólico de atuação continuada foi confirmado."
+      ],
+      "confidence": 30,
+      "status": "suportado",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "117ebfc7-7c61-4139-a7cf-2b57992c5797",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.41
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability territórios de atuação sobreposição e complementaridade",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    },
+    {
+      "dimensao": "ativos",
+      "assessment": "media",
+      "reasoning": "O programa All Stars e a rede global de talentos são ativos que EXISTEM segundo a evidência. A metodologia exige separar existência de valor estratégico: o valor depende de contrapartida possível para um objetivo, e a contrapartida não está descrita.",
+      "supporting_points": [
+        {
+          "texto": "O programa All Stars é um ativo próprio da marca, voltado a apoiar criadores emergentes.",
+          "evidence_refs": [
+            "E3"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        },
+        {
+          "texto": "A rede global de talentos associada ao programa é um ativo acionável em parceria.",
+          "evidence_refs": [
+            "E4"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "counterpoints": [
+        {
+          "texto": "Existir não implica valor estratégico: não há evidência de que esses ativos estejam disponíveis para parceria externa nem em que condições.",
+          "evidence_refs": [
+            "E3"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "gaps": [
+        "Condições de acesso e exclusividade dos ativos não são conhecidas."
+      ],
+      "confidence": 50,
+      "status": "suportado",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "3bc03dd3-3d46-4fce-84b0-306bb0276ac9",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.38
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability ativos de marca complementaridade e valor estratégico",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    },
+    {
+      "dimensao": "sinergias",
+      "assessment": "baixa",
+      "reasoning": "A metodologia exige que a sinergia emerja do cruzamento entre públicos, territórios e ativos. Há público e ativo identificados, mas território não sustentado, então o cruzamento fica incompleto.",
+      "supporting_points": [
+        {
+          "texto": "Público criativo e programa próprio formam um par acionável.",
+          "evidence_refs": [
+            "E2",
+            "E3"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "counterpoints": [],
+      "gaps": [
+        "Território não sustentado impede afirmar sinergia."
+      ],
+      "confidence": 30,
+      "status": "suportado",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "d9a29fe9-a697-4ee7-8497-d11eae28e054",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.355
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability sinergias entre marcas ganhos mútuos",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    },
+    {
+      "dimensao": "fit_estrategico",
+      "assessment": "indeterminado",
+      "reasoning": "Para o objetivo declarado — ativação cultural conjunta com marcas de música e moda — há aderência: a marca mantém programa cultural próprio e engaja comunidade criativa. A metodologia lembra que não existe fit absoluto; esta leitura vale para este objetivo e não se transfere para outro.",
+      "supporting_points": [],
+      "counterpoints": [],
+      "gaps": [
+        "Objetivos declarados pela própria marca não são conhecidos."
+      ],
+      "confidence": 15,
+      "status": "insuficiente",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "a8380d4d-4178-4632-ab09-8e3717e12f02",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.38
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability fit estratégico alinhamento de posicionamento e objetivos",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    },
+    {
+      "dimensao": "momento",
+      "assessment": "indeterminado",
+      "reasoning": "A metodologia condiciona momento a sinais recentes e datados. Nenhum dos fatos disponíveis possui data de publicação, portanto não é possível afirmar janela de oportunidade. Fato histórico não sustenta momento.",
+      "supporting_points": [],
+      "counterpoints": [
+        {
+          "texto": "Nenhum fato do perfil possui data de publicação verificável.",
+          "evidence_refs": [
+            "E11"
+          ],
+          "knowledge_refs": [
+            "K1"
+          ]
+        }
+      ],
+      "gaps": [
+        "Nenhuma evidência datada; a recência não pode ser avaliada."
+      ],
+      "confidence": 15,
+      "status": "insuficiente",
+      "evidence_status": "suficiente",
+      "knowledge_status": "suficiente",
+      "knowledge_refs": [
+        {
+          "ref": "K1",
+          "chunk_id": "440f1eb8-7bc7-46a4-bb85-d99cb56dfc39",
+          "documento_id": "fbb20c71-5a98-4213-b32a-1e243a477845",
+          "codigo": "metodologia-crossability",
+          "documento": "Metodologia Crossability",
+          "secao": "Metodologia Crossability — v2 › Momento",
+          "versao": 2,
+          "escopo": "global",
+          "relevancia": 0.452
+        }
+      ],
+      "retrieval": {
+        "consulta": "Crossability momento janela de oportunidade timing de abordagem",
+        "top_k": 3,
+        "limiar": 0.35,
+        "considerados": 7,
+        "entregues": 1,
+        "descartados": 6
+      }
+    }
+  ],
+  "overall_synthesis": "A análise apresenta sustentação dupla (fato + metodologia) em 4 de 6 dimensões: Públicos, Territórios, Ativos, Sinergias. Contra-evidência registrada em: Públicos, Territórios, Ativos, Momento. Fit avaliado para o objetivo declarado: \"identificar potencial de ativação cultural conjunta com marcas de música e moda\".",
+  "conflicts": [],
+  "evidence_gaps": [
+    "geral: Nenhum fato foi corroborado por duas fontes independentes.",
+    "geral: Nenhuma fonte aceita foi coletada.",
+    "territorios: Nenhum fato confirmado sobre territórios."
+  ],
+  "knowledge_gaps": [],
+  "confidence": 39,
+  "rejeitados": [
+    {
+      "dimensao": "sinergias",
+      "tipo": "supporting_point",
+      "texto": "A marca já opera parcerias formais de co-branding com grandes varejistas.",
+      "motivo": "evidence_ref_inexistente"
+    },
+    {
+      "dimensao": "sinergias",
+      "tipo": "counterpoint",
+      "texto": "Sem território sustentado, o cruzamento exigido pela metodologia fica incompleto.",
+      "motivo": "evidence_ref_inexistente"
+    },
+    {
+      "dimensao": "fit_estrategico",
+      "tipo": "supporting_point",
+      "texto": "O programa próprio de apoio a criadores conversa diretamente com ativação cultural.",
+      "motivo": "evidence_ref_inexistente"
+    },
+    {
+      "dimensao": "fit_estrategico",
+      "tipo": "counterpoint",
+      "texto": "A marca provavelmente prioriza performance comercial sobre cultura.",
+      "motivo": "sem_sustentacao"
+    }
+  ],
+  "provenance": {
+    "perfil_versao": 2,
+    "perfil_hash": "81390f3e797ed9c32697e3c8aef681bca772a671032321d733d9e57bb9c58eb4",
+    "evidence_fact_ids": [
+      "fact_00092e4973",
+      "fact_5a0416359b",
+      "fact_edf2e4394c",
+      "fact_22b77c0b05",
+      "fact_dba3b29e86",
+      "fact_dd82df2692",
+      "fact_68a4fe65c6",
+      "fact_24c2fe0c72",
+      "fact_adb37a8aa4",
+      "fact_64fd9aa65b",
+      "fact_364ec0591a",
+      "fact_b13aa52bad"
+    ],
+    "knowledge_chunk_ids": [
+      "c54240f6-a984-43ab-bb0d-c095293ed107",
+      "117ebfc7-7c61-4139-a7cf-2b57992c5797",
+      "3bc03dd3-3d46-4fce-84b0-306bb0276ac9",
+      "d9a29fe9-a697-4ee7-8497-d11eae28e054",
+      "a8380d4d-4178-4632-ab09-8e3717e12f02",
+      "440f1eb8-7bc7-46a4-bb85-d99cb56dfc39"
+    ]
+  },
+  "telemetria": {
+    "duracao_ms": 15,
+    "provedor": "showcase_controlado",
+    "modelo": "resposta-controlada",
+    "llm_calls": 6,
+    "tokens_entrada": 5400,
+    "tokens_saida": 1920,
+    "tokens_cache": 0,
+    "custo_estimado_usd": 0,
+    "contexto_caracteres": 21803,
+    "retrieval_calls": 6,
+    "bloqueios": []
+  }
+}

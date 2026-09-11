@@ -1,0 +1,13 @@
+{
+  "duracao_ms": 15,
+  "provedor": "showcase_controlado",
+  "modelo": "resposta-controlada",
+  "llm_calls": 6,
+  "tokens_entrada": 5400,
+  "tokens_saida": 1920,
+  "tokens_cache": 0,
+  "custo_estimado_usd": 0,
+  "contexto_caracteres": 21803,
+  "retrieval_calls": 6,
+  "bloqueios": []
+}

@@ -1,0 +1,278 @@
+{
+  "resumo": {
+    "origem_embedding": "mock",
+    "modelo": "hashing determinístico (sha256)",
+    "limiar_configurado": 0.35,
+    "total_medicoes": 36,
+    "minimo": 0,
+    "maximo": 0.578,
+    "media": 0.17691666666666672,
+    "acima_do_limiar": 7
+  },
+  "medicoes": [
+    {
+      "cenario": "A",
+      "nome": "Públicos",
+      "consulta": "Crossability públicos sobreposição de audiência entre marcas",
+      "origem_embedding": "mock",
+      "duracao_ms": 3,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 2,
+      "scores": [
+        0.534,
+        0.402,
+        0.126,
+        0.114,
+        0.097,
+        0.075
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "relevancia": 0.534
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.402
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Momento",
+          "versao": 2,
+          "relevancia": 0.126
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "relevancia": 0.114
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.097
+        }
+      ]
+    },
+    {
+      "cenario": "B",
+      "nome": "Territórios",
+      "consulta": "Crossability territórios de atuação sobreposição e complementaridade",
+      "origem_embedding": "mock",
+      "duracao_ms": 1,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 1,
+      "scores": [
+        0.364,
+        0.302,
+        0.248,
+        0.144,
+        0.138,
+        0.125
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "relevancia": 0.364
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.302
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.248
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "relevancia": 0.144
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Momento",
+          "versao": 2,
+          "relevancia": 0.138
+        }
+      ]
+    },
+    {
+      "cenario": "C",
+      "nome": "Públicos + Territórios",
+      "consulta": "sobreposição de públicos e territórios entre duas marcas",
+      "origem_embedding": "mock",
+      "duracao_ms": 2,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 2,
+      "scores": [
+        0.503,
+        0.462,
+        0.13,
+        0,
+        0,
+        0
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.503
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "relevancia": 0.462
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.13
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "relevancia": 0
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "relevancia": 0
+        }
+      ]
+    },
+    {
+      "cenario": "D",
+      "nome": "Consulta sem sustentação",
+      "consulta": "qual o preço das ações da empresa na bolsa de valores",
+      "origem_embedding": "mock",
+      "duracao_ms": 1,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 0,
+      "scores": [
+        0.077,
+        0.022,
+        0.017,
+        0.015,
+        0,
+        0
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "relevancia": 0.077
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.022
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "relevancia": 0.017
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.015
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "relevancia": 0
+        }
+      ]
+    },
+    {
+      "cenario": "E",
+      "nome": "Ativos",
+      "consulta": "Crossability ativos de marca complementaridade e valor estratégico",
+      "origem_embedding": "mock",
+      "duracao_ms": 2,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 1,
+      "scores": [
+        0.432,
+        0.274,
+        0.226,
+        0.205,
+        0.13,
+        0.126
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "relevancia": 0.432
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Públicos",
+          "versao": 2,
+          "relevancia": 0.274
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.226
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "relevancia": 0.205
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.13
+        }
+      ]
+    },
+    {
+      "cenario": "F",
+      "nome": "Momento",
+      "consulta": "Crossability momento janela de oportunidade timing",
+      "origem_embedding": "mock",
+      "duracao_ms": 2,
+      "total_considerados": 6,
+      "acima_do_limiar_035": 1,
+      "scores": [
+        0.578,
+        0.125,
+        0.11,
+        0.107,
+        0.082,
+        0.079
+      ],
+      "top": [
+        {
+          "secao": "Metodologia Crossability — v2 › Momento",
+          "versao": 2,
+          "relevancia": 0.578
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Fit estratégico",
+          "versao": 2,
+          "relevancia": 0.125
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Sinergias",
+          "versao": 2,
+          "relevancia": 0.11
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Territórios",
+          "versao": 2,
+          "relevancia": 0.107
+        },
+        {
+          "secao": "Metodologia Crossability — v2 › Ativos",
+          "versao": 2,
+          "relevancia": 0.082
+        }
+      ]
+    }
+  ]
+}

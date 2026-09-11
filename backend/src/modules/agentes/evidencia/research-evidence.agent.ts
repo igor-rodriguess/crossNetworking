@@ -54,7 +54,59 @@ const TERMOS_POR_OBJETIVO: Record<ObjetivoPesquisa, string[]> = {
   eventos: ["evento", "festival", "feira", "ativação em evento"],
   parcerias: ["parceria", "collab", "co-branding", "acordo comercial"],
   sinais_estrategicos: ["estratégia", "plano de negócios", "investimento", "reposicionamento"],
+
+  // Dirigidos às dimensões da Crossability.
+  //
+  // Os termos buscam ANÁLISE SOBRE a marca, não a marca. A primeira tentativa
+  // usava "público-alvo" e "onde atua lojas", e o buscador devolveu o site
+  // institucional — que vende tênis, não descreve o próprio público. O
+  // resultado foram fatos verdadeiros e inúteis ("tem termos de uso").
+  //
+  // Vocabulário de imprensa setorial e de análise de marca puxa matéria e
+  // estudo, onde essa informação de fato mora.
+  publico_alvo: [
+    "estratégia de marca análise consumidor",
+    "quem consome a marca pesquisa perfil",
+    "posicionamento geração público entrevista",
+    "case marketing target",
+    // Vocabulário de subcultura SEMPRE ancorado na marca. Uma tentativa com
+    // "subcultura cena juventude" solto trouxe artigo acadêmico sobre
+    // subculturas juvenis em geral — corretamente barrado por não falar da
+    // entidade, mas gastando a vaga de uma consulta útil.
+    "subculturas que usam a marca reportagem",
+  ],
+  territorios_atuacao: [
+    "mercados onde opera análise",
+    "operação no Brasil reportagem",
+    "expansão internacional mercados",
+    "presença varejo países",
+    // Este objetivo terminou com ZERO fontes em duas rodadas. Varejo setorial
+    // é onde a informação de distribuição costuma sair.
+    "marca varejo distribuição lojas notícia",
+  ],
+  ativos_marca: [
+    "embaixadores patrocínios da marca",
+    "colaborações artistas parcerias",
+    "propriedades ativos de marca análise",
+    "ativações comunidade cultura",
+    // Programas próprios e plataformas de marca — o tipo de ativo mais valioso
+    // para o Crossability e o que menos aparece em busca institucional.
+    "collab colaboração edição limitada artista",
+  ],
 };
+
+/**
+ * Teto de fontes por domínio, por execução.
+ *
+ * Sem isso, o site oficial ocupa todas as vagas: ele passa na credibilidade com
+ * score 95 e domina o ranking do buscador. Na primeira rodada dirigida, 8 de 11
+ * fontes eram converse.com.br — e o institucional não fala do próprio público
+ * nem lista ativos de marca.
+ *
+ * Diversidade de domínio não é preferência estética: é o que traz o olhar
+ * externo sobre a marca.
+ */
+const MAX_FONTES_POR_DOMINIO = 2;
 
 /** Objetivos que exigem informação recente; contexto histórico é secundário. */
 const OBJETIVOS_SENSIVEIS_A_TEMPO: ObjetivoPesquisa[] = [
@@ -227,6 +279,7 @@ export async function pesquisarEvidencias(
   const fontes: FonteEvidencia[] = [];
   const urlsVistas = new Set<string>();
   const titulosVistos: string[] = [];
+  const porDominio = new Map<string, number>();
 
   for (const { r, query } of brutos) {
     const dominio = dominioDe(r.url);
@@ -308,6 +361,21 @@ export async function pesquisarEvidencias(
       });
       continue;
     }
+
+    // --- Porta 4: diversidade de domínio -----------------------------------
+    // Um só domínio não pode ocupar todas as vagas. O site oficial é excelente
+    // para o que a marca faz, e cego para como ela é percebida.
+    const usadasDoDominio = porDominio.get(dominio) ?? 0;
+    if (usadasDoDominio >= MAX_FONTES_POR_DOMINIO) {
+      descartados.push({
+        tipo: "fonte",
+        referencia: r.url,
+        motivo: "duplicado",
+        detalhe: `Domínio "${dominio}" já contribuiu com ${MAX_FONTES_POR_DOMINIO} fonte(s); vaga reservada para outra origem.`,
+      });
+      continue;
+    }
+    porDominio.set(dominio, usadasDoDominio + 1);
 
     urlsVistas.add(r.url);
     titulosVistos.push(r.titulo);

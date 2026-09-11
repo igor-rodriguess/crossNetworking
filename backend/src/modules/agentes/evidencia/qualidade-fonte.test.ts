@@ -116,6 +116,63 @@ describe("Credibilidade discriminante", () => {
   });
 });
 
+// -----------------------------------------------------------------------------
+// Qualificação editorial por sinais.
+//
+// A lista fechada de veículos era o teto real da pesquisa: numa execução contra
+// a Converse, 24 dos 40 descartes foram `dominio_nao_reconhecido` — todos com o
+// mesmo score 50 — e o objetivo `territorios_atuacao` terminou com ZERO fontes.
+// As URLs abaixo são as reais dessa execução.
+// -----------------------------------------------------------------------------
+describe("Qualificação editorial de domínio não catalogado", () => {
+  it("admite matéria analítica sobre subculturas e collabs", () => {
+    // Conteúdo de público e ativos — exatamente o que o Crossability precisa —
+    // barrado antes só por não ter "/noticias/" na URL.
+    const a = avaliarFonte({
+      url: "https://www.farfetch.com/br/style-guide/trends-subcultures/as-melhores-colaboracoes",
+    });
+    expect(a.classificacao).toBe("imprensa_especializada");
+    expect(a.sinais).toContain("veiculo_editorial_por_sinais");
+  });
+
+  it("veículo não catalogado nunca supera um curado", () => {
+    const naoCatalogado = avaliarFonte({
+      url: "https://www.farfetch.com/br/style-guide/trends-subcultures/x",
+    });
+    const curado = avaliarFonte({ url: "https://fashionunited.com.br/noticias/y" });
+    const referencia = avaliarFonte({ url: "https://bloomberg.com/news/z" });
+
+    expect(naoCatalogado.score).toBeLessThan(curado.score);
+    expect(curado.score).toBeLessThan(referencia.score);
+  });
+
+  it("repositório acadêmico e rede social não viram fonte editorial", () => {
+    // Um SWOT de estudante tem a mesma aparência estrutural de análise setorial;
+    // barrar por natureza é mais honesto do que tentar pontuar a diferença.
+    const casos = [
+      "https://pt.scribd.com/document/352353438/4-Analise-SWOT-All-Star",
+      "https://www.studocu.com/pt/document/universidade-lusiada-de-lisboa/gestao",
+      "https://dspace.mackenzie.br/items/2c2a58f4",
+      "https://pt.wikipedia.org/wiki/Converse_(empresa)",
+      "https://www.instagram.com/converse/",
+      "https://www.glassdoor.com.br/Entrevista/Converse-E3754.htm",
+      "https://www.webartigos.com/artigos/as-marcas-e-seu-significado",
+    ];
+
+    for (const url of casos) {
+      const a = avaliarFonte({ url });
+      expect(a.classificacao).toBe("baixa_autoridade");
+      expect(a.sinais).toContain("nao_editorial_por_natureza");
+    }
+  });
+
+  it("nome de veículo sozinho não qualifica", () => {
+    // "revista" no domínio soma, mas sem seção editorial não alcança o bar.
+    const a = avaliarFonte({ url: "https://revistaqualquer.com/" });
+    expect(a.classificacao).toBe("baixa_autoridade");
+  });
+});
+
 describe("Entity Resolution pré-scrape — regressão Reserva", () => {
   it("bloqueia os dicionários reais que a baseline raspou", () => {
     // URLs exatas da baseline do caso C.

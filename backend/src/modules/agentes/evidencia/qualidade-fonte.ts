@@ -46,10 +46,74 @@ export const IMPRENSA_RECONHECIDA = new Set([
 /** Imprensa setorial relevante para o domínio da Cross (moda, marketing, negócios). */
 export const IMPRENSA_ESPECIALIZADA = new Set([
   "meioemensagem.com.br", "propmark.com.br", "adnews.com.br",
-  "fashionunited.com.br", "ffw.uol.com.br", "vogue.globo.com",
-  "forbes.com.br", "startupi.com.br", "mercadoeconsumo.com.br",
+  "fashionunited.com.br", "fashionunited.com", "ffw.uol.com.br", "vogue.globo.com",
+  "forbes.com.br", "forbes.com", "startupi.com.br", "mercadoeconsumo.com.br",
   "portalnovarejo.com.br", "adage.com", "businessoffashion.com",
+  // Cultura, moda de rua e música — territórios onde a Cross opera e onde
+  // mora a informação sobre público e ativos de marca.
+  "hypebeast.com", "highsnobiety.com", "complex.com", "dazeddigital.com",
+  "gq.globo.com", "elle.com.br", "harpersbazaar.com.br", "lofficielbrasil.com",
+  "billboard.com.br", "rollingstone.com.br", "tracklist.com.br",
+  "sneakernews.com", "solecollector.com", "footwearnews.com",
+  "marketingdive.com", "campaignlive.com", "wwd.com", "drapersonline.com",
+  "b9.com.br", "casadecriadores.com.br", "revistapegn.globo.com",
+  "consumidormoderno.com.br", "clientesa.com.br", "exameinvest.com.br",
 ]);
+
+/**
+ * Sinais estruturais de veículo editorial em domínio não listado.
+ *
+ * Existe porque a lista fechada era o verdadeiro teto da pesquisa: numa rodada
+ * real, 24 dos 40 descartes foram `dominio_nao_reconhecido` com score 50 — todos
+ * idênticos, e o objetivo `territorios_atuacao` terminou com ZERO fontes. Não
+ * era o mundo que estava vazio; era a lista que era pequena.
+ *
+ * Aumentar a lista à mão não escala e envelhece mal. Estes sinais permitem que
+ * um veículo desconhecido PROVE ser editorial, sem abrir a porta para qualquer
+ * domínio: continuam valendo o filtro de anúncio, o de baixa autoridade e a
+ * verificação de entidade.
+ */
+const SINAIS_EDITORIAIS: Array<{ re: RegExp; sinal: string; pontos: number }> = [
+  // Seção de notícia no caminho da URL — marca de veículo, não de loja.
+  { re: /\/(noticias?|news|materias?|reportagens?|artigos?|story|stories)\//i, sinal: "secao_de_noticia", pontos: 12 },
+  // Padrão de permalink datado, típico de CMS editorial.
+  { re: /\/20\d{2}\/\d{1,2}\//, sinal: "permalink_datado", pontos: 12 },
+  // Vocabulário de imprensa no próprio domínio.
+  { re: /(revista|jornal|portal|diario|gazeta|magazine|press|news|midia|media)/i, sinal: "nome_de_veiculo", pontos: 10 },
+  // Editorias que cobrem o domínio da Cross.
+  { re: /\/(moda|fashion|marketing|negocios|business|cultura|culture|music|musica|esporte|sports|varejo|retail)\//i, sinal: "editoria_relevante", pontos: 8 },
+  // Seções editoriais que não usam o vocabulário de "notícia" mas são conteúdo
+  // analítico — foi assim que uma matéria sobre subculturas e collabs (o que o
+  // Crossability mais precisa) acabou barrada por não ter "/noticias/" na URL.
+  { re: /\/(style-guide|trends?|subcultures?|colabora|collabs?|editorial|insights?|analise|analysis|especial|tag)\b/i, sinal: "secao_editorial_analitica", pontos: 12 },
+  { re: /\/(home-destaque|destaques?|blog\/[a-z0-9-]{8,})/i, sinal: "destaque_editorial", pontos: 8 },
+];
+
+/**
+ * Domínios que NUNCA são fonte editorial, por mais sinais que a URL exiba.
+ *
+ * Repositório de trabalho acadêmico, rede social e agregador de avaliação
+ * publicam texto sobre a marca sem apuração — e um SWOT de estudante tem a
+ * mesma aparência estrutural de uma análise setorial. Barrar aqui é mais
+ * honesto do que tentar pontuar a diferença.
+ */
+const DOMINIOS_NAO_EDITORIAIS = [
+  /scribd\./i, /studocu\./i, /passeidireto\./i, /coursehero\./i, /academia\.edu/i,
+  /dspace\./i, /repositorio/i, /webartigos\./i, /trabalhosfeitos\./i, /monografias\./i,
+  /wikipedia\./i, /fandom\./i, /wikiwand\./i,
+  /instagram\./i, /facebook\./i, /twitter\./i, /x\.com$/i, /tiktok\./i, /pinterest\./i,
+  /glassdoor\./i, /indeed\./i, /reclameaqui\./i, /trustpilot\./i,
+  /youtube\./i, /vimeo\./i,
+  // Fazendas de conteúdo de "marketing strategy": reescrevem case genérico sem
+  // apuração. Aparecem em massa em busca sobre estratégia de marca e teriam
+  // passado no bar editorial pela URL de aparência analítica.
+  /businessmodelanalyst\./i, /projectpractical\./i, /latterly\.org/i,
+  /thebrandhopper\./i, /marketing91\./i, /iide\.co/i, /edrawmind\./i,
+  /1library\./i, /studylib\./i, /slideshare\./i,
+];
+
+/** TLDs de país/organização com barreira mínima de registro. */
+const TLD_CONFIAVEL = /\.(com\.br|org\.br|net\.br|com|org|net|co\.uk|fr|de|it|es|jp)$/i;
 
 /** Agregadores e republicadores — não são fonte original. */
 export const AGREGADORES = new Set([
@@ -219,8 +283,15 @@ export function avaliarFonte(input: {
     return { classificacao: "baixa_autoridade", score: 20, sinais };
   }
 
+  // Antes de qualquer pontuação por sinais: estes domínios não se qualificam
+  // como editorial nem com URL de aparência jornalística.
+  if (DOMINIOS_NAO_EDITORIAIS.some((p) => p.test(dominio))) {
+    sinais.push("nao_editorial_por_natureza");
+    return { classificacao: "baixa_autoridade", score: 25, sinais };
+  }
+
   // Desconhecido: parte de uma faixa baixa e só sobe com sinal objetivo.
-  // Domínio desconhecido NÃO deve passar no gate sem mais evidência.
+  // Domínio desconhecido NÃO passa no gate sem PROVAR natureza editorial.
   let score = 45;
   if (input.url.startsWith("https://")) {
     score += 5;
@@ -229,6 +300,47 @@ export function avaliarFonte(input: {
     score -= 15;
     sinais.push("sem_https");
   }
+
+  // Sinais estruturais: permitem que um veículo fora da lista se qualifique.
+  // Sem isso, a lista fechada era o teto da pesquisa — e objetivos inteiros
+  // terminavam com zero fontes por falta de cadastro, não por falta de fonte.
+  let pontosEditoriais = 0;
+  const alvo = `${dominio}${(() => {
+    try {
+      return new URL(input.url).pathname;
+    } catch {
+      return "";
+    }
+  })()}`;
+  for (const s of SINAIS_EDITORIAIS) {
+    if (s.re.test(alvo)) {
+      pontosEditoriais += s.pontos;
+      sinais.push(s.sinal);
+    }
+  }
+
+  if (TLD_CONFIAVEL.test(dominio)) {
+    pontosEditoriais += 4;
+    sinais.push("tld_com_barreira_de_registro");
+  }
+
+  score += pontosEditoriais;
+
+  // Bar de qualificação editorial.
+  //
+  // 16 = um sinal forte de seção editorial (12) + TLD com barreira (4). Foi
+  // calibrado contra fontes reais: admite uma matéria de style-guide sobre
+  // subculturas e um portal de varejo setorial — ambos com o conteúdo que o
+  // Crossability precisa — enquanto Scribd, Studocu, Wikipedia e Instagram
+  // ficam em 25 pelo filtro de natureza, sem chance de alcançar este bar.
+  //
+  // O teto de 72 mantém a hierarquia: veículo não catalogado nunca supera um
+  // curado (75) nem imprensa de referência (85).
+  if (pontosEditoriais >= 16) {
+    sinais.push("veiculo_editorial_por_sinais");
+    return { classificacao: "imprensa_especializada", score: Math.min(72, score), sinais };
+  }
+
   sinais.push("dominio_nao_reconhecido");
   return { classificacao: "baixa_autoridade", score: Math.max(0, score), sinais };
 }

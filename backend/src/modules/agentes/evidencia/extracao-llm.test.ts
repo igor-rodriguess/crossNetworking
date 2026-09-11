@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { extrairClaimsComLlm, respostaExtracaoSchema, validarQuote } from "./extracao-llm";
+import {
+  extrairClaimsComLlm,
+  reclassificarCategoria,
+  respostaExtracaoSchema,
+  validarQuote,
+} from "./extracao-llm";
 
 // O extrator chama o cliente LLM, que sem AI_MOCK tentaria o Ollama local.
 // A suíte NÃO pode depender de modelo rodando: seria lenta e nao-determinística
@@ -118,5 +123,81 @@ describe("Comportamento sem provider real (stub)", () => {
     expect(saida.claims.every((c) => typeof c.claim === "string")).toBe(true);
     // Nenhum fato inventado sobre faturamento.
     expect(saida.claims.filter((c) => c.aceito)).toHaveLength(0);
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Reclassificação das categorias prioritárias.
+//
+// Os claims abaixo são REAIS: saíram de uma execução do agente contra fontes da
+// Converse, com citação validada. O perfil consolidado reportou público=0 e
+// ativos=0 mesmo tendo estes fatos em mãos — a informação estava correta, só
+// arquivada na gaveta errada. Estes testes existem para essa regressão não
+// voltar silenciosamente.
+// -----------------------------------------------------------------------------
+describe("Reclassificação para categorias prioritárias", () => {
+  it("reencaminha público que o modelo classificou como campanha", () => {
+    const r = reclassificarCategoria(
+      "A marca Converse propõe engajamento da visibilidade dos jovens da sua comunidade",
+      "campanha"
+    );
+    expect(r.categoria).toBe("publico");
+    expect(r.reclassificado).toBe(true);
+  });
+
+  it("reencaminha programa próprio para ativo, não movimento estratégico", () => {
+    const r = reclassificarCategoria(
+      "Converse All Stars is a program to support the world's best emerging creators",
+      "movimento_estrategico"
+    );
+    expect(r.categoria).toBe("ativo");
+  });
+
+  it("trata rede de talentos da marca como ativo", () => {
+    const r = reclassificarCategoria(
+      "Converse All Stars gain access to a global network of like-minded talent",
+      "movimento_estrategico"
+    );
+    expect(r.categoria).toBe("ativo");
+  });
+
+  it("ativo tem precedência sobre público quando o programa cita quem atende", () => {
+    // "programa … para criadores emergentes" casa com os dois sinais. O ativo é
+    // a dimensão mais escassa; perdê-la para público seria o pior dos erros.
+    const r = reclassificarCategoria(
+      "A marca mantém um programa de apoio a criadores emergentes",
+      "outro"
+    );
+    expect(r.categoria).toBe("ativo");
+  });
+
+  it("NÃO confunde escopo de campanha com território de atuação", () => {
+    // Regressão real: uma versão anterior usava sinais largos ("global",
+    // "cidades") e transformava alcance de campanha em território.
+    const r = reclassificarCategoria(
+      "A ação global Converse City Forest envolveu a criação de murais em várias cidades do mundo",
+      "campanha"
+    );
+    expect(r.categoria).toBe("campanha");
+    expect(r.reclassificado).toBe(false);
+  });
+
+  it("não mexe em categoria específica escolhida pelo modelo", () => {
+    // `produto` é confiável; reclassificar aqui seria sobrepor uma decisão boa.
+    const r = reclassificarCategoria("Converse has a platform shoe collection", "produto");
+    expect(r.categoria).toBe("produto");
+    expect(r.reclassificado).toBe(false);
+  });
+
+  it("preserva categoria prioritária já atribuída pelo modelo", () => {
+    const r = reclassificarCategoria("A marca atua no mercado brasileiro", "territorio");
+    expect(r.categoria).toBe("territorio");
+    expect(r.reclassificado).toBe(false);
+  });
+
+  it("mantém genérica quando nenhum sinal aparece", () => {
+    const r = reclassificarCategoria("A empresa divulgou seu relatório trimestral", "outro");
+    expect(r.categoria).toBe("outro");
+    expect(r.reclassificado).toBe(false);
   });
 });

@@ -56,6 +56,12 @@ export interface ClaimAvaliado {
   motivo?: MotivoRejeicao;
   /** Trecho realmente localizado no conteúdo, quando a validação passou. */
   quote_confirmada?: string;
+  /**
+   * Categoria que o modelo havia atribuído, quando a reclassificação
+   * determinística a alterou. Preservada para auditoria: permite medir o
+   * acerto do modelo sem perder o rastro da decisão.
+   */
+  categoria_original?: CategoriaFato;
 }
 
 const CATEGORIAS_VALIDAS = new Set<CategoriaFato>([
@@ -93,7 +99,47 @@ Extraia apenas afirmações sobre a ENTIDADE indicada. Conteúdo sobre outras em
 Responda SOMENTE com JSON válido:
 {"facts":[{"claim":"...","categoria":"produto","tipo":"fato","supporting_quote":"trecho literal"}]}
 
-Categorias válidas: contexto_empresa, posicionamento, publico, territorio, ativo, campanha, produto, parceria, patrocinio, evento, expansao, lideranca, movimento_estrategico, sinal_cultural, sinal_mercado, outro.
+CATEGORIAS — leia as definições antes de escolher. Três delas são PRIORITÁRIAS
+e costumam ser classificadas errado; preste atenção especial:
+
+- "publico" (PRIORITÁRIA): QUEM consome, usa ou é destinatário da marca. Perfil
+  de consumidor, faixa etária, geração, tribo, comunidade, cena cultural,
+  segmento social. Também vale quando o texto descreve a quem a marca se dirige
+  ou quem ela quer engajar.
+  Ex.: "a marca engaja jovens da sua comunidade" → publico
+  Ex.: "voltada para criadores emergentes" → publico
+
+- "ativo" (PRIORITÁRIA): o que a marca POSSUI e pode levar para uma parceria —
+  programa próprio, plataforma, propriedade, comunidade, elenco de embaixadores,
+  rede de talentos, espaço, evento recorrente, canal de mídia próprio.
+  Distinção: um PROGRAMA ou PLATAFORMA que a marca mantém é "ativo", não
+  "movimento_estrategico". Movimento é uma decisão pontual; ativo é algo que a
+  marca tem e pode oferecer.
+  Ex.: "programa que apoia criadores emergentes" → ativo
+  Ex.: "rede global de talentos da marca" → ativo
+
+- "territorio" (PRIORITÁRIA): onde a marca atua, tanto geográfico (país, cidade,
+  região, mercado) quanto simbólico (moda, música, esporte, arte urbana,
+  skate, lifestyle).
+  Ex.: "presente em arte urbana e música" → territorio
+  Ex.: "opera no mercado brasileiro" → territorio
+
+Demais categorias:
+- contexto_empresa: o que a empresa é, história, porte, estrutura societária
+- posicionamento: como a marca se define ou quer ser percebida
+- produto: item ou linha vendida ao consumidor
+- campanha: ação de comunicação com início e fim
+- parceria / patrocinio: vínculo com outra entidade
+- evento: acontecimento datado
+- expansao: abertura de operação ou entrada em mercado
+- lideranca: pessoas em cargo de decisão
+- movimento_estrategico: decisão pontual de negócio (aquisição, reestruturação)
+- sinal_cultural / sinal_mercado: tendência observada no texto
+- outro: só quando nenhuma acima se aplica
+
+REGRA DE DESEMPATE: se uma afirmação couber em uma categoria PRIORITÁRIA e
+também em outra, escolha a PRIORITÁRIA. Uma campanha que revela a quem a marca
+se dirige deve ser classificada como "publico".
 
 Retornar zero fatos é PREFERÍVEL a inventar um. Se nada no CONTEÚDO sustentar uma afirmação sobre a entidade, responda {"facts":[]}.`;
 
@@ -175,6 +221,84 @@ export function validarQuote(quote: string, conteudo: string): ResultadoValidaca
 // -----------------------------------------------------------------------------
 // Extração
 // -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// Reclassificação determinística das categorias prioritárias
+// -----------------------------------------------------------------------------
+
+/**
+ * Sinais léxicos das três dimensões que o Crossability precisa.
+ *
+ * Existe porque a classificação do modelo local erra sistematicamente nelas.
+ * Numa rodada real contra a Converse, "propõe engajamento da visibilidade dos
+ * jovens da sua comunidade" saiu como `campanha`, e o programa próprio da marca
+ * de apoio a criadores emergentes saiu como `movimento_estrategico`. Os fatos
+ * estavam corretos e a citação era real — só a gaveta estava errada, e o perfil
+ * reportava público=0 e ativos=0 tendo a informação em mãos.
+ *
+ * Esta passada NÃO cria fato nem altera texto: apenas reencaminha um claim já
+ * validado para a seção certa. É conservadora de propósito — só reclassifica
+ * quando o modelo escolheu uma categoria genérica, nunca sobrescreve uma
+ * escolha já prioritária.
+ */
+// A ordem importa: `ativo` é avaliado primeiro porque um programa próprio quase
+// sempre também menciona o público que atende ("programa para criadores"), e
+// classificá-lo como público perderia o ativo — que é o mais escasso dos três.
+//
+// Os termos são deliberadamente ESPECÍFICOS. Uma versão anterior usava sinais
+// largos como "global" e "cidades", e reclassificou "ação global … murais em
+// várias cidades" como território: escopo de campanha virou território de
+// atuação. Sinal fraco produz ruído com aparência de dado, que é pior do que
+// lacuna honesta.
+const SINAIS_PRIORITARIOS: Array<{ categoria: CategoriaFato; termos: RegExp }> = [
+  {
+    categoria: "ativo",
+    termos:
+      /\b(e um programa|programa (proprio|de apoio|que apoia)|is a program|plataforma (propria|de)|embaixador(es)?|ambassadors?|elenco|rede (global )?de (talentos?|criadores?)|global network of|coletivo|festival proprio|canal proprio|selo proprio)\b/,
+  },
+  {
+    categoria: "publico",
+    termos:
+      /\b(jovens?|geracao [xyz]|gen z|millennials?|publico alvo|consumidor(es)?|audiencia|sua comunidade|comunidade global|tribo|criadores? emergentes?|emerging creators?|talentos? emergentes?|skatistas?|adolescentes?)\b/,
+  },
+  {
+    categoria: "territorio",
+    termos:
+      /\b(mercado brasileiro|no brasil|america latina|opera (em|no|na)|atua (em|no|na)|presente (em|no|na)|moda|musica|esporte|skate|arte urbana|streetwear|lifestyle|basquete)\b/,
+  },
+];
+
+/** Categorias genéricas o bastante para admitir reencaminhamento. */
+const RECLASSIFICAVEIS = new Set<CategoriaFato>([
+  "campanha",
+  "movimento_estrategico",
+  "sinal_cultural",
+  "sinal_mercado",
+  "contexto_empresa",
+  "outro",
+]);
+
+/**
+ * Reencaminha um claim para uma categoria prioritária quando o texto o sustenta.
+ *
+ * Devolve a categoria original se nada indicar mudança. Nunca reclassifica algo
+ * que já está numa categoria prioritária ou numa categoria específica (produto,
+ * parceria, lideranca…), onde a escolha do modelo é confiável.
+ */
+export function reclassificarCategoria(
+  claim: string,
+  categoria: CategoriaFato
+): { categoria: CategoriaFato; reclassificado: boolean } {
+  if (!RECLASSIFICAVEIS.has(categoria)) return { categoria, reclassificado: false };
+
+  const texto = normalizarParaComparacao(claim);
+  for (const sinal of SINAIS_PRIORITARIOS) {
+    if (sinal.termos.test(texto)) {
+      return { categoria: sinal.categoria, reclassificado: sinal.categoria !== categoria };
+    }
+  }
+  return { categoria, reclassificado: false };
+}
 
 export interface EntradaExtracaoLlm {
   entidade: string;
@@ -281,7 +405,18 @@ export async function extrairClaimsComLlm(
       continue;
     }
 
-    claims.push({ ...base, aceito: true, quote_confirmada: b.supporting_quote });
+    // 6. Reencaminhamento para categoria prioritária. Só aqui, depois de todas
+    //    as barreiras: reclassificar não relaxa nenhuma delas, apenas coloca um
+    //    fato já aprovado na seção correta do perfil.
+    const rc = reclassificarCategoria(b.claim, base.categoria);
+
+    claims.push({
+      ...base,
+      categoria: rc.categoria,
+      categoria_original: rc.reclassificado ? base.categoria : undefined,
+      aceito: true,
+      quote_confirmada: b.supporting_quote,
+    });
   }
 
   return {

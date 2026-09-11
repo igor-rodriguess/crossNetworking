@@ -90,6 +90,18 @@ const schema = z.object({
   AI_PAID_PROVIDERS_ENABLED: booleanEnv,
   // Teto de custo estimado por execução de pipeline, em USD.
   AI_MAX_COST_PER_RUN_USD: z.coerce.number().nonnegative().default(0.5),
+  // Tetos GLOBAIS persistentes, em USD. Diferente do teto por execução, estes
+  // são apurados no banco (cross_ai.consumo_ia) e sobrevivem a restart: sem
+  // eles, mil execuções de US$ 0,10 custam US$ 100 sem disparar bloqueio algum.
+  //
+  // Os tetos se ANINHAM: execução ≤ cliente/mês ≤ diário ≤ mensal. Um teto por
+  // cliente maior que o diário seria inalcançável — o diário barraria antes,
+  // e o limite por cliente viraria decoração.
+  //
+  // Valores baixos de propósito: servem à validação controlada, não à produção.
+  AI_MAX_COST_PER_DAY_USD: z.coerce.number().nonnegative().default(5),
+  AI_MAX_COST_PER_MONTH_USD: z.coerce.number().nonnegative().default(50),
+  AI_MAX_COST_PER_CLIENT_MONTH_USD: z.coerce.number().nonnegative().default(2),
   // Tetos de chamadas por execução. Conservadores para desenvolvimento —
   // NÃO são os valores finais de produção.
   AI_MAX_LLM_CALLS_PER_RUN: z.coerce.number().int().positive().default(20),
@@ -98,6 +110,11 @@ const schema = z.object({
   // Trava contra "candidate explosion": quantos candidatos podem seguir para
   // o reasoning (1 chamada de LLM por candidato).
   AI_MAX_REASONING_CANDIDATES: z.coerce.number().int().positive().default(8),
+  // Internal Matching (AI-05). Tetos do funil de seleção: o SQL nunca devolve
+  // mais que MAX_CANDIDATOS, e a shortlist nunca passa de TAMANHO_SHORTLIST.
+  // Ficam aqui para não virarem números mágicos espalhados pelo agente.
+  MATCHING_MAX_CANDIDATOS: z.coerce.number().int().positive().default(200),
+  MATCHING_TAMANHO_SHORTLIST: z.coerce.number().int().positive().default(10),
   AI_MAX_RETRIES_PER_STEP: z.coerce.number().int().min(0).max(5).default(2),
   // Modo estrito de custo: operação paga cujo custo NÃO é estimável (modelo
   // fora da tabela de preços) é BLOQUEADA. `null` não é gratuito — é "não sei
@@ -118,7 +135,21 @@ const schema = z.object({
   // inferência em Planning, Crossability e nos demais agentes.
   //
   // Lista separada por vírgula; vazio = nenhuma operação autorizada.
-  // Default `fact_extraction`: é a única operação que hoje precisa de LLM.
+  //
+  // Default `fact_extraction`. `crossability_reasoning` NÃO entra por padrão:
+  // habilitar um agente é decisão explícita de operação e de custo, e um agente
+  // novo não deve ganhar acesso a LLM só por ter sido escrito. Para rodar o
+  // Crossability, declarar:
+  //   AI_ALLOWED_LLM_OPERATIONS=fact_extraction,crossability_reasoning
+  //
+  // Operações reconhecidas hoje:
+  //   fact_extraction          — extração de fatos com quote validada (AI-02.3)
+  //   crossability_reasoning   — raciocínio Crossability (AI-04)
+  //   cross_knowledge_embedding— embeddings do Cross Knowledge (AI-01)
+  //
+  // Continuam SEM operação declarada — e portanto sem acesso a LLM pago:
+  // Recommendation, Matching, Meeting Intelligence, Monitoring e geração livre
+  // de texto. Um agente sem nome na allowlist é um agente que não gasta.
   AI_ALLOWED_LLM_OPERATIONS: z.preprocess(
     (v) => (typeof v === "string" ? v : "fact_extraction"),
     z.string().default("fact_extraction")
@@ -232,11 +263,18 @@ export const env = {
   paidProvidersEnabled: data.AI_PAID_PROVIDERS_ENABLED,
   strictCostMode: data.AI_STRICT_COST_MODE,
   maxCostPerRunUsd: data.AI_MAX_COST_PER_RUN_USD,
+  /** Tetos globais persistentes (apurados em cross_ai.consumo_ia). */
+  maxCostPerDayUsd: data.AI_MAX_COST_PER_DAY_USD,
+  maxCostPerMonthUsd: data.AI_MAX_COST_PER_MONTH_USD,
+  maxCostPerClientMonthUsd: data.AI_MAX_COST_PER_CLIENT_MONTH_USD,
   maxLlmCallsPerRun: data.AI_MAX_LLM_CALLS_PER_RUN,
   maxWebSearchesPerRun: data.AI_MAX_WEB_SEARCHES_PER_RUN,
   maxScrapesPerRun: data.AI_MAX_SCRAPES_PER_RUN,
   maxReasoningCandidates: data.AI_MAX_REASONING_CANDIDATES,
   maxRetriesPerStep: data.AI_MAX_RETRIES_PER_STEP,
+  /** Tetos do funil do Internal Matching. */
+  matchingMaxCandidatos: data.MATCHING_MAX_CANDIDATOS,
+  matchingTamanhoShortlist: data.MATCHING_TAMANHO_SHORTLIST,
   /** Operações autorizadas a consumir LLM (allowlist). */
   allowedLlmOperations: new Set(
     data.AI_ALLOWED_LLM_OPERATIONS.split(",")

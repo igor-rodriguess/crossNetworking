@@ -25,6 +25,12 @@ export const objetivoPesquisa = z.enum([
   "eventos",
   "parcerias",
   "sinais_estrategicos",
+  // Objetivos dirigidos às dimensões da Crossability. Acrescentados na AI-03.1
+  // porque a pesquisa por "contexto geral" trazia situação financeira e deixava
+  // público, território e ativo vazios — justamente o que o Crossability avalia.
+  "publico_alvo",
+  "territorios_atuacao",
+  "ativos_marca",
 ]);
 export type ObjetivoPesquisa = z.infer<typeof objetivoPesquisa>;
 

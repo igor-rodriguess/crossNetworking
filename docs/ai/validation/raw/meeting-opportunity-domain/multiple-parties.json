@@ -1,0 +1,30 @@
+[
+  {
+    "id": "eaf8cba4-e516-4e5d-8b41-d075d360137f",
+    "reuniao_id": "463d17fe-689b-4cbd-9a83-3e3059c017d4",
+    "usuario_interno_id": null,
+    "parte_id": "e693ae5a-8863-485f-9856-707bbf93328b",
+    "papel": "cliente"
+  },
+  {
+    "id": "6274f0b3-b7c5-4d1e-a0a1-a8f0980103eb",
+    "reuniao_id": "463d17fe-689b-4cbd-9a83-3e3059c017d4",
+    "usuario_interno_id": null,
+    "parte_id": "e4338425-fd58-40e3-a154-a53c3434d273",
+    "papel": "parceiro"
+  },
+  {
+    "id": "6fa0e402-8933-4172-9279-dd0b1b4aae9c",
+    "reuniao_id": "463d17fe-689b-4cbd-9a83-3e3059c017d4",
+    "usuario_interno_id": null,
+    "parte_id": "0922fb2b-6792-4250-97dc-a0a1b6c3ae58",
+    "papel": "artista"
+  },
+  {
+    "id": "6ff29546-7eba-4d1b-8be7-0b6708d553e0",
+    "reuniao_id": "463d17fe-689b-4cbd-9a83-3e3059c017d4",
+    "usuario_interno_id": "8dcda89b-6f19-4085-a5c0-cd0a4d208e09",
+    "parte_id": null,
+    "papel": "cross"
+  }
+]

@@ -340,7 +340,8 @@ export async function inserirReuniao(
 }
 
 const SELECT_REUNIAO = `
-  SELECT id, parceria_id, titulo, data_reuniao, local, resumo, criado_em,
+  SELECT id, parceria_id, candidatura_parceiro_id, projeto_id, tipo, status,
+         titulo, data_reuniao, local, resumo, criado_em,
          xmin::text AS versao
     FROM cross_execution.reuniao
    WHERE arquivado_em IS NULL`;
@@ -355,6 +356,93 @@ export async function listarReunioes(client: PoolClient, parceriaId: string) {
   const { rows } = await client.query(
     `${SELECT_REUNIAO} AND parceria_id = $1 ORDER BY data_reuniao DESC`,
     [parceriaId]
+  );
+  return rows;
+}
+
+// --- Reunião com contexto flexível (DOMAIN-01) -------------------------------
+//
+// A reunião deixou de exigir parceria: ela costuma acontecer ANTES de existir
+// parceria, e é justamente ela que decide se vai existir. Parceria, oportunidade
+// e projeto entram como contexto opcional.
+
+export interface ContextoReuniao {
+  parceriaId?: string | null;
+  candidaturaParceiroId?: string | null;
+  projetoId?: string | null;
+  tipo?: string;
+  status?: string;
+}
+
+/**
+ * Insere reunião com contexto opcional.
+ *
+ * Convive com `inserirReuniao`, que continua servindo a rota legada de
+ * parceria — remover aquele caminho quebraria clientes existentes sem
+ * necessidade.
+ */
+export async function inserirReuniaoComContexto(
+  client: PoolClient,
+  input: CriarReuniaoInput,
+  contexto: ContextoReuniao,
+  usuarioId: string | null
+): Promise<string> {
+  const { rows } = await client.query<{ id: string }>(
+    `INSERT INTO cross_execution.reuniao
+       (parceria_id, candidatura_parceiro_id, projeto_id, tipo, status,
+        titulo, data_reuniao, local, resumo, criado_por_id, atualizado_por_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$10)
+     RETURNING id`,
+    [
+      contexto.parceriaId ?? null,
+      contexto.candidaturaParceiroId ?? null,
+      contexto.projetoId ?? null,
+      contexto.tipo ?? "reuniao",
+      contexto.status ?? "planejada",
+      input.titulo,
+      input.data_reuniao,
+      input.local ?? null,
+      input.resumo ?? null,
+      usuarioId,
+    ]
+  );
+  return rows[0].id;
+}
+
+/**
+ * Reuniões de uma Parte, por participação.
+ *
+ * Responde "quais reuniões conhecemos sobre esta Parte?" — pergunta que o
+ * Meeting Intelligence fará. Passa por `reuniao_participante`, porque é lá que
+ * a relação com Parte realmente vive.
+ */
+export async function listarReunioesPorParte(client: PoolClient, parteId: string) {
+  const { rows } = await client.query(
+    `${SELECT_REUNIAO}
+       AND id IN (
+         SELECT reuniao_id FROM cross_execution.reuniao_participante
+          WHERE parte_id = $1
+       )
+     ORDER BY data_reuniao DESC`,
+    [parteId]
+  );
+  return rows;
+}
+
+/** Reuniões ligadas a uma oportunidade (candidatura). */
+export async function listarReunioesPorCandidatura(client: PoolClient, candidaturaId: string) {
+  const { rows } = await client.query(
+    `${SELECT_REUNIAO} AND candidatura_parceiro_id = $1 ORDER BY data_reuniao DESC`,
+    [candidaturaId]
+  );
+  return rows;
+}
+
+/** Reuniões ligadas a um projeto. */
+export async function listarReunioesPorProjeto(client: PoolClient, projetoId: string) {
+  const { rows } = await client.query(
+    `${SELECT_REUNIAO} AND projeto_id = $1 ORDER BY data_reuniao DESC`,
+    [projetoId]
   );
   return rows;
 }

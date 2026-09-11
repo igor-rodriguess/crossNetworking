@@ -1,0 +1,20 @@
+{
+  "conteudo": "Mari: Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.\nRoberto: Temos interesse em explorar música e festivais neste semestre.\nRoberto: Precisamos encontrar um parceiro que tenha distribuição nacional.\nRoberto: Temos 120 lojas em operação hoje no país.\nMari: Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.\nCarla: Eu gosto muito da proposta A, parece bem alinhada com o que buscamos.\nMari: Vamos seguir com a proposta A então.\nRoberto: Vou enviar a apresentação comercial até 15/03/2026.\nMari: Próximo passo é agendar o alinhamento com o time de marketing.\nCarla: Como fica a questão do orçamento para essa ativação?",
+  "mapeamento": [
+    {
+      "rotulo": "Mari",
+      "usuarioInternoId": "user-mari",
+      "nome": "Mari (Cross)"
+    },
+    {
+      "rotulo": "Roberto",
+      "parteId": "parte-marca",
+      "nome": "Roberto (Marca Aderente)"
+    },
+    {
+      "rotulo": "Carla",
+      "parteId": "parte-cliente",
+      "nome": "Carla (Cliente Alfa)"
+    }
+  ]
+}

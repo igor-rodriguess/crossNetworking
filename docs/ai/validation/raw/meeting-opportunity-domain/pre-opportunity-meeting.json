@@ -1,0 +1,30 @@
+{
+  "id": "1b944ee2-23be-4d55-b727-949cacfe7524",
+  "parceria_id": null,
+  "candidatura_parceiro_id": null,
+  "projeto_id": null,
+  "tipo": "exploratoria",
+  "status": "planejada",
+  "titulo": "Primeira conversa exploratória",
+  "data_reuniao": "2026-08-29T20:39:51.023Z",
+  "local": null,
+  "resumo": null,
+  "criado_em": "2026-08-29T20:39:51.099Z",
+  "versao": "50581",
+  "participantes": [
+    {
+      "id": "df4ce0ba-ca4e-49cb-a9bc-a97159823ae8",
+      "reuniao_id": "1b944ee2-23be-4d55-b727-949cacfe7524",
+      "usuario_interno_id": null,
+      "parte_id": "e693ae5a-8863-485f-9856-707bbf93328b",
+      "papel": "cliente"
+    },
+    {
+      "id": "93cb4a68-3a94-4f7d-baf4-5e3ba914c198",
+      "reuniao_id": "1b944ee2-23be-4d55-b727-949cacfe7524",
+      "usuario_interno_id": null,
+      "parte_id": "e4338425-fd58-40e3-a154-a53c3434d273",
+      "papel": "prospect"
+    }
+  ]
+}

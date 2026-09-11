@@ -1,0 +1,23 @@
+{
+  "opiniao_virou_decisao": false,
+  "decisao_extraida": true,
+  "decisoes": [
+    {
+      "item_id": "ITEM-007",
+      "tipo": "decisao",
+      "texto": "Vamos seguir com a proposta A então.",
+      "speaker_rotulo": "Mari",
+      "parte_id": null,
+      "source_segments": [
+        "SEG-007"
+      ],
+      "supporting_quote": "Vamos seguir com a proposta A então.",
+      "extraction_confidence": 85,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ]
+}

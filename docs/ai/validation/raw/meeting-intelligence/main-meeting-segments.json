@@ -1,0 +1,82 @@
+[
+  {
+    "segment_id": "SEG-001",
+    "ordem": 1,
+    "speaker_rotulo": "Mari",
+    "texto": "Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-002",
+    "ordem": 2,
+    "speaker_rotulo": "Roberto",
+    "texto": "Temos interesse em explorar música e festivais neste semestre.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-003",
+    "ordem": 3,
+    "speaker_rotulo": "Roberto",
+    "texto": "Precisamos encontrar um parceiro que tenha distribuição nacional.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-004",
+    "ordem": 4,
+    "speaker_rotulo": "Roberto",
+    "texto": "Temos 120 lojas em operação hoje no país.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-005",
+    "ordem": 5,
+    "speaker_rotulo": "Mari",
+    "texto": "Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-006",
+    "ordem": 6,
+    "speaker_rotulo": "Carla",
+    "texto": "Eu gosto muito da proposta A, parece bem alinhada com o que buscamos.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-007",
+    "ordem": 7,
+    "speaker_rotulo": "Mari",
+    "texto": "Vamos seguir com a proposta A então.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-008",
+    "ordem": 8,
+    "speaker_rotulo": "Roberto",
+    "texto": "Vou enviar a apresentação comercial até 15/03/2026.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-009",
+    "ordem": 9,
+    "speaker_rotulo": "Mari",
+    "texto": "Próximo passo é agendar o alinhamento com o time de marketing.",
+    "inicio": null,
+    "fim": null
+  },
+  {
+    "segment_id": "SEG-010",
+    "ordem": 10,
+    "speaker_rotulo": "Carla",
+    "texto": "Como fica a questão do orçamento para essa ativação?",
+    "inicio": null,
+    "fim": null
+  }
+]

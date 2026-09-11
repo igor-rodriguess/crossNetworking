@@ -1,0 +1,9 @@
+{
+  "contexto": {
+    "candidatura_parceiro_id": null,
+    "projeto_id": null,
+    "parceria_id": "parc-1"
+  },
+  "status": "analisada",
+  "total": 10
+}

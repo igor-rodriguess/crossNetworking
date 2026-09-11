@@ -1,0 +1,94 @@
+{
+  "reuniao_id": "vazia",
+  "conteudo_hash": "2deef5bd97d2148c5606e36466973c5f33e9b28ccc3a019e77eb49079e9529f1",
+  "conteudo_versao": 1,
+  "tipo_conteudo": "notas",
+  "status": "conteudo_insuficiente",
+  "contexto": {
+    "candidatura_parceiro_id": null,
+    "projeto_id": null,
+    "parceria_id": null
+  },
+  "participantes": [
+    {
+      "rotulo": "Mari",
+      "status": "nao_resolvido",
+      "parte_id": null,
+      "usuario_interno_id": null,
+      "nome": null
+    },
+    {
+      "rotulo": "Roberto",
+      "status": "nao_resolvido",
+      "parte_id": null,
+      "usuario_interno_id": null,
+      "nome": null
+    }
+  ],
+  "speakers_nao_resolvidos": [
+    "Mari",
+    "Roberto"
+  ],
+  "segmentos": [
+    {
+      "segment_id": "SEG-001",
+      "ordem": 1,
+      "speaker_rotulo": "Mari",
+      "texto": "Oi, tudo bem?",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-002",
+      "ordem": 2,
+      "speaker_rotulo": "Roberto",
+      "texto": "Obrigado.",
+      "inicio": null,
+      "fim": null
+    }
+  ],
+  "objetivos": [],
+  "interesses": [],
+  "necessidades": [],
+  "dores": [],
+  "ativos": [],
+  "ofertas": [],
+  "restricoes": [],
+  "objecoes": [],
+  "decisoes": [],
+  "compromissos": [],
+  "proximos_passos": [],
+  "perguntas_abertas": [],
+  "meeting_claims": [],
+  "sinais_relacionamento": [],
+  "conflitos": [],
+  "lacunas": [
+    "Conteúdo sem substância suficiente para análise."
+  ],
+  "resumo_executivo": "Conteúdo insuficiente para análise. Nenhuma inteligência foi extraída.",
+  "memory_candidates": [],
+  "rejeitados": [],
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente",
+  "extractor_mode": "deterministico",
+  "extractor_versao": "deterministico-v1",
+  "telemetria": {
+    "duracao_ms": 0,
+    "caracteres_entrada": 38,
+    "total_segmentos": 2,
+    "total_lotes": 0,
+    "total_itens": 0,
+    "itens_deduplicados": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_alterados": 0,
+    "parcerias_alteradas": 0,
+    "reunioes_criadas": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  }
+}

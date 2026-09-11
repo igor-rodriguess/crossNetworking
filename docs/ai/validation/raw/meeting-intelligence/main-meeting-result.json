@@ -1,0 +1,365 @@
+{
+  "reuniao_id": "reuniao-principal",
+  "conteudo_hash": "c1bdc730af57a8691fda6d636be8ea36063ab94b2a849a4f7c2c9e172f90f90b",
+  "conteudo_versao": 1,
+  "tipo_conteudo": "ata",
+  "status": "analisada",
+  "contexto": {
+    "candidatura_parceiro_id": "cand-001",
+    "projeto_id": null,
+    "parceria_id": null
+  },
+  "participantes": [
+    {
+      "rotulo": "Mari",
+      "status": "usuario_interno",
+      "parte_id": null,
+      "usuario_interno_id": "user-mari",
+      "nome": "Mari (Cross)"
+    },
+    {
+      "rotulo": "Roberto",
+      "status": "parte",
+      "parte_id": "parte-marca",
+      "usuario_interno_id": null,
+      "nome": "Roberto (Marca Aderente)"
+    },
+    {
+      "rotulo": "Carla",
+      "status": "parte",
+      "parte_id": "parte-cliente",
+      "usuario_interno_id": null,
+      "nome": "Carla (Cliente Alfa)"
+    }
+  ],
+  "speakers_nao_resolvidos": [],
+  "segmentos": [
+    {
+      "segment_id": "SEG-001",
+      "ordem": 1,
+      "speaker_rotulo": "Mari",
+      "texto": "Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-002",
+      "ordem": 2,
+      "speaker_rotulo": "Roberto",
+      "texto": "Temos interesse em explorar música e festivais neste semestre.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-003",
+      "ordem": 3,
+      "speaker_rotulo": "Roberto",
+      "texto": "Precisamos encontrar um parceiro que tenha distribuição nacional.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-004",
+      "ordem": 4,
+      "speaker_rotulo": "Roberto",
+      "texto": "Temos 120 lojas em operação hoje no país.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-005",
+      "ordem": 5,
+      "speaker_rotulo": "Mari",
+      "texto": "Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-006",
+      "ordem": 6,
+      "speaker_rotulo": "Carla",
+      "texto": "Eu gosto muito da proposta A, parece bem alinhada com o que buscamos.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-007",
+      "ordem": 7,
+      "speaker_rotulo": "Mari",
+      "texto": "Vamos seguir com a proposta A então.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-008",
+      "ordem": 8,
+      "speaker_rotulo": "Roberto",
+      "texto": "Vou enviar a apresentação comercial até 15/03/2026.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-009",
+      "ordem": 9,
+      "speaker_rotulo": "Mari",
+      "texto": "Próximo passo é agendar o alinhamento com o time de marketing.",
+      "inicio": null,
+      "fim": null
+    },
+    {
+      "segment_id": "SEG-010",
+      "ordem": 10,
+      "speaker_rotulo": "Carla",
+      "texto": "Como fica a questão do orçamento para essa ativação?",
+      "inicio": null,
+      "fim": null
+    }
+  ],
+  "objetivos": [
+    {
+      "item_id": "ITEM-001",
+      "tipo": "objetivo",
+      "texto": "Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.",
+      "speaker_rotulo": "Mari",
+      "parte_id": null,
+      "source_segments": [
+        "SEG-001"
+      ],
+      "supporting_quote": "Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.",
+      "extraction_confidence": 80,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "interesses": [
+    {
+      "item_id": "ITEM-002",
+      "tipo": "interesse",
+      "texto": "Temos interesse em explorar música e festivais neste semestre.",
+      "speaker_rotulo": "Roberto",
+      "parte_id": "parte-marca",
+      "source_segments": [
+        "SEG-002"
+      ],
+      "supporting_quote": "Temos interesse em explorar música e festivais neste semestre.",
+      "extraction_confidence": 70,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "necessidades": [
+    {
+      "item_id": "ITEM-003",
+      "tipo": "necessidade",
+      "texto": "Precisamos encontrar um parceiro que tenha distribuição nacional.",
+      "speaker_rotulo": "Roberto",
+      "parte_id": "parte-marca",
+      "source_segments": [
+        "SEG-003"
+      ],
+      "supporting_quote": "Precisamos encontrar um parceiro que tenha distribuição nacional.",
+      "extraction_confidence": 80,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": false,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "dores": [],
+  "ativos": [
+    {
+      "item_id": "ITEM-004",
+      "tipo": "ativo",
+      "texto": "Temos 120 lojas em operação hoje no país.",
+      "speaker_rotulo": "Roberto",
+      "parte_id": "parte-marca",
+      "source_segments": [
+        "SEG-004"
+      ],
+      "supporting_quote": "Temos 120 lojas em operação hoje no país.",
+      "extraction_confidence": 70,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": "hoje",
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "ofertas": [],
+  "restricoes": [
+    {
+      "item_id": "ITEM-006",
+      "tipo": "restricao",
+      "texto": "Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.",
+      "speaker_rotulo": "Mari",
+      "parte_id": null,
+      "source_segments": [
+        "SEG-005"
+      ],
+      "supporting_quote": "Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.",
+      "extraction_confidence": 80,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": false,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "objecoes": [],
+  "decisoes": [
+    {
+      "item_id": "ITEM-007",
+      "tipo": "decisao",
+      "texto": "Vamos seguir com a proposta A então.",
+      "speaker_rotulo": "Mari",
+      "parte_id": null,
+      "source_segments": [
+        "SEG-007"
+      ],
+      "supporting_quote": "Vamos seguir com a proposta A então.",
+      "extraction_confidence": 85,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "compromissos": [
+    {
+      "item_id": "ITEM-008",
+      "tipo": "compromisso",
+      "texto": "Vou enviar a apresentação comercial até 15/03/2026.",
+      "speaker_rotulo": "Roberto",
+      "parte_id": "parte-marca",
+      "source_segments": [
+        "SEG-008"
+      ],
+      "supporting_quote": "Vou enviar a apresentação comercial até 15/03/2026.",
+      "extraction_confidence": 80,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": false,
+      "prazo_texto": "15/03/2026",
+      "prazo_normalizado": "15/03/2026",
+      "responsavel_texto": "Roberto"
+    }
+  ],
+  "proximos_passos": [
+    {
+      "item_id": "ITEM-009",
+      "tipo": "proximo_passo",
+      "texto": "Próximo passo é agendar o alinhamento com o time de marketing.",
+      "speaker_rotulo": "Mari",
+      "parte_id": null,
+      "source_segments": [
+        "SEG-009"
+      ],
+      "supporting_quote": "Próximo passo é agendar o alinhamento com o time de marketing.",
+      "extraction_confidence": 75,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": false,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "perguntas_abertas": [
+    {
+      "item_id": "ITEM-010",
+      "tipo": "pergunta_aberta",
+      "texto": "Como fica a questão do orçamento para essa ativação?",
+      "speaker_rotulo": "Carla",
+      "parte_id": "parte-cliente",
+      "source_segments": [
+        "SEG-010"
+      ],
+      "supporting_quote": "Como fica a questão do orçamento para essa ativação?",
+      "extraction_confidence": 70,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": false,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "meeting_claims": [
+    {
+      "item_id": "ITEM-005",
+      "tipo": "meeting_claim",
+      "texto": "Temos 120 lojas em operação hoje no país.",
+      "speaker_rotulo": "Roberto",
+      "parte_id": "parte-marca",
+      "source_segments": [
+        "SEG-004"
+      ],
+      "supporting_quote": "Temos 120 lojas em operação hoje no país.",
+      "extraction_confidence": 85,
+      "verification_status": "nao_verificado",
+      "primeira_pessoa": true,
+      "prazo_texto": null,
+      "prazo_normalizado": null,
+      "responsavel_texto": null
+    }
+  ],
+  "sinais_relacionamento": [],
+  "conflitos": [],
+  "lacunas": [],
+  "resumo_executivo": "A reunião produziu 1 objetivo, 1 interesse, 1 necessidade, 1 restrição, 1 decisão, 1 compromisso, 1 próximo passo, 1 pergunta em aberto. 1 afirmação(ões) factual(is) foram registradas como não verificadas.",
+  "memory_candidates": [
+    {
+      "texto": "Bom dia a todos. Nosso objetivo é aumentar presença entre jovens universitários.",
+      "origem_item": "ITEM-001",
+      "parte_id": null,
+      "promotion_status": "nao_promovido"
+    },
+    {
+      "texto": "Temos interesse em explorar música e festivais neste semestre.",
+      "origem_item": "ITEM-002",
+      "parte_id": "parte-marca",
+      "promotion_status": "nao_promovido"
+    },
+    {
+      "texto": "Temos 120 lojas em operação hoje no país.",
+      "origem_item": "ITEM-004",
+      "parte_id": "parte-marca",
+      "promotion_status": "nao_promovido"
+    },
+    {
+      "texto": "Não podemos trabalhar com concorrentes do segmento esportivo até dezembro.",
+      "origem_item": "ITEM-006",
+      "parte_id": null,
+      "promotion_status": "nao_promovido"
+    }
+  ],
+  "rejeitados": [],
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente",
+  "extractor_mode": "deterministico",
+  "extractor_versao": "deterministico-v1",
+  "telemetria": {
+    "duracao_ms": 6,
+    "caracteres_entrada": 675,
+    "total_segmentos": 10,
+    "total_lotes": 1,
+    "total_itens": 10,
+    "itens_deduplicados": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_alterados": 0,
+    "parcerias_alteradas": 0,
+    "reunioes_criadas": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  }
+}

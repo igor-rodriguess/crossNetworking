@@ -1,0 +1,16 @@
+[
+  {
+    "rotulo": "Speaker 1",
+    "status": "nao_resolvido",
+    "parte_id": null,
+    "usuario_interno_id": null,
+    "nome": null
+  },
+  {
+    "rotulo": "Speaker 2",
+    "status": "nao_resolvido",
+    "parte_id": null,
+    "usuario_interno_id": null,
+    "nome": null
+  }
+]

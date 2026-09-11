@@ -1,0 +1,16 @@
+[
+  {
+    "id": "49b8dff2-3d65-4dd0-85bf-84da6e126145",
+    "parceria_id": null,
+    "candidatura_parceiro_id": "e5e41dc7-75fc-400a-9d8c-92be25ab3b66",
+    "projeto_id": null,
+    "tipo": "negociacao",
+    "status": "planejada",
+    "titulo": "Negociação da oportunidade",
+    "data_reuniao": "2026-08-29T20:39:51.023Z",
+    "local": null,
+    "resumo": null,
+    "criado_em": "2026-08-29T20:39:51.099Z",
+    "versao": "50581"
+  }
+]

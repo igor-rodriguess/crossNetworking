@@ -1,0 +1,15 @@
+[
+  {
+    "item_a": "ITEM-001",
+    "item_b": "ITEM-002",
+    "texto_a": "Vamos seguir com o lançamento em outubro.",
+    "texto_b": "Não vamos conseguir o lançamento em outubro, é inviável.",
+    "segmentos_a": [
+      "SEG-001"
+    ],
+    "segmentos_b": [
+      "SEG-002"
+    ],
+    "observacao": "Participantes divergem. Nenhuma versão foi escolhida."
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "principal": {
+    "duracao_ms": 6,
+    "caracteres_entrada": 675,
+    "total_segmentos": 10,
+    "total_lotes": 1,
+    "total_itens": 10,
+    "itens_deduplicados": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_alterados": 0,
+    "parcerias_alteradas": 0,
+    "reunioes_criadas": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  },
+  "longa": {
+    "duracao_ms": 5,
+    "caracteres_entrada": 20591,
+    "total_segmentos": 300,
+    "total_lotes": 8,
+    "total_itens": 1,
+    "itens_deduplicados": 299,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_alterados": 0,
+    "parcerias_alteradas": 0,
+    "reunioes_criadas": 0,
+    "score_cards_alterados": 0,
+    "cross_knowledge_escrito": 0,
+    "cross_memory_promovido": 0,
+    "avisos": []
+  },
+  "extractor_mode": "deterministico",
+  "nivel_validacao": "estrutural",
+  "validacao_semantica_real": "pendente"
+}

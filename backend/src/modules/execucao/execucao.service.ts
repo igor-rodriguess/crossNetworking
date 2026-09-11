@@ -252,6 +252,78 @@ export async function listarReunioes(parceriaId: string) {
   });
 }
 
+// --- Reunião com contexto flexível (DOMAIN-01) -------------------------------
+//
+// `criarReuniao` acima continua atendendo a rota legada `/parcerias/:id/reunioes`
+// e segue exigindo parceria — clientes existentes não mudam.
+//
+// O que segue permite o que o domínio antes proibia: registrar a conversa que
+// acontece ANTES da parceria existir.
+
+export interface ContextoNovaReuniao {
+  parceriaId?: string | null;
+  candidaturaParceiroId?: string | null;
+  projetoId?: string | null;
+  tipo?: string;
+  status?: string;
+}
+
+/**
+ * Cria reunião com contexto opcional.
+ *
+ * Valida apenas o que foi informado: exigir contexto que o negócio não tem
+ * reproduziria o defeito que esta Sprint corrige. A coerência entre
+ * candidatura e projeto é conferida pelo trigger de banco, que enxerga a
+ * cadeia inteira.
+ *
+ * NÃO cria oportunidade, projeto nem parceria — reunião é registro de conversa,
+ * não gatilho operacional.
+ */
+export async function criarReuniaoComContexto(
+  input: CriarReuniaoInput,
+  contexto: ContextoNovaReuniao,
+  usuarioId: string | null
+) {
+  return withTransaction(async (client) => {
+    if (contexto.parceriaId) {
+      await garantirParceria(client, contexto.parceriaId);
+    }
+    if (contexto.candidaturaParceiroId) {
+      const { rows } = await client.query(
+        `SELECT 1 FROM cross_projects.candidatura_parceiro
+          WHERE id = $1 AND arquivado_em IS NULL`,
+        [contexto.candidaturaParceiroId]
+      );
+      if (!rows.length) throw new NotFoundError("Oportunidade (candidatura) não encontrada");
+    }
+    if (contexto.projetoId) {
+      const { rows } = await client.query(
+        `SELECT 1 FROM cross_projects.projeto WHERE id = $1 AND arquivado_em IS NULL`,
+        [contexto.projetoId]
+      );
+      if (!rows.length) throw new NotFoundError("Projeto não encontrado");
+    }
+
+    const id = await repo.inserirReuniaoComContexto(client, input, contexto, usuarioId);
+    return repo.buscarReuniao(client, id);
+  }, { usuarioId });
+}
+
+/** Reuniões conhecidas sobre uma Parte. */
+export async function listarReunioesPorParte(parteId: string) {
+  return withTransaction((client) => repo.listarReunioesPorParte(client, parteId));
+}
+
+/** Reuniões ligadas a uma oportunidade. */
+export async function listarReunioesPorCandidatura(candidaturaId: string) {
+  return withTransaction((client) => repo.listarReunioesPorCandidatura(client, candidaturaId));
+}
+
+/** Reuniões ligadas a um projeto. */
+export async function listarReunioesPorProjeto(projetoId: string) {
+  return withTransaction((client) => repo.listarReunioesPorProjeto(client, projetoId));
+}
+
 export async function obterReuniao(id: string) {
   return withTransaction((client) => garantirReuniao(client, id));
 }

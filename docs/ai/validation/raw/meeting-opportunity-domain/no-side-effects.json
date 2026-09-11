@@ -1,0 +1,21 @@
+{
+  "meetings_created": 5,
+  "antes": {
+    "candidaturas": 1,
+    "projetos": 1,
+    "parcerias": 1,
+    "movimentacoes": 0
+  },
+  "depois": {
+    "candidaturas": 1,
+    "projetos": 1,
+    "parcerias": 1,
+    "movimentacoes": 0
+  },
+  "deltas": {
+    "candidaturas": 0,
+    "projetos": 0,
+    "parcerias": 0,
+    "movimentacoes": 0
+  }
+}

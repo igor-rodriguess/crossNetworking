@@ -1,0 +1,19 @@
+[
+  {
+    "item_id": "ITEM-005",
+    "tipo": "meeting_claim",
+    "texto": "Temos 120 lojas em operação hoje no país.",
+    "speaker_rotulo": "Roberto",
+    "parte_id": "parte-marca",
+    "source_segments": [
+      "SEG-004"
+    ],
+    "supporting_quote": "Temos 120 lojas em operação hoje no país.",
+    "extraction_confidence": 85,
+    "verification_status": "nao_verificado",
+    "primeira_pessoa": true,
+    "prazo_texto": null,
+    "prazo_normalizado": null,
+    "responsavel_texto": null
+  }
+]

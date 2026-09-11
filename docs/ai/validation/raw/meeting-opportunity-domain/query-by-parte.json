@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1b944ee2-23be-4d55-b727-949cacfe7524",
+    "parceria_id": null,
+    "candidatura_parceiro_id": null,
+    "projeto_id": null,
+    "tipo": "exploratoria",
+    "status": "planejada",
+    "titulo": "Primeira conversa exploratória",
+    "data_reuniao": "2026-08-29T20:39:51.023Z",
+    "local": null,
+    "resumo": null,
+    "criado_em": "2026-08-29T20:39:51.099Z",
+    "versao": "50581"
+  },
+  {
+    "id": "49b8dff2-3d65-4dd0-85bf-84da6e126145",
+    "parceria_id": null,
+    "candidatura_parceiro_id": "e5e41dc7-75fc-400a-9d8c-92be25ab3b66",
+    "projeto_id": null,
+    "tipo": "negociacao",
+    "status": "planejada",
+    "titulo": "Negociação da oportunidade",
+    "data_reuniao": "2026-08-29T20:39:51.023Z",
+    "local": null,
+    "resumo": null,
+    "criado_em": "2026-08-29T20:39:51.099Z",
+    "versao": "50581"
+  },
+  {
+    "id": "463d17fe-689b-4cbd-9a83-3e3059c017d4",
+    "parceria_id": null,
+    "candidatura_parceiro_id": null,
+    "projeto_id": null,
+    "tipo": "reuniao",
+    "status": "planejada",
+    "titulo": "Reunião com várias partes",
+    "data_reuniao": "2026-08-29T20:39:51.023Z",
+    "local": null,
+    "resumo": null,
+    "criado_em": "2026-08-29T20:39:51.099Z",
+    "versao": "50581"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "matching": {
+    "duracao_ms": 26,
+    "duracao_sql_ms": 3,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "pesos_versao": "retrieval-v1"
+  },
+  "recomendacao_forte": {
+    "duracao_ms": 1,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_criados": 0,
+    "parcerias_criadas": 0,
+    "reunioes_criadas": 0,
+    "mudancas_funil": 0,
+    "score_card_executado": false
+  },
+  "registros_operacionais_antes": 0,
+  "registros_operacionais_depois": 0
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "746a7300-2293-4a4e-aced-57a21e1ddfbf",
+    "recomendacao_id": "de0a70a4-6ef0-4e4b-b338-d9fdac700a82",
+    "recomendacao_versao": 1,
+    "decisao": "aprovada_com_edicoes",
+    "revisor_nome": "Bruno Coordenador",
+    "motivo": "O território prioritário é música, não moda.",
+    "override_insuficiente": false,
+    "versao_revisao": 1,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "id": "30806ad2-20c8-4ea7-a242-4ee16f230f19",
+    "recomendacao_id": "d800ebaf-188a-4600-9fae-126a26fb3764",
+    "recomendacao_versao": 1,
+    "decisao": "rejeitada",
+    "revisor_nome": "Ana Estrategista",
+    "motivo": "A marca já possui acordo de exclusividade incompatível, não registrado na base.",
+    "override_insuficiente": false,
+    "versao_revisao": 1,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "id": "72ea4660-587a-439f-9f2d-460e8a61dac0",
+    "recomendacao_id": "46bc287f-091c-4eb7-9dd1-de9b9107ce6d",
+    "recomendacao_versao": 1,
+    "decisao": "aprovada_para_revisao_de_oportunidade",
+    "revisor_nome": "Ana Estrategista",
+    "motivo": "Contexto comercial conhecido fora da base.",
+    "override_insuficiente": true,
+    "versao_revisao": 1,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "id": "f386353b-a7fe-4202-aa59-186f1dde47f1",
+    "recomendacao_id": "744924ff-dde2-4494-9b20-4e11bc902733",
+    "recomendacao_versao": 1,
+    "decisao": "rejeitada",
+    "revisor_nome": "Bruno Coordenador",
+    "motivo": "Revisor B discorda.",
+    "override_insuficiente": false,
+    "versao_revisao": 2,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "id": "a008f816-7566-4d01-ad11-40b8a6a703c6",
+    "recomendacao_id": "bda7ebe1-91d6-45c4-9fa1-77f5c9f8f439",
+    "recomendacao_versao": 1,
+    "decisao": "rejeitada",
+    "revisor_nome": null,
+    "motivo": "Evidência fraca.",
+    "override_insuficiente": false,
+    "versao_revisao": 1,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "id": "08bf3a7d-ddc6-4a75-a9ee-7d707b3d3c58",
+    "recomendacao_id": "94af2937-7bbd-4754-968e-39ab693fd1a5",
+    "recomendacao_versao": 2,
+    "decisao": "aprovada_para_revisao_de_oportunidade",
+    "revisor_nome": null,
+    "motivo": "Nova evidência mudou o quadro.",
+    "override_insuficiente": false,
+    "versao_revisao": 1,
+    "decidido_em": "2026-08-29T19:59:41.218Z"
+  }
+]

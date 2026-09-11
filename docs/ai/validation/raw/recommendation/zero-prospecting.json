@@ -1,0 +1,135 @@
+{
+  "direcao": "prospeccao_do_zero",
+  "origem": {
+    "parte_id": null,
+    "nome": "Marca Externa Não Cadastrada",
+    "vinculo": "nao_vinculada"
+  },
+  "candidato": {
+    "parte_id": "9590a792-a619-477d-8190-e55cfde72d67",
+    "nome": "Marca Aderente",
+    "eh_cliente_cross": false,
+    "status_perfil": "completo"
+  },
+  "objetivo": "cruzar entidade externa contra a base",
+  "status": "sustentacao_insuficiente",
+  "nivel_sustentacao": "sustentacao_insuficiente",
+  "hipotese_oportunidade": null,
+  "racional": [
+    "Nenhuma hipótese foi formulada: faltam sinais calculáveis ou evidência que a sustente."
+  ],
+  "evidencias_suporte": [
+    {
+      "evidence_ref": "fact_pub0",
+      "afirmacao": "Jovens urbanos",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_pub0 · fontes:src_fact_pub0"
+    },
+    {
+      "evidence_ref": "fact_ter0",
+      "afirmacao": "Moda",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_ter0 · fontes:src_fact_ter0"
+    }
+  ],
+  "crossability_suporte": [],
+  "sinais_suporte": [],
+  "contra_evidencias": [],
+  "riscos": [
+    {
+      "texto": "Reasoning Crossability com IA real e embeddings semânticos ainda não homologados; a sustentação é estrutural.",
+      "categoria": "validacao_pendente"
+    }
+  ],
+  "questoes_abertas": [
+    "Confirmar interesse atual do candidato neste tipo de conexão.",
+    "Validar restrições comerciais ou de exclusividade não registradas na base."
+  ],
+  "lacunas": [
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"publico\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"territorio\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"ativo\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"geografico\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"segmento\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "entity_intelligence",
+      "descricao": "ativos: Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "proximo_passo": "revisar_candidato",
+  "confianca": 40,
+  "componentes_confianca": [
+    {
+      "fator": "cobertura_sinais",
+      "peso": 0.3,
+      "valor": 0,
+      "contribuicao": 0
+    },
+    {
+      "fator": "qualidade_evidencia",
+      "peso": 0.25,
+      "valor": 0.4,
+      "contribuicao": 0.1
+    },
+    {
+      "fator": "completude_perfil",
+      "peso": 0.2,
+      "valor": 1,
+      "contribuicao": 0.2
+    },
+    {
+      "fator": "crossability",
+      "peso": 0.15,
+      "valor": 0,
+      "contribuicao": 0
+    },
+    {
+      "fator": "ausencia_conflito",
+      "peso": 0.1,
+      "valor": 1,
+      "contribuicao": 0.1
+    }
+  ],
+  "nivel_validacao": "estrutural",
+  "limitacoes": [
+    "crossability_ausente",
+    "semantic_matching_pendente",
+    "embeddings_reais_pendentes"
+  ],
+  "rejeitados": [],
+  "proveniencia": {
+    "matching_direcao": "prospeccao_do_zero",
+    "matching_pesos_versao": "retrieval-v1",
+    "perfil_origem_versao": null,
+    "perfil_candidato_versao": 1,
+    "crossability_hash": null,
+    "hash_entrada": "21ab8306b1e598e5afe272505016820d"
+  },
+  "telemetria": {
+    "duracao_ms": 0,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_criados": 0,
+    "parcerias_criadas": 0,
+    "reunioes_criadas": 0,
+    "mudancas_funil": 0,
+    "score_card_executado": false
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "revisaoId": "08bf3a7d-ddc6-4a75-a9ee-7d707b3d3c58",
+    "recomendacaoVersao": 2,
+    "decisao": "aprovada_para_revisao_de_oportunidade",
+    "motivo": "Nova evidência mudou o quadro.",
+    "decididoEm": "2026-08-29T19:59:41.218Z"
+  },
+  {
+    "revisaoId": "a008f816-7566-4d01-ad11-40b8a6a703c6",
+    "recomendacaoVersao": 1,
+    "decisao": "rejeitada",
+    "motivo": "Evidência fraca.",
+    "decididoEm": "2026-08-29T19:59:41.218Z"
+  }
+]

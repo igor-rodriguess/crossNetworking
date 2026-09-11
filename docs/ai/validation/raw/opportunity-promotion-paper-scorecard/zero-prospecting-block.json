@@ -1,0 +1,5 @@
+{
+  "bloqueado": true,
+  "motivo": "requer_resolucao_de_entidade",
+  "detalhe": "A entidade de origem não está vinculada a uma Parte. Resolva o vínculo antes de promover."
+}

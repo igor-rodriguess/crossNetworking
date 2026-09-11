@@ -1,0 +1,127 @@
+{
+  "id": "30806ad2-20c8-4ea7-a242-4ee16f230f19",
+  "recomendacao_id": "d800ebaf-188a-4600-9fae-126a26fb3764",
+  "recomendacao_versao": 1,
+  "proposta_logica_id": "89fcea4d-b5e0-459b-a817-d2a5064ee992",
+  "decisao": "rejeitada",
+  "revisor_id": "a7c9d447-0e94-441d-a7eb-668ba53f428f",
+  "revisor_nome": "Ana Estrategista",
+  "snapshot_ia": {
+    "origem": {
+      "nome": "Cliente Alfa",
+      "vinculo": "vinculada",
+      "parte_id": null
+    },
+    "riscos": [
+      {
+        "texto": "Reasoning Crossability com IA real ainda não homologado.",
+        "categoria": "validacao_pendente"
+      }
+    ],
+    "status": "pronta_para_revisao",
+    "direcao": "cliente_para_parceiro",
+    "lacunas": [
+      {
+        "origem": "entity_intelligence",
+        "descricao": "ativos: Nenhum fato confirmado."
+      }
+    ],
+    "objetivo": "ativação cultural conjunta",
+    "racional": [
+      "Públicos: 2 em comum (Cultura de rua, Jovens urbanos).",
+      "Territórios: 2 em comum (Moda, Música).",
+      "A análise Crossability sustenta 2 dimensão(ões): publicos, territorios."
+    ],
+    "candidato": {
+      "nome": "Marca Rejeitada",
+      "parte_id": "c058ae65-a63a-4416-97a6-1813d3ade159",
+      "status_perfil": "completo",
+      "eh_cliente_cross": false
+    },
+    "confianca": 75,
+    "limitacoes": [
+      "crossability_real_reasoning_pendente",
+      "semantic_matching_pendente"
+    ],
+    "rejeitados": [],
+    "telemetria": {
+      "llm_calls": 0,
+      "duracao_ms": 5,
+      "mudancas_funil": 0,
+      "embedding_calls": 0,
+      "projetos_criados": 0,
+      "reunioes_criadas": 0,
+      "parcerias_criadas": 0,
+      "custo_estimado_usd": 0,
+      "score_card_executado": false,
+      "oportunidades_criadas": 0
+    },
+    "proveniencia": {
+      "hash_entrada": "hash-showcase-1",
+      "matching_direcao": "cliente_para_parceiro",
+      "crossability_hash": "hash-cross",
+      "perfil_origem_versao": 1,
+      "matching_pesos_versao": "retrieval-v1",
+      "perfil_candidato_versao": 1
+    },
+    "proximo_passo": "preparar_para_human_gate",
+    "sinais_suporte": [
+      {
+        "tipo": "publico",
+        "forca": "forte",
+        "valor": 1,
+        "descricao": "Públicos: 2 em comum.",
+        "proveniencia": "cross_intelligence.parte_publico(parte_id=…)"
+      }
+    ],
+    "nivel_validacao": "estrutural",
+    "questoes_abertas": [
+      "Confirmar interesse atual do candidato."
+    ],
+    "contra_evidencias": [
+      {
+        "tipo": "sinal_contrario",
+        "texto": "[publicos] Nenhum dado demográfico verificável; a sobreposição não é mensurável.",
+        "proveniencia": "crossability.publicos",
+        "evidence_refs": [
+          "fact_pub0"
+        ]
+      }
+    ],
+    "nivel_sustentacao": "sustentacao_forte",
+    "evidencias_suporte": [
+      {
+        "origem": "externo",
+        "afirmacao": "Jovens urbanos de 18 a 24 anos",
+        "evidence_ref": "fact_pub0",
+        "proveniencia": "evidence:fact_pub0 · fontes:src_fact_pub0"
+      }
+    ],
+    "crossability_suporte": [
+      {
+        "status": "suportado",
+        "dimensao": "publicos",
+        "confianca": 45,
+        "assessment": "media",
+        "analise_ref": "hash-cross",
+        "evidence_refs": [
+          "fact_pub0"
+        ],
+        "knowledge_refs": [
+          "K1"
+        ],
+        "nivel_validacao": "estrutural"
+      }
+    ],
+    "componentes_confianca": [],
+    "hipotese_oportunidade": "Existe uma hipótese de conexão entre Cliente Alfa e Marca Rejeitada, sustentada por convergência em público, território de atuação, segmento. A hipótese requer validação humana e não constitui avaliação de encaixe comercial."
+  },
+  "edicoes_humanas": null,
+  "motivo": "A marca já possui acordo de exclusividade incompatível, não registrado na base.",
+  "override_insuficiente": false,
+  "requer_enriquecimento": false,
+  "nivel_validacao": "estrutural",
+  "versao_revisao": 1,
+  "criado_em": "2026-08-29T19:59:41.218Z",
+  "decidido_em": "2026-08-29T19:59:41.218Z"
+}

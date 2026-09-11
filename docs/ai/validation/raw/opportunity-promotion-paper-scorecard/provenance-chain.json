@@ -1,0 +1,14 @@
+{
+  "candidaturaId": "97c1fe68-e31a-4075-b1e2-b953b502353b",
+  "promocaoId": "a55d18d3-6092-4894-82f2-e804ea4e5fca",
+  "promovidoPor": "Ana Estrategista",
+  "promovidoEm": "2026-08-29T20:20:16.104Z",
+  "revisaoId": "2d676f40-2adc-408b-8759-25907193b20a",
+  "decisaoHumana": "aprovada_para_revisao_de_oportunidade",
+  "revisor": "Ana Estrategista",
+  "recomendacaoId": "02ffa656-f398-44b6-98c9-460340d80637",
+  "recomendacaoVersao": 1,
+  "hipotese": "Existe uma hipótese de conexão entre Cliente Alfa e Marca Aderente, sustentada por convergência em público, território de atuação e segmento. Requer validação humana.",
+  "matchingPesosVersao": "retrieval-v1",
+  "crossabilityHash": "hash-cross-showcase"
+}

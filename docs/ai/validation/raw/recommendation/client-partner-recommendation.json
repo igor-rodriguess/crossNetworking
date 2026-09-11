@@ -1,0 +1,226 @@
+{
+  "direcao": "cliente_para_parceiro",
+  "origem": {
+    "parte_id": "74740d1b-ee21-4176-8b8a-f51fbaa6eca6",
+    "nome": "Cliente Alfa",
+    "vinculo": "vinculada"
+  },
+  "candidato": {
+    "parte_id": "9590a792-a619-477d-8190-e55cfde72d67",
+    "nome": "Marca Aderente",
+    "eh_cliente_cross": false,
+    "status_perfil": "completo"
+  },
+  "objetivo": "ativação cultural conjunta",
+  "status": "pronta_para_revisao",
+  "nivel_sustentacao": "sustentacao_forte",
+  "hipotese_oportunidade": "Existe uma hipótese de conexão entre Cliente Alfa e Marca Aderente no contexto de \"ativação cultural conjunta\", sustentada por convergência em público, território de atuação, segmento. A hipótese requer validação humana e não constitui avaliação de encaixe comercial.",
+  "racional": [
+    "Públicos: 2 em comum (Cultura de rua, Jovens urbanos). (proveniência: cross_intelligence.parte_publico(parte_id=9590a792-a619-477d-8190-e55cfde72d67))",
+    "Territórios: 2 em comum (Moda, Música). (proveniência: cross_intelligence.parte_territorio(parte_id=9590a792-a619-477d-8190-e55cfde72d67))",
+    "Segmento: ambos em \"Vestuário\". (proveniência: cross_core.organizacao(parte_id=9590a792-a619-477d-8190-e55cfde72d67).segmento_principal)",
+    "A análise Crossability sustenta 2 dimensão(ões): publicos, territorios.",
+    "Contexto de priorização: o candidato ficou com pre_match_score 66.67 no Internal Matching — número de retrieval, não avaliação comercial.",
+    "2 ponto(s) contrário(s) foram registrados e permanecem abertos."
+  ],
+  "evidencias_suporte": [
+    {
+      "evidence_ref": "fact_pub0",
+      "afirmacao": "Jovens urbanos",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_pub0 · fontes:src_fact_pub0"
+    },
+    {
+      "evidence_ref": "fact_pub1",
+      "afirmacao": "Cultura de rua",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_pub1 · fontes:src_fact_pub1"
+    },
+    {
+      "evidence_ref": "fact_ter0",
+      "afirmacao": "Moda",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_ter0 · fontes:src_fact_ter0"
+    },
+    {
+      "evidence_ref": "fact_ter1",
+      "afirmacao": "Música",
+      "origem": "externo",
+      "proveniencia": "evidence:fact_ter1 · fontes:src_fact_ter1"
+    }
+  ],
+  "crossability_suporte": [
+    {
+      "analise_ref": "hash-cross-showcase",
+      "dimensao": "publicos",
+      "assessment": "media",
+      "status": "suportado",
+      "confianca": 45,
+      "evidence_refs": [
+        "fact_pub0"
+      ],
+      "knowledge_refs": [
+        "K1"
+      ],
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "analise_ref": "hash-cross-showcase",
+      "dimensao": "territorios",
+      "assessment": "baixa",
+      "status": "suportado",
+      "confianca": 30,
+      "evidence_refs": [
+        "fact_ter0"
+      ],
+      "knowledge_refs": [
+        "K2"
+      ],
+      "nivel_validacao": "estrutural"
+    },
+    {
+      "analise_ref": "hash-cross-showcase",
+      "dimensao": "momento",
+      "assessment": "indeterminado",
+      "status": "insuficiente",
+      "confianca": 15,
+      "evidence_refs": [],
+      "knowledge_refs": [],
+      "nivel_validacao": "estrutural"
+    }
+  ],
+  "sinais_suporte": [
+    {
+      "tipo": "publico",
+      "forca": "forte",
+      "valor": 1,
+      "descricao": "Públicos: 2 em comum (Cultura de rua, Jovens urbanos).",
+      "proveniencia": "cross_intelligence.parte_publico(parte_id=9590a792-a619-477d-8190-e55cfde72d67)"
+    },
+    {
+      "tipo": "territorio",
+      "forca": "forte",
+      "valor": 1,
+      "descricao": "Territórios: 2 em comum (Moda, Música).",
+      "proveniencia": "cross_intelligence.parte_territorio(parte_id=9590a792-a619-477d-8190-e55cfde72d67)"
+    },
+    {
+      "tipo": "segmento",
+      "forca": "forte",
+      "valor": 1,
+      "descricao": "Segmento: ambos em \"Vestuário\".",
+      "proveniencia": "cross_core.organizacao(parte_id=9590a792-a619-477d-8190-e55cfde72d67).segmento_principal"
+    }
+  ],
+  "contra_evidencias": [
+    {
+      "texto": "[publicos] Nenhum dado demográfico verificável; a sobreposição não é mensurável.",
+      "tipo": "sinal_contrario",
+      "evidence_refs": [
+        "fact_pub0"
+      ],
+      "proveniencia": "crossability.publicos"
+    },
+    {
+      "texto": "[territorios] A metodologia separa escopo de campanha de território de atuação.",
+      "tipo": "sinal_contrario",
+      "evidence_refs": [
+        "fact_ter0"
+      ],
+      "proveniencia": "crossability.territorios"
+    }
+  ],
+  "riscos": [
+    {
+      "texto": "Reasoning Crossability com IA real e embeddings semânticos ainda não homologados; a sustentação é estrutural.",
+      "categoria": "validacao_pendente"
+    }
+  ],
+  "questoes_abertas": [
+    "Confirmar interesse atual do candidato neste tipo de conexão.",
+    "Validar restrições comerciais ou de exclusividade não registradas na base."
+  ],
+  "lacunas": [
+    {
+      "origem": "perfil_candidato",
+      "descricao": "Sinal \"geografico\" não avaliável: dados ausentes em um dos lados."
+    },
+    {
+      "origem": "crossability",
+      "descricao": "[publicos] Faixa etária e região não confirmadas."
+    },
+    {
+      "origem": "crossability",
+      "descricao": "[territorios] Presença continuada não confirmada."
+    },
+    {
+      "origem": "crossability",
+      "descricao": "[momento] Nenhuma evidência datada."
+    },
+    {
+      "origem": "entity_intelligence",
+      "descricao": "ativos: Nenhum fato confirmado sobre ativos."
+    }
+  ],
+  "proximo_passo": "preparar_para_human_gate",
+  "confianca": 75,
+  "componentes_confianca": [
+    {
+      "fator": "cobertura_sinais",
+      "peso": 0.3,
+      "valor": 0.5,
+      "contribuicao": 0.15
+    },
+    {
+      "fator": "qualidade_evidencia",
+      "peso": 0.25,
+      "valor": 0.8,
+      "contribuicao": 0.2
+    },
+    {
+      "fator": "completude_perfil",
+      "peso": 0.2,
+      "valor": 1,
+      "contribuicao": 0.2
+    },
+    {
+      "fator": "crossability",
+      "peso": 0.15,
+      "valor": 0.667,
+      "contribuicao": 0.1
+    },
+    {
+      "fator": "ausencia_conflito",
+      "peso": 0.1,
+      "valor": 1,
+      "contribuicao": 0.1
+    }
+  ],
+  "nivel_validacao": "estrutural",
+  "limitacoes": [
+    "crossability_real_reasoning_pendente",
+    "semantic_matching_pendente",
+    "embeddings_reais_pendentes"
+  ],
+  "rejeitados": [],
+  "proveniencia": {
+    "matching_direcao": "cliente_para_parceiro",
+    "matching_pesos_versao": "retrieval-v1",
+    "perfil_origem_versao": 1,
+    "perfil_candidato_versao": 1,
+    "crossability_hash": "hash-cross-showcase",
+    "hash_entrada": "6ead66aca0f960e5719f042cd827bb13"
+  },
+  "telemetria": {
+    "duracao_ms": 1,
+    "llm_calls": 0,
+    "embedding_calls": 0,
+    "custo_estimado_usd": 0,
+    "oportunidades_criadas": 0,
+    "projetos_criados": 0,
+    "parcerias_criadas": 0,
+    "reunioes_criadas": 0,
+    "mudancas_funil": 0,
+    "score_card_executado": false
+  }
+}
